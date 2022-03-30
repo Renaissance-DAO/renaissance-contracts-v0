@@ -1,58 +1,87 @@
-// SPDX-License-Identifier: MIT
-pragma solidity 0.8.11;
+
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./Ifo.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract IfoFactory is Ownable {
-    mapping(address => address) public ifo;
+import "./InitializedProxy.sol";
+import "./IFO.sol";
+import "./interfaces/IFNFT.sol";
 
-    event IfoCreated(
-        address indexed _fNFT, 
-        address indexed _ifo, 
-        address _creator, 
-        uint256 _amount, 
-        uint256 _price, 
-        uint256 _cap
+contract IFOFactory is Ownable, Pausable {
+  /// @notice the number of ERC721 vaults
+  uint256 public vaultCount;
+
+  /// @notice the mapping of vault number to vault contract
+  mapping(uint256 => address) public vaults;
+
+  /// @notice a settings contract controlled by governance
+  address public immutable settings;
+  /// @notice the TokenVault logic contract
+  address public immutable logic;
+
+  event IfoCreated(
+    address _IFO,
+    address _FNFT,
+    uint256 _amountForSale,
+    uint256 _price,
+    uint256 _cap,
+    bool _allowWhitelisting
+  );
+
+  error AlreadyExists();
+
+  constructor(address _ifoSettings) {
+    settings = _ifoSettings;
+    logic = address(new IFO(_ifoSettings));
+  }
+
+  /// @notice the function to create a ifo
+  /// @param _FNFT the desired name of the vault
+  /// @param _amountForSale the desired sumbol of the vault
+  /// @param _price the ERC721 token address fo the NFT
+  /// @param _cap the uint256 ID of the token
+  /// @param _allowWhitelisting the initial price of the NFT
+  function create(
+    address _FNFT,
+    uint256 _amountForSale,
+    uint256 _price,
+    uint256 _cap,
+    bool _allowWhitelisting
+  ) external whenNotPaused {
+    bytes memory _initializationCalldata =
+      abi.encodeWithSignature(
+        "initialize(address,uint256,uint256,uint256,bool)",
+        _FNFT,
+        _amountForSale,
+        _price,
+        _cap,
+        _allowWhitelisting
     );
 
-    error AlreadyExists();
-    error InvalidAddress();
-    error OnlyFullOwner();
-    error InvalidAmountForSale();
-    error PriceZero();
-    error CapZero();
+    address _IFO = address(
+      new InitializedProxy(
+        logic,
+        _initializationCalldata
+      )
+    );
 
-    function createIFO(
-        address _fNFT,
-        uint256 _amountForSale,
-        uint256 _price,
-        uint256 _cap,
-        bool _allowWhitelisting
-    ) external returns(address) {
-        if ( ifo[_fNFT] == address(0) ) revert AlreadyExists();
-        if ( _fNFT == address(0) ) revert InvalidAddress();
-        if (IfNFT( address(_fNFT) ).balanceOf(msg.sender) != IfNFT( address(_fNFT) ).totalSupply() ) revert OnlyFullOwner();
-        if (
-            _amountForSale == 0 || 
-            _amountForSale > IfNFT( address(_fNFT) ).balanceOf(msg.sender) || 
-            _amountForSale % _cap != 0
-        ) revert InvalidAmountForSale();
-        if ( _price == 0 ) revert PriceZero();
-        if ( _cap == 0 ) revert CapZero();
+    emit IfoCreated(
+        _IFO,
+        _FNFT,
+        _amountForSale,
+        _price,
+        _cap,
+        _allowWhitelisting
+    );
+  }
 
-        address _ifo = address(new Ifo(
-            _fNFT,
-            _amountForSale,
-            _price,
-            _cap,
-            _allowWhitelisting
-        ));
+  function pause() external onlyOwner {
+    _pause();
+  }
 
-        ifo[_fNFT] = _ifo;
-
-        emit IfoCreated(_fNFT, _ifo, msg.sender, _amountForSale, _price, _cap);
-
-        return _ifo;
-    }
+  function unpause() external onlyOwner {
+    _unpause();
+  }
 }

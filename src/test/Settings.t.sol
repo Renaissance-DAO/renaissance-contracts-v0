@@ -3,24 +3,23 @@ pragma solidity ^0.8.0;
 
 import "ds-test/test.sol";
 
-import "../contracts/Settings.sol";
+import "../contracts/FNFTSettings.sol";
 import "../contracts/mocks/NFT.sol";
 import {CheatCodes} from "./utils/cheatcodes.sol";
 
 /// @author andy8052
 /// @title Tests for the settings
-contract SettingsTest is DSTest {
+contract FNFTSettingsTest is DSTest {
     CheatCodes public cheatcodes;
 
-    Settings public settings;
+    FNFTSettings public settings;
     MockNFT public token;
     MockNFT public token2;
 
     function setUp() public {
-        // hevm "cheatcode", see: https://github.com/dapphub/dapptools/tree/master/src/hevm#cheat-codes
         cheatcodes = CheatCodes(HEVM_ADDRESS);
 
-        settings = new Settings();
+        settings = new FNFTSettings(address(0), address(0));
 
         token = new MockNFT();
         token2 = new MockNFT();

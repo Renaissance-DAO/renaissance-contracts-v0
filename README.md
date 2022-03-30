@@ -47,3 +47,11 @@ npx hardhat run --network aurora_testnet dev-scripts/deploy.js
 
 ### Deploy to Aurora
 npx hardhat run --network aurora scripts/deploy.js
+
+## setup forge test
+install usbmodule
+`git submodule add URL`
+install submodules
+`git submodule update --init`
+install cargo
+`curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs/ | sh`

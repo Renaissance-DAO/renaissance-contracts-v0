@@ -1,6 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-
-pragma solidity ^0.8.11;
+pragma solidity 0.8.11;
 
 interface Token {
     function balanceOf(address _owner) external view returns (uint256 balance);
