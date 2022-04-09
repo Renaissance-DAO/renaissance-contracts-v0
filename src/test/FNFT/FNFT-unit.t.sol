@@ -3,15 +3,16 @@ pragma solidity ^0.8.11;
 
 import "ds-test/test.sol";
 
-import {FNFTSettings} from "../contracts/FNFTSettings.sol";
-import {PriceOracle, IPriceOracle} from "../contracts/PriceOracle.sol";
-import {FNFTFactory, ERC721Holder} from "../contracts/FNFTFactory.sol";
-import {FNFT} from "../contracts/FNFT.sol";
-import {MockNFT} from "../contracts/mocks/NFT.sol";
-import {WETH} from "../contracts/mocks/WETH.sol";
-import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH} from "./utils/utils.sol";
+import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import {FNFTSettings} from "../../contracts/FNFTSettings.sol";
+import {PriceOracle, IPriceOracle} from "../../contracts/PriceOracle.sol";
+import {FNFTFactory} from "../../contracts/FNFTFactory.sol";
+import {FNFT} from "../../contracts/FNFT.sol";
+import {MockNFT} from "../../contracts/mocks/NFT.sol";
+import {WETH} from "../../contracts/mocks/WETH.sol";
+import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH} from "../utils/utils.sol";
 
-/// @author Nibble Market
+/// @author modified for RenaissanceDAO - originals written by Nibble Market
 /// @title Tests for the vaults
 contract FNFTTest is DSTest, ERC721Holder {
     CheatCodes public vm;

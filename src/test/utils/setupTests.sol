@@ -8,6 +8,10 @@ import {PriceOracle} from "../../contracts/PriceOracle.sol";
 import {UniswapV2Factory} from "../../contracts/libraries/uniswap-v2/UniswapV2Factory.sol";
 
 library SetupEnvironment {
+    function setupVM() public pure returns (CheatCodes vm) {
+        vm = CheatCodes(address(bytes20(uint160(uint256(keccak256("hevm cheat code"))))));
+    }
+
     function setupWETH(uint256 amountToMint) public returns (WETH weth) {
         weth = new WETH(amountToMint, "Wrapped Ether", 18, "WETH");
     }
@@ -29,7 +33,7 @@ library SetupEnvironment {
             PriceOracle priceOracle
         )
     {
-        vm = CheatCodes(address(bytes20(uint160(uint256(keccak256("hevm cheat code"))))));
+        vm = setupVM();
         weth = setupWETH(10 ether);
         v2Factory = setupV2Factory();
         priceOracle = setupPriceOracle(address(v2Factory), address(weth));

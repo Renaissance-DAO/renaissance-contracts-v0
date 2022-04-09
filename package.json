@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "forge test -vvvv",
+    "test:integration": "forge test --match-contract FNFTIntegrationTest -w --run-all --fork-url https://mainnet.aurora.dev --fork-block-number 63121792 -vvv",
     "build": "forge build"
   },
   "author": "",

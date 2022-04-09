@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "../../../lib/ds-test/src/test.sol";
-
-import {FNFTFactory, ERC721Holder} from "../../contracts/FNFTFactory.sol";
+import {ERC721Holder} from "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import {FNFTFactory} from "../../contracts/FNFTFactory.sol";
 import {FNFT} from "../../contracts/FNFT.sol";
 import {MockNFT} from "../../contracts/mocks/NFT.sol";
 import {WETH} from "../../contracts/mocks/WETH.sol";
