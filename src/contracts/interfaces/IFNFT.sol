@@ -9,6 +9,8 @@ interface IFNFT {
         Redeemed
     }
 
+    function decimals() external returns (uint8);
+
     function balanceOf(address _account) external returns (uint256);
 
     function totalSupply() external returns (uint256);
@@ -22,6 +24,6 @@ interface IFNFT {
     function approve(address spender, uint256 amount) external returns (bool);
 
     function transfer(address to, uint256 amount) external returns (bool);
-    
+
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
 }

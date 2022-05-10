@@ -263,7 +263,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
 
         fNFTIfo.updateFNFTAddress(address(user2));
 
-        assertEq(address(fNFTIfo.FNFT()), address(user2));
+        assertEq(address(fNFTIfo.fnft()), address(user2));
     }
 
     function testFail_updateFNFTAddresZeroAddress() public {
