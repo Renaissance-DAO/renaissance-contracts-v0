@@ -61,7 +61,7 @@ contract IFOFactory is OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeabl
         address _IFO = address(new BeaconProxy(address(this), _initializationCalldata));
         getIFO[_FNFT] = _IFO;
 
-        IERC20(_FNFT).transferFrom(msg.sender, _IFO, IERC20(_FNFT).balanceOf(msg.sender));
+        IERC20(_FNFT).transferFrom(msg.sender, _IFO, _amountForSale);
 
         emit IFOCreated(_IFO, _FNFT, _amountForSale, _price, _cap, _duration, _allowWhitelisting);
 
