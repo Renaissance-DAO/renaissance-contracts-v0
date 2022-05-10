@@ -117,11 +117,11 @@ contract IFO is Initializable {
         cap = _cap;
         allowWhitelisting = _allowWhitelisting;
         duration = _duration;
-        lockedSupply = 0;
 
         /// @notice approve fNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
-        if (IIFOSettings(settings).creatorUtilityContract() != address(0)) {
-            fnft.approve(IIFOSettings(settings).creatorUtilityContract(), fnft.totalSupply());
+        address creatorUtilityContract = IIFOSettings(settings).creatorUtilityContract();
+        if (creatorUtilityContract != address(0)) {
+            fnft.approve(creatorUtilityContract, totalSupply);
         }
     }
 
@@ -303,8 +303,9 @@ contract IFO is Initializable {
 
     /// @notice approve fNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
     function approve() public onlyCurator {
-        if (IIFOSettings(settings).creatorUtilityContract() == address(0)) revert InvalidAddress();
-        fnft.approve(IIFOSettings(settings).creatorUtilityContract(), fnft.totalSupply());
+        address creatorUtilityContract = IIFOSettings(settings).creatorUtilityContract();
+        if (creatorUtilityContract == address(0)) revert InvalidAddress();
+        fnft.approve(creatorUtilityContract, fnft.totalSupply());
     }
 
     //Helper functions
