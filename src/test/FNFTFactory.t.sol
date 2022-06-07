@@ -29,7 +29,7 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
     }
 
     function testSetMaxAuctionLengthTooHigh() public {
-        vm.expectRevert(fnftFactory.MaxAuctionLengthTooHigh.selector);
+        vm.expectRevert(FNFTFactory.MaxAuctionLengthTooHigh.selector);
         fnftFactory.setMaxAuctionLength(10 weeks);
     }
 
