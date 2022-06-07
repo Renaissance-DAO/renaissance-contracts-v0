@@ -26,4 +26,6 @@ interface IFNFT {
     function transfer(address to, uint256 amount) external returns (bool);
 
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
+
+    function setVaultMetadata(string calldata name_, string calldata symbol_) external;
 }

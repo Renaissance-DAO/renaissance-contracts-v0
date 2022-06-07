@@ -1,5 +1,5 @@
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.11;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.13;
 
 import "ds-test/test.sol";
 
@@ -14,14 +14,11 @@ import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
 import {MockNFT} from "../contracts/mocks/NFT.sol";
 import {WETH} from "../contracts/mocks/WETH.sol";
 import {CheatCodes, SetupEnvironment, User, Curator, UserNoETH, PairWithFNFTAndWETH} from "./utils/utils.sol";
-import {SafeMath} from "../contracts/libraries/math/SafeMath.sol";
 
 
 // Test FNFT reserve price logic with PriceOracle to verify whether if it returns the correct price based
 // on different conditions.
 contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
-    using SafeMath for uint256;
-
     IPriceOracle public priceOracle;
     IUniswapV2Factory public pairFactory;
     FNFTFactory public fnftFactory;

@@ -571,6 +571,13 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
         emit Cash(msg.sender, share);
     }
 
+    function setVaultMetadata(
+        string calldata name_,
+        string calldata symbol_
+    ) external onlyCurator {
+        _setMetadata(name_, symbol_);
+    }
+
     // Will attempt to transfer ETH, but will transfer WETH instead if it fails.
     function _sendETHOrWETH(address to, uint256 value) internal {
         // Try to transfer ETH to the given recipient.

@@ -583,5 +583,20 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         assertEq(fnft.getQuorum(), 4000);
     }
 
+    function testSetVaultMetadata() public {
+        assertEq(fnft.name(), "testName");
+        assertEq(fnft.symbol(), "TEST");
+        vm.prank(fnft.curator());
+        fnft.setVaultMetadata("Bored Ape", "BAYC");
+        assertEq(fnft.name(), "Bored Ape");
+        assertEq(fnft.symbol(), "BAYC");
+    }
+
+    function testSetVaultMetadataNotCurator() public {
+        vm.expectRevert(FNFT.NotCurator.selector);
+        vm.prank(address(user1));
+        fnft.setVaultMetadata("Bored Ape", "BAYC");
+    }
+
     receive() external payable {}
 }
