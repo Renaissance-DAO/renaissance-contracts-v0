@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import "./FNFTSettings.sol";
+import "./FNFTFactory.sol";
 import "./interfaces/IWETH.sol";
 import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IIFO.sol";
@@ -57,7 +57,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     /// -----------------------------------
 
     /// @notice the governance contract which gets paid in ETH
-    address public immutable settings;
+    address public factory;
 
     /// @notice whether or not this FNFT has been verified by DAO
     bool public verified;
@@ -131,10 +131,6 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     error AuctionNotLive();
     error NoTokens();
 
-    constructor(address _settings) {
-        settings = _settings;
-    }
-
     function initialize(
         address _curator,
         address _token,
@@ -149,9 +145,10 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
         __ERC20_init(_name, _symbol);
         __ERC721Holder_init();
 
-        if (_fee > IFNFTSettings(settings).maxCuratorFee()) revert FeeTooHigh();
+        if (_fee > IFNFTFactory(factory).maxCuratorFee()) revert FeeTooHigh();
 
         // set storage variables
+        factory = msg.sender;
         token = _token;
         id = _id;
         auctionLength = 3 days;
@@ -170,7 +167,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     }
 
     modifier onlyGov() {
-        if (msg.sender != OwnableUpgradeable(settings).owner()) revert NotGov();
+        if (msg.sender != OwnableUpgradeable(factory).owner()) revert NotGov();
         _;
     }
 
@@ -233,7 +230,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     /// @param _length the new base price
     function updateAuctionLength(uint256 _length) external onlyCurator {
         if (
-            _length < IFNFTSettings(settings).minAuctionLength() || _length > IFNFTSettings(settings).maxAuctionLength()
+            _length < IFNFTFactory(factory).minAuctionLength() || _length > IFNFTFactory(factory).maxAuctionLength()
         ) revert InvalidAuctionLength();
 
         auctionLength = _length;
@@ -244,7 +241,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     /// @param _fee the new fee
     function updateFee(uint256 _fee) external onlyCurator {
         if (_fee >= fee) revert CanNotRaise();
-        if (_fee > IFNFTSettings(settings).maxCuratorFee()) revert FeeTooHigh();
+        if (_fee > IFNFTFactory(factory).maxCuratorFee()) revert FeeTooHigh();
 
         _claimFees();
 
@@ -271,8 +268,8 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
         uint256 curatorMint = sinceLastClaim * feePerSecond;
 
         // now lets do the same for governance
-        address govAddress = IFNFTSettings(settings).feeReceiver();
-        uint256 govFee = IFNFTSettings(settings).governanceFee();
+        address govAddress = IFNFTFactory(factory).feeReceiver();
+        uint256 govFee = IFNFTFactory(factory).governanceFee();
         currentAnnualFee = (govFee * totalSupply()) / 10000;
         feePerSecond = currentAnnualFee / 31536000;
         uint256 govMint = sinceLastClaim * feePerSecond;
@@ -306,7 +303,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
         _claimFees();
 
         // deposit weth
-        IWETH(IFNFTSettings(settings).WETH()).deposit{value: msg.value}();
+        IWETH(IFNFTFactory(factory).WETH()).deposit{value: msg.value}();
 
         // transfer erc721 to buyer
         IERC721(token).transferFrom(address(this), msg.sender, id);
@@ -317,7 +314,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     }
 
     function buyItNowPrice() public view returns (uint256) {
-        return (_getAuctionPrice() * IFNFTSettings(settings).instantBuyMultiplier()) / 10;
+        return (_getAuctionPrice() * IFNFTFactory(factory).instantBuyMultiplier()) / 10;
     }
 
     /// @notice a function for an end user to update their desired sale price
@@ -374,7 +371,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     }
 
     function _getQuorum() internal view returns (uint256) {
-        IIFO ifo = IIFO(IIFOFactory(IFNFTSettings(settings).ifoFactory()).getIFO(address(this)));
+        IIFO ifo = IIFO(IIFOFactory(IFNFTFactory(factory).ifoFactory()).getIFO(address(this)));
         if (address(ifo) != address(0) && ifo.ended() && ifo.fnftLocked()) {
             return votingTokens * 10000 / (totalSupply() - ifo.lockedSupply());
         } else {
@@ -383,12 +380,12 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     }
 
     function _getAuctionPrice() internal view returns (uint256) {
-        address priceOracle = IFNFTSettings(settings).priceOracle();
-        bool aboveQuorum = _getQuorum() > IFNFTSettings(settings).minVotePercentage();
+        address priceOracle = IFNFTFactory(factory).priceOracle();
+        bool aboveQuorum = _getQuorum() > IFNFTFactory(factory).minVotePercentage();
         uint256 _reservePrice = reservePrice();
 
         if (address(priceOracle) != address(0)) {
-            address weth = IFNFTSettings(settings).WETH();
+            address weth = IFNFTFactory(factory).WETH();
             IUniswapV2Pair pair = IUniswapV2Pair(IPriceOracle(priceOracle).getPairAddress(address(this), weth));
             uint256 reserve1;
             uint256 twapPrice;
@@ -397,7 +394,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
                 twapPrice = _getTWAP();
             }
 
-            bool aboveLiquidityThreshold = reserve1 * 2 > IFNFTSettings(settings).liquidityThreshold();
+            bool aboveLiquidityThreshold = reserve1 * 2 > IFNFTFactory(factory).liquidityThreshold();
 
             if (aboveLiquidityThreshold) {
                 if (aboveQuorum) {
@@ -424,7 +421,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     }
 
     function _getTWAP() internal view returns (uint256) {
-        try IPriceOracle(IFNFTSettings(settings).priceOracle()).getfNFTPriceETH(address(this), totalSupply()) returns (uint256 twapPrice) {
+        try IPriceOracle(IFNFTFactory(factory).priceOracle()).getfNFTPriceETH(address(this), totalSupply()) returns (uint256 twapPrice) {
             return twapPrice;
         } catch {
             return 0;
@@ -433,9 +430,9 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
 
     /// @notice makes sure that the new price does not impact the reserve drastically
     function _validateUserPrice(uint256 prevUserReserve, uint256 newUserReserve) private view {
-        uint256 reservePriceMin = (prevUserReserve * IFNFTSettings(settings).minReserveFactor()) / 10000;
+        uint256 reservePriceMin = (prevUserReserve * IFNFTFactory(factory).minReserveFactor()) / 10000;
         if (newUserReserve < reservePriceMin) revert PriceTooLow();
-        uint256 reservePriceMax = (prevUserReserve * IFNFTSettings(settings).maxReserveFactor()) / 10000;
+        uint256 reservePriceMax = (prevUserReserve * IFNFTFactory(factory).maxReserveFactor()) / 10000;
         if (newUserReserve > reservePriceMax) revert PriceTooHigh();
     }
 
@@ -488,7 +485,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
         address,
         uint256
     ) internal virtual override {
-        address priceOracle = IFNFTSettings(settings).priceOracle();
+        address priceOracle = IFNFTFactory(factory).priceOracle();
         if (priceOracle != address(0)) {
             IPriceOracle(priceOracle).updatefNFTPairInfo(address(this));
         }
@@ -512,7 +509,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     /// @notice an external function to bid on purchasing the vaults NFT. The msg.value is the bid amount
     function bid() external payable {
         if (auctionState != State.Live) revert AuctionNotLive();
-        uint256 increase = IFNFTSettings(settings).minBidIncrease() + 10000;
+        uint256 increase = IFNFTFactory(factory).minBidIncrease() + 10000;
         if (msg.value * 10000 < livePrice * increase) revert BidTooLow();
         if (block.timestamp >= auctionEnd) revert AuctionEnded();
 
@@ -585,7 +582,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
             // If the transfer fails, wrap and send as WETH, so that
             // the auction is not impeded and the recipient still
             // can claim ETH via the WETH contract (similar to escrow).
-            IWETH weth = IWETH(IFNFTSettings(settings).WETH());
+            IWETH weth = IWETH(IFNFTFactory(factory).WETH());
             weth.deposit{value: value}();
             weth.transfer(to, value);
             // At this point, the recipient can unwrap WETH.

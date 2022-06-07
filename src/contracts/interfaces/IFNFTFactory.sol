@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 import {IPriceOracle} from "./IPriceOracle.sol";
 import {IWETH} from "./IWETH.sol";
 
-interface IFNFTSettings {
+interface IFNFTFactory {
     function priceOracle() external view returns (address);
 
     function ifoFactory() external view returns (address);
