@@ -3,7 +3,6 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "../FNFTSettings.sol";
 import "../FNFTFactory.sol";
 import "../IFOSettings.sol";
 import "../IFOFactory.sol";
@@ -64,44 +63,21 @@ contract Deployer is Ownable {
         emit ProxyDeployed(IFO_SETTINGS, ifoSettings, msg.sender);
     }
 
-    /// @notice the function to deploy FNFTSettings
+    /// @notice the function to deploy FNFTFactory
     /// @param _logic the implementation
-    /// @param _weth variable needed for FNFTSettings
-    /// @param _ifoFactory variable needed for FNFTSettings
-    function deployFNFTSettings(
+    /// @param _weth variable needed for FNFTFactory
+    /// @param _ifoFactory variable needed for FNFTFactory
+    function deployFNFTFactory(
         address _logic,
         address _weth,
         address _ifoFactory
-    ) external onlyOwner returns (address fnftSettings) {
-        if (address(proxyController) == address(0)) revert NoController();
-
-        bytes memory _initializationCalldata = abi.encodeWithSelector(
-            FNFTSettings.initialize.selector,
-            _weth,
-            _ifoFactory
-        );
-
-        fnftSettings = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));
-        IFNFTSettings(fnftSettings).setFeeReceiver(payable(msg.sender));
-        IOwnable(fnftSettings).transferOwnership(msg.sender);
-
-        proxyController.deployerUpdateProxy(FNFT_SETTINGS, fnftSettings);
-
-        emit ProxyDeployed(FNFT_SETTINGS, fnftSettings, msg.sender);
-    }
-
-    /// @notice the function to deploy FNFTFactory
-    /// @param _logic the implementation
-    /// @param _fnftSettings variable needed for FNFTFactory
-    function deployFNFTFactory(
-        address _logic,
-        address _fnftSettings
     ) external onlyOwner returns (address fnftFactory) {
         if (address(proxyController) == address(0)) revert NoController();
 
         bytes memory _initializationCalldata = abi.encodeWithSelector(
             FNFTFactory.initialize.selector,
-            _fnftSettings
+            _weth,
+            _ifoFactory
         );
 
         fnftFactory = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));

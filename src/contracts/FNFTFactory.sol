@@ -6,13 +6,16 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-import "./FNFTSettings.sol";
 import "./FNFT.sol";
 import "./proxy/BeaconUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
 import "./interfaces/IFNFTFactory.sol";
 
-contract FNFTFactory is OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeable, IFNFTFactory {
+contract FNFTFactory is 
+    OwnableUpgradeable, 
+    PausableUpgradeable, 
+    BeaconUpgradeable, 
+    IFNFTFactory {
     /// @notice a mapping of fNFT ids (see getFnftId) to the address of the fNFT contract
     mapping(bytes32 => address) public fnfts;
 
@@ -117,12 +120,23 @@ contract FNFTFactory is OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeab
     error ZeroAddressDisallowed();
     error MultiplierTooLow();
 
-    function initialize(
-        address _fnftSettings
-    ) external initializer {
+    function initialize(address _weth, address _ifoFactory) external initializer {        
         __Ownable_init();
         __Pausable_init();
-        __BeaconUpgradeable__init(address(new FNFT(_fnftSettings)));
+        __BeaconUpgradeable__init(address(new FNFT()));
+
+        WETH = _weth;
+        ifoFactory = _ifoFactory;
+        maxAuctionLength = 2 weeks;
+        minAuctionLength = 3 days;
+        feeReceiver = payable(msg.sender);
+        minReserveFactor = 2000; // 20%
+        maxReserveFactor = 50000; // 500%
+        minBidIncrease = 500; // 5%
+        maxCuratorFee = 1000;
+        minVotePercentage = 2500; // 25%
+        liquidityThreshold = 15e18; // ~$30,000 USD in ETH
+        instantBuyMultiplier = 15; // instant buy allowed if 1.5x MC
     }
 
     /// @notice the function to mint a fNFT
@@ -175,23 +189,6 @@ contract FNFTFactory is OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeab
 
     function unpause() external onlyOwner {
         _unpause();
-    }
-
-    function initialize(address _weth, address _ifoFactory) external initializer {
-        __Ownable_init();
-
-        WETH = _weth;
-        ifoFactory = _ifoFactory;
-        maxAuctionLength = 2 weeks;
-        minAuctionLength = 3 days;
-        feeReceiver = payable(msg.sender);
-        minReserveFactor = 2000; // 20%
-        maxReserveFactor = 50000; // 500%
-        minBidIncrease = 500; // 5%
-        maxCuratorFee = 1000;
-        minVotePercentage = 2500; // 25%
-        liquidityThreshold = 15e18; // ~$30,000 USD in ETH
-        instantBuyMultiplier = 15; // instant buy allowed if 1.5x MC
     }
 
     function setPriceOracle(address _newOracle) external onlyOwner {

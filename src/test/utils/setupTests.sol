@@ -10,8 +10,6 @@ import {WETH} from "../../contracts/mocks/WETH.sol";
 import {PriceOracle} from "../../contracts/PriceOracle.sol";
 import {IFOSettings} from "../../contracts/IFOSettings.sol";
 import {IFOFactory} from "../../contracts/IFOFactory.sol";
-import {FNFTSettings} from "../../contracts/FNFTSettings.sol";
-import {FNFTFactory} from "../../contracts/FNFTFactory.sol";
 import {StakingTokenProvider} from "../../contracts/StakingTokenProvider.sol";
 import {FNFTCollectionFactory} from "../../contracts/FNFTCollectionFactory.sol";
 import {FNFTCollection} from "../../contracts/FNFTCollection.sol";
@@ -66,17 +64,11 @@ contract SetupEnvironment {
         );
     }
 
-    function setupFNFTSettings(address _ifoFactory, address _priceOracle) public returns (FNFTSettings fnftSettings) {
-        fnftSettings = FNFTSettings(
-            deployer.deployFNFTSettings(address(new FNFTSettings()), address(weth), _ifoFactory)
-        );
-        fnftSettings.setPriceOracle(_priceOracle);
-    }
-
-    function setupFNFTFactory(address _fnftSettings) public returns (FNFTFactory fnftFactory) {
+    function setupFNFTFactory(address _ifoFactory, address _priceOracle) public returns (FNFTFactory fnftFactory) {
         fnftFactory = FNFTFactory(
-            deployer.deployFNFTFactory(address(new FNFTFactory()), address(_fnftSettings))
+            deployer.deployFNFTFactory(address(new FNFTFactory()), address(weth), _ifoFactory)
         );
+        fnftFactory.setPriceOracle(_priceOracle);
     }
 
     function setupFNFT(address _fnftFactory, uint256 _amountToMint) public returns (FNFT fnft) {
@@ -146,7 +138,6 @@ contract SetupEnvironment {
             PriceOracle priceOracle,
             IFOSettings ifoSettings,
             IFOFactory ifoFactory,
-            FNFTSettings fnftSettings,
             FNFTFactory fnftFactory,
             FNFT fnft
         )
@@ -155,8 +146,7 @@ contract SetupEnvironment {
         priceOracle = setupPriceOracle(address(pairFactory));
         ifoSettings = setupIFOSettings();
         ifoFactory = setupIFOFactory(address(ifoSettings));
-        fnftSettings = setupFNFTSettings(address(ifoFactory), address(priceOracle));
-        fnftFactory = setupFNFTFactory(address(fnftSettings));
+        fnftFactory = setupFNFTFactory(address(ifoFactory), address(priceOracle));
         fnft = setupFNFT(address(fnftFactory), _fnftAmount);
     }
 

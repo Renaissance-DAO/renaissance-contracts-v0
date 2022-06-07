@@ -2,9 +2,9 @@
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./interfaces/IFNFTSettings.sol";
+import "./interfaces/IFNFTFactory.sol";
 
-contract FNFTSettings is OwnableUpgradeable, IFNFTSettings {
+contract FNFTSettings is OwnableUpgradeable, IFNFTFactory {
     address public WETH;
 
     address public priceOracle;

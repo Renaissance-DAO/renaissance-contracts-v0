@@ -9,7 +9,7 @@ import {MultiProxyController} from "../contracts/proxy/MultiProxyController.sol"
 import {IFOSettings} from "../contracts/IFOSettings.sol";
 import {IFOFactory} from "../contracts/IFOFactory.sol";
 import {IFO} from "../contracts/IFO.sol";
-import {FNFTSettings} from "../contracts/FNFTSettings.sol";
+import {FNFTFactory} from "../contracts/FNFTFactory.sol";
 import {PriceOracle, IPriceOracle} from "../contracts/PriceOracle.sol";
 import {FNFTFactory} from "../contracts/FNFTFactory.sol";
 import {FNFT} from "../contracts/FNFT.sol";
@@ -27,7 +27,6 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     IPriceOracle public priceOracle;
     IUniswapV2Factory public pairFactory;
     FNFTFactory public fnftFactory;
-    FNFTSettings public fnftSettings;
     MockNFT public token;
     FNFT public fnft;
 
@@ -42,9 +41,9 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(10 ether);
-        (pairFactory, priceOracle, ifoSettings, ifoFactory, fnftSettings, fnftFactory, ) = setupContracts(10 ether);
+        (pairFactory, priceOracle, ifoSettings, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
 
-        fnftSettings.setGovernanceFee(100);
+        fnftFactory.setGovernanceFee(100);
 
         token = new MockNFT();
 
@@ -79,7 +78,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function test_InitializeFeeTooHigh() public {
-        uint256 maxCuratorFee = fnftSettings.maxCuratorFee();
+        uint256 maxCuratorFee = fnftFactory.maxCuratorFee();
         token.mint(address(this), 2);
         vm.expectRevert(FNFT.FeeTooHigh.selector);
         fnft = FNFT(fnftFactory.mint(
@@ -213,7 +212,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testChangeReserveBelowMinReserveFactor() public {
-        assertEq(fnftSettings.minReserveFactor(), 2000);
+        assertEq(fnftFactory.minReserveFactor(), 2000);
 
         //initial reserve is 1,
         //minReserveFactor is 20%
@@ -233,7 +232,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testChangeReserveAboveMaxReserveFactor() public {
-        assertEq(fnftSettings.maxReserveFactor(), 50000);
+        assertEq(fnftFactory.maxReserveFactor(), 50000);
 
         //initial reserve is 1,
         //maxReserveFactor is 500%
@@ -314,10 +313,10 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testAuctionPrice() public {
-        fnftSettings.setPriceOracle(address(0));
-        console.log("Quorum requirement: ", fnftSettings.minVotePercentage()); // 25%
-        console.log("Min reserve factor: ", fnftSettings.minReserveFactor()); // 20%
-        console.log("Max reserve factor: ", fnftSettings.maxReserveFactor()); // 500%
+        fnftFactory.setPriceOracle(address(0));
+        console.log("Quorum requirement: ", fnftFactory.minVotePercentage()); // 25%
+        console.log("Min reserve factor: ", fnftFactory.minReserveFactor()); // 20%
+        console.log("Max reserve factor: ", fnftFactory.maxReserveFactor()); // 500%
 
         assertEq(fnft.getQuorum(), 10000, "Quorum 1");
         assertEq(fnft.reservePrice(), 1 ether, "Reserve price 1");
@@ -477,7 +476,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function testAuctionEndCurator0() public {
         fnft.updateFee(0);
         fnft.updateCurator(address(0));
-        fnftSettings.setGovernanceFee(0);
+        fnftFactory.setGovernanceFee(0);
         fnft.transfer(address(user1), 25e18);
         user1.call_updatePrice(1 ether);
         fnft.transfer(address(user2), 25e18);

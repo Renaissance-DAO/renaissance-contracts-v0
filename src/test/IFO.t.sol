@@ -5,7 +5,6 @@ pragma solidity 0.8.13;
 import "ds-test/test.sol";
 
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import {IFNFTSettings, FNFTSettings} from "../contracts/FNFTSettings.sol";
 import {IIFOSettings, IFOSettings} from "../contracts/IFOSettings.sol";
 import {IPriceOracle} from "../contracts/interfaces/IPriceOracle.sol";
 import {PriceOracle} from "../contracts/PriceOracle.sol";
@@ -23,7 +22,6 @@ import {BeaconProxy} from "../contracts/proxy/BeaconProxy.sol";
 contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     FNFTFactory public fnftFactory;
     IFOFactory public ifoFactory;
-    FNFTSettings public fnftSettings;
     IFOSettings public ifoSettings;
     IPriceOracle public priceOracle;
     MockNFT public nft;
@@ -37,9 +35,9 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(10 ether);
-        (, priceOracle, ifoSettings, ifoFactory, fnftSettings, fnftFactory, ) = setupContracts(10 ether);
+        (, priceOracle, ifoSettings, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
 
-        fnftSettings.setGovernanceFee(0);
+        fnftFactory.setGovernanceFee(0);
 
         nft = new MockNFT();
 
