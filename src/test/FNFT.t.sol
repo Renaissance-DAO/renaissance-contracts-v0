@@ -11,7 +11,6 @@ import {IFOFactory} from "../contracts/IFOFactory.sol";
 import {IFO} from "../contracts/IFO.sol";
 import {FNFTFactory} from "../contracts/FNFTFactory.sol";
 import {PriceOracle, IPriceOracle} from "../contracts/PriceOracle.sol";
-import {FNFTFactory} from "../contracts/FNFTFactory.sol";
 import {FNFT} from "../contracts/FNFT.sol";
 import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
 import {IWETH} from "../contracts/interfaces/IWETH.sol";

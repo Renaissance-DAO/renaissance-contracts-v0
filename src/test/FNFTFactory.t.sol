@@ -34,7 +34,7 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
     }
 
     function testSetMaxAuctionLengthTooLow() public {
-        vm.expectRevert(fnftFactory.MaxAuctionLengthTooLow.selector);
+        vm.expectRevert(FNFTFactory.MaxAuctionLengthTooLow.selector);
         fnftFactory.setMaxAuctionLength(2.9 days);
     }
 
@@ -43,12 +43,12 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
     }
 
     function testSetMinAuctionLengthTooLow() public {
-        vm.expectRevert(fnftFactory.MinAuctionLengthTooLow.selector);
+        vm.expectRevert(FNFTFactory.MinAuctionLengthTooLow.selector);
         fnftFactory.setMinAuctionLength(0.1 days);
     }
 
     function testSetMinAuctionLengthTooHigh() public {
-        vm.expectRevert(fnftFactory.MinAuctionLengthTooHigh.selector);
+        vm.expectRevert(FNFTFactory.MinAuctionLengthTooHigh.selector);
         fnftFactory.setMinAuctionLength(5 weeks);
     }
 
@@ -58,7 +58,7 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
 
     // too high
     function testSetGovernanceFeeTooHigh() public {
-        vm.expectRevert(fnftFactory.GovFeeTooHigh.selector);
+        vm.expectRevert(FNFTFactory.GovFeeTooHigh.selector);
         fnftFactory.setGovernanceFee(1001);
     }
 
@@ -68,13 +68,13 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
 
     // too high
     function testSetMinBidIncreaseTooHigh() public {
-        vm.expectRevert(fnftFactory.MinBidIncreaseTooHigh.selector);
+        vm.expectRevert(FNFTFactory.MinBidIncreaseTooHigh.selector);
         fnftFactory.setMinBidIncrease(1100);
     }
 
     // too low
     function testSetMinBidIncreaseTooLow() public {
-        vm.expectRevert(fnftFactory.MinBidIncreaseTooLow.selector);
+        vm.expectRevert(FNFTFactory.MinBidIncreaseTooLow.selector);
         fnftFactory.setMinBidIncrease(50);
     }
 
@@ -83,7 +83,7 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
     }
 
     function testSetMaxReserveFactorTooLow() public {
-        vm.expectRevert(fnftFactory.MaxReserveFactorTooLow.selector);
+        vm.expectRevert(FNFTFactory.MaxReserveFactorTooLow.selector);
         fnftFactory.setMaxReserveFactor(2000);
     }
 
@@ -92,7 +92,7 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
     }
 
     function testSetMaxReserveFactorTooHigh() public {
-        vm.expectRevert(fnftFactory.MinReserveFactorTooHigh.selector);
+        vm.expectRevert(FNFTFactory.MinReserveFactorTooHigh.selector);
         fnftFactory.setMinReserveFactor(60000);
     }
 

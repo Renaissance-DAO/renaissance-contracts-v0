@@ -15,7 +15,8 @@ contract FNFTFactory is
     OwnableUpgradeable, 
     PausableUpgradeable, 
     BeaconUpgradeable, 
-    IFNFTFactory {
+    IFNFTFactory 
+{
     /// @notice a mapping of fNFT ids (see getFnftId) to the address of the fNFT contract
     mapping(bytes32 => address) public fnfts;
 

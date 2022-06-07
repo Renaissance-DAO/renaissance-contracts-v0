@@ -17,7 +17,7 @@ contract IFOSettingsTest is DSTest, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(10 ether);
-        (, , ifoSettings, , , , ) = setupContracts(10 ether);
+        (, , ifoSettings, , , ) = setupContracts(10 ether);
     }
 
     function test_setCreatorIFOLock() public {
