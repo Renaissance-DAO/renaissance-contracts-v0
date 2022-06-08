@@ -7,6 +7,7 @@ import "@typechain/hardhat";
 import "solidity-coverage";
 import "@nomiclabs/hardhat-etherscan";
 import "hardhat-interface-generator";
+import "hardhat-contract-sizer";
 
 const config: HardhatUserConfig = {
   solidity: {
