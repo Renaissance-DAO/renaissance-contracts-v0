@@ -11,12 +11,15 @@ import "./proxy/BeaconUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
 import "./interfaces/IFNFTFactory.sol";
 
-contract FNFTFactory is 
-    OwnableUpgradeable, 
-    PausableUpgradeable, 
-    BeaconUpgradeable, 
-    IFNFTFactory 
+contract FNFTFactory is
+    OwnableUpgradeable,
+    PausableUpgradeable,
+    BeaconUpgradeable,
+    IFNFTFactory
 {
+    enum FeeType { GOVERNANCE_FEE, MAX_CURATOR_FEE }
+    enum Boundary { MIN, MAX }
+
     /// @notice a mapping of fNFT ids (see getFnftId) to the address of the fNFT contract
     mapping(bytes32 => address) public fnfts;
 
@@ -29,32 +32,17 @@ contract FNFTFactory is
     /// @notice the maximum auction length
     uint256 public override maxAuctionLength;
 
-    /// @notice the longest an auction can ever be
-    uint256 public constant MAX_MAX_AUCTION_LENGTH = 8 weeks;
-
     /// @notice the minimum auction length
     uint256 public override minAuctionLength;
 
-    /// @notice the shortest an auction can ever be
-    uint256 public constant MIN_MIN_AUCTION_LENGTH = 1 days;
-
     /// @notice governance fee max
     uint256 public override governanceFee;
-
-    /// @notice 10% fee is max
-    uint256 public constant MAX_GOV_FEE = 1000;
 
     /// @notice max curator fee
     uint256 public override maxCuratorFee;
 
     /// @notice the % bid increase required for a new bid
     uint256 public override minBidIncrease;
-
-    /// @notice 10% bid increase is max
-    uint256 public constant MAX_MIN_BID_INCREASE = 1000;
-
-    /// @notice 1% bid increase is min
-    uint256 public constant MIN_MIN_BID_INCREASE = 100;
 
     /// @notice the % of tokens required to be voting for an auction to start
     uint256 public override minVotePercentage;
@@ -108,20 +96,17 @@ contract FNFTFactory is
         string symbol
     );
 
-    error MaxAuctionLengthTooHigh();
-    error MaxAuctionLengthTooLow();
-    error MinAuctionLengthTooHigh();
-    error MinAuctionLengthTooLow();
+    error MaxAuctionLengthOutOfBounds();
+    error MinAuctionLengthOutOfBounds();
     error GovFeeTooHigh();
-    error MinBidIncreaseTooHigh();
-    error MinBidIncreaseTooLow();
+    error MinBidIncreaseOutOfBounds();
     error MinVotePercentageTooHigh();
     error MaxReserveFactorTooLow();
     error MinReserveFactorTooHigh();
     error ZeroAddressDisallowed();
     error MultiplierTooLow();
 
-    function initialize(address _weth, address _ifoFactory) external initializer {        
+    function initialize(address _weth, address _ifoFactory) external initializer {
         __Ownable_init();
         __Pausable_init();
         __BeaconUpgradeable__init(address(new FNFT()));
@@ -184,12 +169,8 @@ contract FNFTFactory is
         return keccak256(abi.encodePacked(nftContract, tokenId));
     }
 
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    function unpause() external onlyOwner {
-        _unpause();
+    function togglePaused() external onlyOwner {
+        paused() ? _unpause() : _pause();
     }
 
     function setPriceOracle(address _newOracle) external onlyOwner {
@@ -197,41 +178,31 @@ contract FNFTFactory is
         priceOracle = _newOracle;
     }
 
-    function setMaxAuctionLength(uint256 _length) external onlyOwner {
-        if (_length > MAX_MAX_AUCTION_LENGTH) revert MaxAuctionLengthTooHigh();
-        if (_length <= minAuctionLength) revert MaxAuctionLengthTooLow();
-
-        emit UpdateMaxAuctionLength(maxAuctionLength, _length);
-
-        maxAuctionLength = _length;
+    function setAuctionLength(Boundary boundary, uint256 _length) external onlyOwner {
+        if (boundary == Boundary.MIN) {
+            if (_length < 1 days || _length >= maxAuctionLength) revert MinAuctionLengthOutOfBounds();
+            emit UpdateMinAuctionLength(minAuctionLength, _length);
+            minAuctionLength = _length;
+        } else if (boundary == Boundary.MAX) {
+            if (_length > 8 weeks || _length <= minAuctionLength) revert MaxAuctionLengthOutOfBounds();
+            emit UpdateMaxAuctionLength(maxAuctionLength, _length);
+            maxAuctionLength = _length;
+        }
     }
 
-    function setMinAuctionLength(uint256 _length) external onlyOwner {
-        if (_length < MIN_MIN_AUCTION_LENGTH) revert MinAuctionLengthTooLow();
-        if (_length >= maxAuctionLength) revert MinAuctionLengthTooHigh();
-
-        emit UpdateMinAuctionLength(minAuctionLength, _length);
-
-        minAuctionLength = _length;
-    }
-
-    function setGovernanceFee(uint256 _fee) external onlyOwner {
-        if (_fee > MAX_GOV_FEE) revert GovFeeTooHigh();
-
-        emit UpdateGovernanceFee(governanceFee, _fee);
-
-        governanceFee = _fee;
-    }
-
-    function setMaxCuratorFee(uint256 _fee) external onlyOwner {
-        emit UpdateCuratorFee(maxCuratorFee, _fee);
-
-        maxCuratorFee = _fee;
+    function setFee(FeeType feeType, uint256 _fee) external onlyOwner {
+        if (feeType == FeeType.GOVERNANCE_FEE) {
+            if (_fee > 1000) revert GovFeeTooHigh();
+            emit UpdateGovernanceFee(governanceFee, _fee);
+            governanceFee = _fee;
+        } else if (feeType == FeeType.MAX_CURATOR_FEE) {
+            emit UpdateCuratorFee(maxCuratorFee, _fee);
+            maxCuratorFee = _fee;
+        }
     }
 
     function setMinBidIncrease(uint256 _min) external onlyOwner {
-        if (_min > MAX_MIN_BID_INCREASE) revert MinBidIncreaseTooHigh();
-        if (_min < MIN_MIN_BID_INCREASE) revert MinBidIncreaseTooLow();
+        if (_min > 1000 || _min < 100) revert MinBidIncreaseOutOfBounds();
 
         emit UpdateMinBidIncrease(minBidIncrease, _min);
 
@@ -247,20 +218,16 @@ contract FNFTFactory is
         minVotePercentage = _min;
     }
 
-    function setMaxReserveFactor(uint256 _factor) external onlyOwner {
-        if (_factor <= minReserveFactor) revert MaxReserveFactorTooLow();
-
-        emit UpdateMaxReserveFactor(maxReserveFactor, _factor);
-
-        maxReserveFactor = _factor;
-    }
-
-    function setMinReserveFactor(uint256 _factor) external onlyOwner {
-        if (_factor >= maxReserveFactor) revert MinReserveFactorTooHigh();
-
-        emit UpdateMinReserveFactor(minReserveFactor, _factor);
-
-        minReserveFactor = _factor;
+    function setReserveFactor(Boundary boundary, uint256 _factor) external onlyOwner {
+        if (boundary == Boundary.MIN) {
+            if (_factor >= maxReserveFactor) revert MinReserveFactorTooHigh();
+            emit UpdateMinReserveFactor(minReserveFactor, _factor);
+            minReserveFactor = _factor;
+        } else if (boundary == Boundary.MAX) {
+            if (_factor <= minReserveFactor) revert MaxReserveFactorTooLow();
+            emit UpdateMaxReserveFactor(maxReserveFactor, _factor);
+            maxReserveFactor = _factor;
+        }
     }
 
     function setLiquidityThreshold(uint256 _threshold) external onlyOwner {
