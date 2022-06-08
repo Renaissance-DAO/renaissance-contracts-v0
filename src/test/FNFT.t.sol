@@ -6,7 +6,6 @@ import "ds-test/test.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {Deployer} from "../contracts/proxy/Deployer.sol";
 import {MultiProxyController} from "../contracts/proxy/MultiProxyController.sol";
-import {IFOSettings} from "../contracts/IFOSettings.sol";
 import {IFOFactory} from "../contracts/IFOFactory.sol";
 import {IFO} from "../contracts/IFO.sol";
 import {FNFTFactory} from "../contracts/FNFTFactory.sol";
@@ -20,8 +19,7 @@ import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH, PairWit
 
 /// @author Nibble Market
 /// @title Tests for the vaults
-contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
-    IFOSettings public ifoSettings;
+contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {    
     IFOFactory public ifoFactory;
     IPriceOracle public priceOracle;
     IUniswapV2Factory public pairFactory;
@@ -40,7 +38,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(10 ether);
-        (pairFactory, priceOracle, ifoSettings, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
+        (pairFactory, priceOracle, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
 
         fnftFactory.setGovernanceFee(100);
 
@@ -545,12 +543,12 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
             fnft.balanceOf(address(this)), //amountForSale
             0.01 ether, //price per token
             fnft.totalSupply(), // max amount someone can buy
-            ifoSettings.minimumDuration(), //sale duration
+            ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
 
         IFO fNFTIfo = IFO(ifoFactory.getIFO(address(fnft)));
-        ifoSettings.setCreatorIFOLock(true);
+        ifoFactory.setCreatorIFOLock(true);
 
         fNFTIfo.start();
 
@@ -562,7 +560,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         fNFTIfo.deposit{value: 0.3 ether}(); // 30 eth
         vm.stopPrank();
 
-        vm.roll(fNFTIfo.startBlock() + ifoSettings.minimumDuration() + 1);
+        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
 
         fNFTIfo.end();
 
@@ -576,7 +574,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
         assertEq(fnft.getQuorum(), 10000);
 
-        ifoSettings.setCreatorIFOLock(false);
+        ifoFactory.setCreatorIFOLock(false);
 
         assertEq(fnft.getQuorum(), 4000);
     }

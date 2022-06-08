@@ -17,7 +17,7 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(10 ether);
-        (, , , , fnftFactory, ) = setupContracts(10 ether);
+        (, , , fnftFactory, ) = setupContracts(10 ether);
 
         token = new MockNFT();
         token2 = new MockNFT();

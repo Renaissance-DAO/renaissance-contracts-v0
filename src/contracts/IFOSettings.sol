@@ -2,9 +2,9 @@
 pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./interfaces/IIFOSettings.sol";
+import "./interfaces/IIFOFactory.sol";
 
-contract IFOSettings is OwnableUpgradeable, IIFOSettings {
+contract IFOSettings is OwnableUpgradeable, IIFOFactory {
     uint256 public override minimumDuration;
     uint256 public override maximumDuration;
     uint256 public override governanceFee;
@@ -26,6 +26,10 @@ contract IFOSettings is OwnableUpgradeable, IIFOSettings {
     error ZeroAddressDisallowed();
     error GovFeeTooHigh();
     error InvalidDuration();
+
+    function getIFO(address _fnft) external view returns (address) {
+        return address(0);
+    }
 
     function initialize() external initializer {
         __Ownable_init();

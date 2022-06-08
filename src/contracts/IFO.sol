@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import "./IFOSettings.sol";
+import "./IFOFactory.sol";
+import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IFNFT.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {console} from "../test/utils/utils.sol";
 
 contract IFO is Initializable {
     struct UserInfo {
@@ -37,7 +40,7 @@ contract IFO is Initializable {
     bool public paused; // circuit breaker
 
     address public curator;
-    address public immutable settings;
+    address public factory;
 
     mapping(address => UserInfo) public userInfo;
     mapping(address => bool) public whitelisted; // True if user is whitelisted
@@ -74,10 +77,6 @@ contract IFO is Initializable {
     error NoLiquidityProvided();
     error FNFTLocked();
 
-    constructor(address _settings) {
-        settings = _settings;
-    }
-
     /// @param _curator original owner
     /// @param _fnft FNFT address
     /// @param _amountForSale Amount of FNFT for sale in IFO
@@ -106,12 +105,13 @@ contract IFO is Initializable {
         if (_cap == 0 || _cap > totalSupply) revert InvalidCap();
         // expect ifo duration to be between minimum and maximum durations set by the DAO
         if (_duration != 0 &&
-        (_duration < IIFOSettings(settings).minimumDuration()
-        || _duration > IIFOSettings(settings).maximumDuration())) revert InvalidDuration();
+        (_duration < IIFOFactory(msg.sender).minimumDuration()
+        || _duration > IIFOFactory(msg.sender).maximumDuration())) revert InvalidDuration();
         // reject if MC of IFO greater than reserve price set by curator. Protects the initial investors
         //if the requested price of the tokens here is greater than the implied value of each token from the initial reserve, revert
         if (_price * totalSupply / (10 ** fnft.decimals()) > fnft.initialReserve()) revert InvalidReservePrice();
 
+        factory = msg.sender;
         curator = _curator;
         amountForSale = _amountForSale;
         price = _price;
@@ -120,7 +120,7 @@ contract IFO is Initializable {
         duration = _duration;
 
         /// @notice approve fNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
-        address creatorUtilityContract = IIFOSettings(settings).creatorUtilityContract();
+        address creatorUtilityContract = IIFOFactory(msg.sender).creatorUtilityContract();
         if (creatorUtilityContract != address(0)) {
             fnft.approve(creatorUtilityContract, totalSupply);
         }
@@ -132,7 +132,7 @@ contract IFO is Initializable {
     }
 
     modifier onlyGov() {
-        if (msg.sender != OwnableUpgradeable(settings).owner()) revert NotGov();
+        if (msg.sender != OwnableUpgradeable(factory).owner()) revert NotGov();
         _;
     }
 
@@ -221,7 +221,7 @@ contract IFO is Initializable {
         if (!started) revert SaleUnstarted();
         if (
             block.number <= startBlock + duration || // If not past duration
-            block.number - startBlock < IIFOSettings(settings).minimumDuration() // If tries to end before minimum duration
+            block.number - startBlock < IIFOFactory(factory).minimumDuration() // If tries to end before minimum duration
         ) revert DeadlineActive();
         if (ended) revert SaleAlreadyEnded();
 
@@ -244,11 +244,10 @@ contract IFO is Initializable {
 
         if (user.amount + payout > cap) revert OverLimit();
 
-
         totalSold += payout;
 
-        address govAddress = IIFOSettings(settings).feeReceiver();
-        uint256 govFee = IIFOSettings(settings).governanceFee();
+        address govAddress = IIFOFactory(factory).feeReceiver();        
+        uint256 govFee = IIFOFactory(factory).governanceFee();        
 
         uint256 fee = (govFee * msg.value) / 10000;
         uint256 profit = msg.value - fee;
@@ -257,8 +256,8 @@ contract IFO is Initializable {
         totalRaised += msg.value;
         profitRaised += profit;
 
-        fnft.transfer(msg.sender, payout);
-        _safeTransferETH(govAddress, fee);
+        fnft.transfer(msg.sender, payout);        
+        _safeTransferETH(govAddress, fee);        
 
         emit Deposit(msg.sender, msg.value, payout);
     }
@@ -307,7 +306,7 @@ contract IFO is Initializable {
 
     /// @notice approve fNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
     function approve() external onlyCurator {
-        address creatorUtilityContract = IIFOSettings(settings).creatorUtilityContract();
+        address creatorUtilityContract = IIFOFactory(factory).creatorUtilityContract();
         if (creatorUtilityContract == address(0)) revert InvalidAddress();
         fnft.approve(creatorUtilityContract, fnft.totalSupply());
     }
@@ -336,6 +335,6 @@ contract IFO is Initializable {
     }
 
     function _fnftLocked() internal view returns(bool) {
-        return IIFOSettings(settings).creatorIFOLock();
+        return IIFOFactory(factory).creatorIFOLock();
     }
 }
