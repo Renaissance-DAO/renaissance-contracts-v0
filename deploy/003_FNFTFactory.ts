@@ -4,7 +4,7 @@ import {testnets} from '../utils/constants';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployments, getNamedAccounts, ethers} = hre;
-
+  
   const {deploy, get} = deployments;
   const {deployer} = await getNamedAccounts();
   const chainId = await hre.getChainId();
@@ -18,7 +18,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     WETH = mockWETH.address;
   }
 
-  // get IFOFactory proxy address
+  // get ifo factory proxy address
   const proxyControllerInfo = await get('MultiProxyController');
   const proxyController = new ethers.Contract(
     proxyControllerInfo.address,
@@ -30,11 +30,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   ))[1];
 
   // deploy implementation contract
-  const fnftSettingsImpl = await deploy('FNFTSettings', {
+  const fnftFactoryImpl = await deploy('FNFTFactory', {
     from: deployer,
     log: true,
   });
-
 
   // deploy proxy contract
   const deployerInfo = await get('Deployer')
@@ -43,11 +42,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deployerInfo.abi,
     signer
   );
-  const fnftSettingsProxy = await deployerContract.deployFNFTSettings(
-    fnftSettingsImpl.address,
+  await deployerContract.deployFNFTFactory(
+    fnftFactoryImpl.address, 
     WETH,
     ifoFactoryAddress
   );
+
 };
 
 func.tags = ['main', 'local', 'seed'];

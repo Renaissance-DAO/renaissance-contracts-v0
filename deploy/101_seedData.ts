@@ -649,8 +649,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }); // all holders vote in favor of new price. vote reaches quorum.
 
   // get global min percentage increase for auction bids
-  const fNftSettings = await getContract(hre, 'FNFTSettings');
-  const minIncrease = await fNftSettings.minBidIncrease()
+  const fnftFactory = await getContract(hre, 'FNFTFactory');
+  const minIncrease = await fnftFactory.minBidIncrease()
   const minPercentIncrease = (minIncrease / PERCENTAGE_SCALE) + 1
   console.log(`minPercentIncrease === ${minPercentIncrease}`)
 

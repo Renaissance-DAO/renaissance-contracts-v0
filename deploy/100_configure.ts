@@ -10,7 +10,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const signer = await ethers.getSigner(deployer);
 
-  /** SET PRICE ORACLE IN FNFTSettings */
+  /** SET PRICE ORACLE IN FNFTFactory */
 
   // 1. get proxy controller
   const proxyControllerInfo = await get('MultiProxyController');
@@ -26,19 +26,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   ))[1];
 
 
-  // 2. get fnftSettings proxy address from controller
-  const fnftSettingsAbi = (await get('FNFTSettings')).abi; // get abi of impl contract
-  const fnftSettingsAddress = (await proxyController.proxyMap(
-    ethers.utils.formatBytes32String("FNFTSettings")
+  // 2. get fnftFactory proxy address from controller
+  const fnftFactoryAbi = (await get('FNFTFactory')).abi; // get abi of impl contract
+  const fnftFactoryAddress = (await proxyController.proxyMap(
+    ethers.utils.formatBytes32String("FNFTFactory")
   ))[1];
-  const fnftSettings = new ethers.Contract(
-    fnftSettingsAddress,
-    fnftSettingsAbi,
+  const fnftFactory = new ethers.Contract(
+    fnftFactoryAddress,
+    fnftFactoryAbi,
     signer
   );
 
-  // 3. set price oracle address in FNFTSettings
-  await fnftSettings.setPriceOracle(priceOracleAddress);
+  // 3. set price oracle address in FNFTFactory
+  await fnftFactory.setPriceOracle(priceOracleAddress);
 
 
 
