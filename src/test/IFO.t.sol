@@ -35,7 +35,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         setupEnvironment(10 ether);
         (, priceOracle, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
 
-        fnftFactory.setGovernanceFee(0);
+        fnftFactory.setFee(FNFTFactory.FeeType.GOVERNANCE_FEE, 0);
 
         nft = new MockNFT();
 

@@ -40,7 +40,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         setupEnvironment(10 ether);
         (pairFactory, priceOracle, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
 
-        fnftFactory.setGovernanceFee(100);
+        fnftFactory.setFee(FNFTFactory.FeeType.GOVERNANCE_FEE, 100);
 
         token = new MockNFT();
 
@@ -114,8 +114,8 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testPause() public {
-        fnftFactory.pause();
-        fnftFactory.unpause();
+        fnftFactory.togglePaused();
+        fnftFactory.togglePaused();
         MockNFT temp = new MockNFT();
 
         temp.mint(address(this), 1);
@@ -125,7 +125,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testFnftFactoryPausedCannotMint() public {
-        fnftFactory.pause();
+        fnftFactory.togglePaused();
         MockNFT temp = new MockNFT();
 
         temp.mint(address(this), 1);
@@ -473,7 +473,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function testAuctionEndCurator0() public {
         fnft.updateFee(0);
         fnft.updateCurator(address(0));
-        fnftFactory.setGovernanceFee(0);
+        fnftFactory.setFee(FNFTFactory.FeeType.GOVERNANCE_FEE, 0);
         fnft.transfer(address(user1), 25e18);
         user1.call_updatePrice(1 ether);
         fnft.transfer(address(user2), 25e18);

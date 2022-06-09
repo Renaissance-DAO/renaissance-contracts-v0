@@ -6,7 +6,6 @@ import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IFNFT.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {console} from "../test/utils/utils.sol";
 
 contract IFO is Initializable {
     struct UserInfo {
