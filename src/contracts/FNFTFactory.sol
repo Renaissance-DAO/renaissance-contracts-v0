@@ -17,7 +17,7 @@ contract FNFTFactory is
     BeaconUpgradeable,
     IFNFTFactory
 {
-    enum FeeType { GOVERNANCE_FEE, MAX_CURATOR_FEE }
+    enum FeeType { GovernanceFee, MaxCuratorFee }
     enum Boundary { MIN, MAX }
 
     /// @notice a mapping of fNFT ids (see getFnftId) to the address of the fNFT contract
@@ -191,11 +191,11 @@ contract FNFTFactory is
     }
 
     function setFee(FeeType feeType, uint256 _fee) external onlyOwner {
-        if (feeType == FeeType.GOVERNANCE_FEE) {
+        if (feeType == FeeType.GovernanceFee) {
             if (_fee > 1000) revert GovFeeTooHigh();
             emit UpdateGovernanceFee(governanceFee, _fee);
             governanceFee = _fee;
-        } else if (feeType == FeeType.MAX_CURATOR_FEE) {
+        } else if (feeType == FeeType.MaxCuratorFee) {
             emit UpdateCuratorFee(maxCuratorFee, _fee);
             maxCuratorFee = _fee;
         }

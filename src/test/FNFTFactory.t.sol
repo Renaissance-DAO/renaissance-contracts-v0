@@ -53,13 +53,13 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
     }
 
     function test_setGovernanceFee() public {
-        fnftFactory.setFee(FNFTFactory.FeeType.GOVERNANCE_FEE, 1000);
+        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 1000);
     }
 
     // too high
     function testSetGovernanceFeeTooHigh() public {
         vm.expectRevert(FNFTFactory.GovFeeTooHigh.selector);
-        fnftFactory.setFee(FNFTFactory.FeeType.GOVERNANCE_FEE, 1001);
+        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 1001);
     }
 
     function test_setMinBidIncrease() public {
