@@ -18,7 +18,7 @@ contract FNFTFactory is
     IFNFTFactory
 {
     enum FeeType { GovernanceFee, MaxCuratorFee }
-    enum Boundary { MIN, MAX }
+    enum Boundary { Min, Max }
 
     /// @notice a mapping of fNFT ids (see getFnftId) to the address of the fNFT contract
     mapping(bytes32 => address) public fnfts;
@@ -179,11 +179,11 @@ contract FNFTFactory is
     }
 
     function setAuctionLength(Boundary boundary, uint256 _length) external onlyOwner {
-        if (boundary == Boundary.MIN) {
+        if (boundary == Boundary.Min) {
             if (_length < 1 days || _length >= maxAuctionLength) revert MinAuctionLengthOutOfBounds();
             emit UpdateMinAuctionLength(minAuctionLength, _length);
             minAuctionLength = _length;
-        } else if (boundary == Boundary.MAX) {
+        } else if (boundary == Boundary.Max) {
             if (_length > 8 weeks || _length <= minAuctionLength) revert MaxAuctionLengthOutOfBounds();
             emit UpdateMaxAuctionLength(maxAuctionLength, _length);
             maxAuctionLength = _length;
@@ -219,11 +219,11 @@ contract FNFTFactory is
     }
 
     function setReserveFactor(Boundary boundary, uint256 _factor) external onlyOwner {
-        if (boundary == Boundary.MIN) {
+        if (boundary == Boundary.Min) {
             if (_factor >= maxReserveFactor) revert MinReserveFactorTooHigh();
             emit UpdateMinReserveFactor(minReserveFactor, _factor);
             minReserveFactor = _factor;
-        } else if (boundary == Boundary.MAX) {
+        } else if (boundary == Boundary.Max) {
             if (_factor <= minReserveFactor) revert MaxReserveFactorTooLow();
             emit UpdateMaxReserveFactor(maxReserveFactor, _factor);
             maxReserveFactor = _factor;
