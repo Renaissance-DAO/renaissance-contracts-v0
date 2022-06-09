@@ -4,7 +4,6 @@ pragma solidity 0.8.13;
 import "./FNFTFactory.sol";
 import "./interfaces/IWETH.sol";
 import "./interfaces/IIFOFactory.sol";
-import "./interfaces/IFNFTFactory.sol";
 import "./interfaces/IIFO.sol";
 import "./libraries/UniswapV2Library.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
