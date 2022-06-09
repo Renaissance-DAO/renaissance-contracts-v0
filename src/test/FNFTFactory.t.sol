@@ -24,42 +24,42 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
     }
 
     function test_setMaxAuction() public {
-        fnftFactory.setAuctionLength(FNFTFactory.Boundary.MAX, 4 weeks);
+        fnftFactory.setAuctionLength(FNFTFactory.Boundary.Max, 4 weeks);
         assertEq(fnftFactory.maxAuctionLength(), 4 weeks);
     }
 
     function testSetMaxAuctionLengthTooHigh() public {
         vm.expectRevert(FNFTFactory.MaxAuctionLengthOutOfBounds.selector);
-        fnftFactory.setAuctionLength(FNFTFactory.Boundary.MAX, 10 weeks);
+        fnftFactory.setAuctionLength(FNFTFactory.Boundary.Max, 10 weeks);
     }
 
     function testSetMaxAuctionLengthTooLow() public {
         vm.expectRevert(FNFTFactory.MaxAuctionLengthOutOfBounds.selector);
-        fnftFactory.setAuctionLength(FNFTFactory.Boundary.MAX, 2.9 days);
+        fnftFactory.setAuctionLength(FNFTFactory.Boundary.Max, 2.9 days);
     }
 
     function test_setMinAuction() public {
-        fnftFactory.setAuctionLength(FNFTFactory.Boundary.MIN, 1 weeks);
+        fnftFactory.setAuctionLength(FNFTFactory.Boundary.Min, 1 weeks);
     }
 
     function testSetMinAuctionLengthTooLow() public {
         vm.expectRevert(FNFTFactory.MinAuctionLengthOutOfBounds.selector);
-        fnftFactory.setAuctionLength(FNFTFactory.Boundary.MIN, 0.1 days);
+        fnftFactory.setAuctionLength(FNFTFactory.Boundary.Min, 0.1 days);
     }
 
     function testSetMinAuctionLengthTooHigh() public {
         vm.expectRevert(FNFTFactory.MinAuctionLengthOutOfBounds.selector);
-        fnftFactory.setAuctionLength(FNFTFactory.Boundary.MIN, 5 weeks);
+        fnftFactory.setAuctionLength(FNFTFactory.Boundary.Min, 5 weeks);
     }
 
     function test_setGovernanceFee() public {
-        fnftFactory.setFee(FNFTFactory.FeeType.GOVERNANCE_FEE, 1000);
+        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 1000);
     }
 
     // too high
     function testSetGovernanceFeeTooHigh() public {
         vm.expectRevert(FNFTFactory.GovFeeTooHigh.selector);
-        fnftFactory.setFee(FNFTFactory.FeeType.GOVERNANCE_FEE, 1001);
+        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 1001);
     }
 
     function test_setMinBidIncrease() public {
@@ -79,21 +79,21 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
     }
 
     function test_setMaxReserveFactor() public {
-        fnftFactory.setReserveFactor(FNFTFactory.Boundary.MAX, 100000);
+        fnftFactory.setReserveFactor(FNFTFactory.Boundary.Max, 100000);
     }
 
     function testSetMaxReserveFactorTooLow() public {
         vm.expectRevert(FNFTFactory.MaxReserveFactorTooLow.selector);
-        fnftFactory.setReserveFactor(FNFTFactory.Boundary.MAX, 2000);
+        fnftFactory.setReserveFactor(FNFTFactory.Boundary.Max, 2000);
     }
 
     function test_setMinReserveFactor() public {
-        fnftFactory.setReserveFactor(FNFTFactory.Boundary.MIN, 4000);
+        fnftFactory.setReserveFactor(FNFTFactory.Boundary.Min, 4000);
     }
 
     function testSetMaxReserveFactorTooHigh() public {
         vm.expectRevert(FNFTFactory.MinReserveFactorTooHigh.selector);
-        fnftFactory.setReserveFactor(FNFTFactory.Boundary.MIN, 60000);
+        fnftFactory.setReserveFactor(FNFTFactory.Boundary.Min, 60000);
     }
 
     function test_setFeeReceiver() public {

@@ -40,7 +40,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         setupEnvironment(10 ether);
         (pairFactory, priceOracle, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
 
-        fnftFactory.setFee(FNFTFactory.FeeType.GOVERNANCE_FEE, 100);
+        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 100);
 
         token = new MockNFT();
 
@@ -473,7 +473,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function testAuctionEndCurator0() public {
         fnft.updateFee(0);
         fnft.updateCurator(address(0));
-        fnftFactory.setFee(FNFTFactory.FeeType.GOVERNANCE_FEE, 0);
+        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 0);
         fnft.transfer(address(user1), 25e18);
         user1.call_updatePrice(1 ether);
         fnft.transfer(address(user2), 25e18);
