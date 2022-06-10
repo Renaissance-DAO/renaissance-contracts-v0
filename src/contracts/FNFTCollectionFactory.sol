@@ -45,6 +45,7 @@ contract FNFTCollectionFactory is
     uint64 public override factoryRandomSwapFee;
     uint64 public override factoryTargetSwapFee;
     uint64 public override flashLoanFee;    
+    uint256 public override swapFee;
 
     error FeeTooHigh();
     error CallerIsNotVault();
@@ -86,6 +87,12 @@ contract FNFTCollectionFactory is
         if (_flashLoanFee > 500) revert FeeTooHigh();
         emit UpdateFlashLoanFee(flashLoanFee, _flashLoanFee);
         flashLoanFee = uint64(_flashLoanFee);
+    }
+
+    function setSwapFee(uint256 _swapFee) external virtual override onlyOwner {
+        if (_swapFee > 500) revert FeeTooHigh();
+        emit UpdateSwapFee(swapFee, _swapFee);
+        swapFee = uint64(_swapFee);
     }
 
     function setFactoryFees(

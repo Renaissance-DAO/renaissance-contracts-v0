@@ -34,7 +34,8 @@ interface IFNFTCollectionFactory is IBeacon {
   event DisableVaultFees(uint256 vaultId);
   event UpdateFactoryFees(uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
   event UpdateFlashLoanFee(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);  
-
+  event UpdateSwapFee(uint256 _old, uint256 _new);
+  
   // Write functions.
   function __FNFTCollectionFactory_init(address _feeDistributor) external;
   function createVault(
