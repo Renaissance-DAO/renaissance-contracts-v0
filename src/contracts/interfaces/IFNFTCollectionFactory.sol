@@ -11,6 +11,8 @@ interface IFNFTCollectionFactory is IBeacon {
   function feeDistributor() external view returns (address);
   function eligibilityManager() external view returns (address);
   function vault(uint256 vaultId) external view returns (address);
+  function priceOracle() external view returns (address);
+  function WETH() external view returns (address);
   function allVaults() external view returns (address[] memory);
   function vaultsForAsset(address asset) external view returns (address[] memory);
   function isLocked(uint256 id) external view returns (bool);
@@ -20,9 +22,9 @@ interface IFNFTCollectionFactory is IBeacon {
   function factoryTargetRedeemFee() external view returns (uint64);
   function factoryRandomSwapFee() external view returns (uint64);
   function factoryTargetSwapFee() external view returns (uint64);
+  function swapFee() external view returns (uint64);
   function vaultFees(uint256 vaultId) external view returns (uint256, uint256, uint256, uint256, uint256);
   function flashLoanFee() external view returns (uint64);
-  function priceOracle() external view returns (address);
 
   event NewFeeDistributor(address oldDistributor, address newDistributor);
   event NewZapContract(address oldZap, address newZap);

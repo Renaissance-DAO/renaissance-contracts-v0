@@ -21,6 +21,7 @@ contract FNFTCollectionFactory is
     address public override feeDistributor;
     address public override eligibilityManager;
     address public override priceOracle;
+    address public override WETH;
     
     mapping(address => address[]) _vaultsForAsset;
 
@@ -45,18 +46,20 @@ contract FNFTCollectionFactory is
     uint64 public override factoryRandomSwapFee;
     uint64 public override factoryTargetSwapFee;
     uint64 public override flashLoanFee;    
-    uint256 public override swapFee;
+    uint64 public override swapFee;
 
     error FeeTooHigh();
     error CallerIsNotVault();
     error ZeroAddress();
 
-    function __FNFTCollectionFactory_init(address _feeDistributor) public override initializer {
+    function __FNFTCollectionFactory_init(address _weth, address _feeDistributor) public override initializer {
         __Pausable_init();
         // We use a beacon proxy so that every child contract follows the same implementation code.
         __BeaconUpgradeable__init(address(new FNFTCollection()));
         setFeeDistributor(_feeDistributor);
         setFactoryFees(0.1 ether, 0.05 ether, 0.1 ether, 0.05 ether, 0.1 ether);
+
+        WETH = _weth;
     }
 
     function createVault(
