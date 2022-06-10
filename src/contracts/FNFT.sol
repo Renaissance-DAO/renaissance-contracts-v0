@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import "./FNFTFactory.sol";
+import "./interfaces/IFNFTFactory.sol";
 import "./interfaces/IWETH.sol";
 import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IIFO.sol";
