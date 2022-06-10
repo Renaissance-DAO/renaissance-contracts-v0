@@ -6,6 +6,7 @@ import "./interfaces/IWETH.sol";
 import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IIFO.sol";
 import "./libraries/UniswapV2Library.sol";
+import "./interfaces/IFeeDistributor.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -479,6 +480,32 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
                 }
             }
         }
+    }
+
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
+        //Take fee here
+        uint256 swapFee = IFNFTFactory(factory).swapFee();
+        if (swapFee > 0) {
+            address priceOracle = IFNFTFactory(factory).priceOracle();
+            IWETH weth = IWETH(IFNFTFactory(factory).WETH());
+            IUniswapV2Pair pair = IUniswapV2Pair(IPriceOracle(priceOracle).getPairAddress(address(this), weth));
+
+            if (to == pair) {
+                address feeDistributor = IFNFTFactory(factory).feeDistributor();
+                uint256 feeAmount = amount * swapFee / 10000;
+
+                super._transfer(from, feeDistributor, feeAmount);
+                // IFeeDistributor(feeDistributor).distribute(vaultId);
+
+                amount = amount - feeAmount;
+            }
+        }
+
+        super._transfer(from, to, amount);
     }
 
     function _afterTokenTransfer(

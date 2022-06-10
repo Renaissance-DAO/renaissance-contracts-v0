@@ -4,11 +4,19 @@ import {IPriceOracle} from "./IPriceOracle.sol";
 import {IWETH} from "./IWETH.sol";
 
 interface IFNFTFactory {
+    function fnfts(bytes32) external view returns (address);
+
+    function excludedFromFees(address) external view returns (bool);
+
+    function feeDistributor() external view returns (address);
+
     function priceOracle() external view returns (address);
 
     function ifoFactory() external view returns (address);
 
     function WETH() external view returns (address);
+
+    function swapFee() external view returns (uint256);
 
     function maxAuctionLength() external view returns (uint256);
 

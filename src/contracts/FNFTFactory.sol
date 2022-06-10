@@ -10,6 +10,7 @@ import "./FNFT.sol";
 import "./proxy/BeaconUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
 import "./interfaces/IFNFTFactory.sol";
+import "./interfaces/IFeeDistributor.sol";
 
 contract FNFTFactory is
     OwnableUpgradeable,
@@ -21,13 +22,20 @@ contract FNFTFactory is
     enum Boundary { Min, Max }
 
     /// @notice a mapping of fNFT ids (see getFnftId) to the address of the fNFT contract
-    mapping(bytes32 => address) public fnfts;
+    mapping(bytes32 => address) public override fnfts;
 
-    address public WETH;
+    /// @notice fee exclusion for swaps
+    mapping(address => bool) public override excludedFromFees;
 
-    address public priceOracle;
+    address public override feeDistributor;
 
-    address public ifoFactory;
+    address public override WETH;
+
+    address public override priceOracle;
+
+    address public override ifoFactory;
+
+    uint256 public override swapFee;
 
     /// @notice the maximum auction length
     uint256 public override maxAuctionLength;
@@ -72,6 +80,8 @@ contract FNFTFactory is
 
     event UpdateCuratorFee(uint256 _old, uint256 _new);
 
+    event UpdateSwapFee(uint256 _old, uint256 _new);
+
     event UpdateMinBidIncrease(uint256 _old, uint256 _new);
 
     event UpdateMinVotePercentage(uint256 _old, uint256 _new);
@@ -106,16 +116,18 @@ contract FNFTFactory is
     error ZeroAddressDisallowed();
     error MultiplierTooLow();
 
-    function initialize(address _weth, address _ifoFactory) external initializer {
+    function initialize(address _weth, address _ifoFactory, address _feeDistributor) external initializer {
         __Ownable_init();
         __Pausable_init();
         __BeaconUpgradeable__init(address(new FNFT()));
 
         WETH = _weth;
         ifoFactory = _ifoFactory;
+        feeDistributor = _feeDistributor;
         maxAuctionLength = 2 weeks;
         minAuctionLength = 3 days;
         feeReceiver = payable(msg.sender);
+        swapFee = 0; // 0%
         minReserveFactor = 2000; // 20%
         maxReserveFactor = 50000; // 500%
         minBidIncrease = 500; // 5%
@@ -198,7 +210,16 @@ contract FNFTFactory is
         } else if (feeType == FeeType.MaxCuratorFee) {
             emit UpdateCuratorFee(maxCuratorFee, _fee);
             maxCuratorFee = _fee;
+        } else if (feeType == FeeType.SwapFee) {
+            emit UpdateSwapFee(swapFee, _fee);
+            swapFee = _fee;
         }
+    }
+
+    function setFeeDistributor(address _feeDistributor) public onlyOwner virtual override {
+        if (_feeDistributor == address(0)) revert ZeroAddress();
+        emit NewFeeDistributor(feeDistributor, _feeDistributor);
+        feeDistributor = _feeDistributor;
     }
 
     function setMinBidIncrease(uint256 _min) external onlyOwner {
