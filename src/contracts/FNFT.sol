@@ -645,9 +645,18 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {        
-        address feeDistributor = IFNFTFactory(factory).feeDistributor();
-        super._transfer(user, feeDistributor, amount);
-        //TODO: fix save vaultId
-        // IFeeDistributor(feeDistributor).distribute(vaultId);
+        IFNFTFactory _factory = factory;
+
+        if (_factory.excludedFromFees(msg.sender)) {
+            return;
+        }
+
+        // Mint fees directly to the distributor and distribute.
+        if (amount > 0) {
+            address feeDistributor = _factory.feeDistributor();
+            // Changed to a _transfer() in v1.0.3.
+            super._transfer(user, feeDistributor, amount);
+            // IFeeDistributor(feeDistributor).distribute(vaultId);
+        }
     }
 }

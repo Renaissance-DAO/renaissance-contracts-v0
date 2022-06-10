@@ -44,7 +44,7 @@ contract FNFTCollectionFactory is
     uint64 public override factoryTargetRedeemFee;
     uint64 public override factoryRandomSwapFee;
     uint64 public override factoryTargetSwapFee;
-    uint64 public override flashLoanFee;
+    uint64 public override flashLoanFee;    
 
     error FeeTooHigh();
     error CallerIsNotVault();
