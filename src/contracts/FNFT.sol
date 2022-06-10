@@ -496,12 +496,10 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
             IWETH weth = IWETH(IFNFTFactory(factory).WETH());
             IUniswapV2Pair pair = IUniswapV2Pair(IPriceOracle(priceOracle).getPairAddress(address(this), weth));
 
-            if (to == pair) {
-                address feeDistributor = IFNFTFactory(factory).feeDistributor();
+            if (to == pair) {                
                 uint256 feeAmount = amount * swapFee / 10000;
 
-                super._transfer(from, feeDistributor, feeAmount);
-                // IFeeDistributor(feeDistributor).distribute(vaultId);
+                _chargeAndDistributeFees(from, feeAmount);
 
                 amount = amount - feeAmount;
             }
@@ -646,7 +644,10 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         return _flashLoan(receiver, loanToken, amount, flashLoanFee, data);
     }
 
-    function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {
-        // TODO: charge a fee
+    function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {        
+        address feeDistributor = IFNFTFactory(factory).feeDistributor();
+        super._transfer(user, feeDistributor, amount);
+        //TODO: fix save vaultId
+        // IFeeDistributor(feeDistributor).distribute(vaultId);
     }
 }

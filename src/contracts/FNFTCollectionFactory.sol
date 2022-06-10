@@ -49,10 +49,10 @@ contract FNFTCollectionFactory is
     error CallerIsNotVault();
     error ZeroAddress();
 
-    function __FNFTCollectionFactory_init(address _vaultImpl, address _feeDistributor) public override initializer {
+    function __FNFTCollectionFactory_init(address _feeDistributor) public override initializer {
         __Pausable_init();
         // We use a beacon proxy so that every child contract follows the same implementation code.
-        __BeaconUpgradeable__init(_vaultImpl);
+        __BeaconUpgradeable__init(address(new FNFTCollection()));
         setFeeDistributor(_feeDistributor);
         setFactoryFees(0.1 ether, 0.05 ether, 0.1 ether, 0.05 ether, 0.1 ether);
     }

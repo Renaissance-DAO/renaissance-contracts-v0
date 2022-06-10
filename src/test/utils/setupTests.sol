@@ -111,7 +111,6 @@ contract SetupEnvironment {
         fnftCollectionFactory = FNFTCollectionFactory(
             deployer.deployFNFTCollectionFactory(
                 address(new FNFTCollectionFactory()),
-                address(new FNFTCollection()),
                 feeDistributor
             )
         );

@@ -121,12 +121,11 @@ contract Deployer is Ownable {
 
     /// @notice the function to deploy FNFTCollectionFactory
     /// @param _logic the implementation
-    function deployFNFTCollectionFactory(address _logic, address vaultImpl, address feeDistributor) external onlyOwner returns (address factory) {
+    function deployFNFTCollectionFactory(address _logic, address feeDistributor) external onlyOwner returns (address factory) {
         if (address(proxyController) == address(0)) revert NoController();
 
         bytes memory _initializationCalldata = abi.encodeWithSelector(
-            FNFTCollectionFactory.__FNFTCollectionFactory_init.selector,
-            vaultImpl,
+            FNFTCollectionFactory.__FNFTCollectionFactory_init.selector,            
             feeDistributor
         );
 

@@ -80,7 +80,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   await deployerContract.deployFNFTCollectionFactory(
     factoryImpl.address,
-    vaultImpl.address,
     feeDistributorAddress
   );
 
