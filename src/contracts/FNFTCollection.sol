@@ -17,6 +17,7 @@ import "./interfaces/IEligibility.sol";
 import "./interfaces/IEligibilityManager.sol";
 import "./interfaces/IFeeDistributor.sol";
 import "./token/ERC20FlashMintUpgradeable.sol";
+import {IPriceOracle} from "./PriceOracle.sol";
 
 // Authors: @0xKiwi_ and @alexgausman.
 
@@ -469,7 +470,7 @@ contract FNFTCollection is
         if (amount > 0) {
             address feeDistributor = _factory.feeDistributor();
             // Changed to a _transfer() in v1.0.3.
-            _transfer(user, feeDistributor, amount);
+            super._transfer(user, feeDistributor, amount);
             IFeeDistributor(feeDistributor).distribute(vaultId);
         }
     }
@@ -563,5 +564,40 @@ contract FNFTCollection is
         withdrawNFTsTo(numItems, specificIds, recipient);
         emit VaultShutdown(assetAddress, numItems, recipient);
         assetAddress = address(0);
+    }
+
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
+        //Take fee here
+        uint256 swapFee = IFNFTCollectionFactory(factory).swapFee();
+        if (swapFee > 0) {
+            address priceOracle = IFNFTCollectionFactory(factory).priceOracle();
+            address weth = address(IFNFTCollectionFactory(factory).WETH());
+            address pair = IPriceOracle(priceOracle).getPairAddress(address(this), weth);
+
+            if (to == pair) {                
+                uint256 feeAmount = amount * swapFee / 10000;
+
+                _chargeAndDistributeFees(from, feeAmount);
+
+                amount = amount - feeAmount;
+            }
+        }
+
+        super._transfer(from, to, amount);
+    }
+
+    function _afterTokenTransfer(
+        address,
+        address,
+        uint256
+    ) internal virtual override {
+        address priceOracle = IFNFTFactory(factory).priceOracle();
+        if (priceOracle != address(0)) {
+            IPriceOracle(priceOracle).updatefNFTPairInfo(address(this));
+        }
     }
 }
