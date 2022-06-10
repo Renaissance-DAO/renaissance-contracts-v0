@@ -22,19 +22,21 @@ interface IFNFTCollectionFactory is IBeacon {
   function factoryTargetSwapFee() external view returns (uint64);
   function vaultFees(uint256 vaultId) external view returns (uint256, uint256, uint256, uint256, uint256);
   function flashLoanFee() external view returns (uint64);
+  function priceOracle() external view returns (address);
 
   event NewFeeDistributor(address oldDistributor, address newDistributor);
   event NewZapContract(address oldZap, address newZap);
   event FeeExclusion(address feeExcluded, bool excluded);
+  event UpdatePriceOracle(address oldPriceOracle, address newPriceOracle);
   event NewEligibilityManager(address oldEligManager, address newEligManager);
   event NewVault(uint256 indexed vaultId, address vaultAddress, address assetAddress);
   event UpdateVaultFees(uint256 vaultId, uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
   event DisableVaultFees(uint256 vaultId);
   event UpdateFactoryFees(uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
-  event UpdateFlashLoanFee(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
+  event UpdateFlashLoanFee(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);  
 
   // Write functions.
-  function __FNFTCollectionFactory_init(address _vaultImpl, address _feeDistributor) external;
+  function __FNFTCollectionFactory_init(address _feeDistributor) external;
   function createVault(
       string calldata name,
       string calldata symbol,

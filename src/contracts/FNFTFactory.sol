@@ -18,7 +18,7 @@ contract FNFTFactory is
     BeaconUpgradeable,
     IFNFTFactory
 {
-    enum FeeType { GovernanceFee, MaxCuratorFee }
+    enum FeeType { GovernanceFee, MaxCuratorFee, SwapFee }
     enum Boundary { Min, Max }
 
     /// @notice a mapping of fNFT ids (see getFnftId) to the address of the fNFT contract
@@ -100,6 +100,8 @@ contract FNFTFactory is
     event UpdateFeeReceiver(address _old, address _new);
 
     event UpdateFlashLoanFee(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
+
+    event NewFeeDistributor(address oldDistributor, address newDistributor);
 
     event FNFTCreated(
         address indexed token,
@@ -222,7 +224,7 @@ contract FNFTFactory is
     }
 
     function setFeeDistributor(address _feeDistributor) public onlyOwner virtual override {
-        if (_feeDistributor == address(0)) revert ZeroAddress();
+        if (_feeDistributor == address(0)) revert ZeroAddressDisallowed();
         emit NewFeeDistributor(feeDistributor, _feeDistributor);
         feeDistributor = _feeDistributor;
     }

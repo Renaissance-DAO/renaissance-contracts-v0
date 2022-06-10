@@ -46,14 +46,16 @@ contract Deployer is Ownable {
     function deployFNFTFactory(
         address _logic,
         address _weth,
-        address _ifoFactory
+        address _ifoFactory,
+        address _feeDistributor
     ) external onlyOwner returns (address fnftFactory) {
         if (address(proxyController) == address(0)) revert NoController();
 
         bytes memory _initializationCalldata = abi.encodeWithSelector(
             FNFTFactory.initialize.selector,
             _weth,
-            _ifoFactory
+            _ifoFactory,
+            _feeDistributor
         );
 
         fnftFactory = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));

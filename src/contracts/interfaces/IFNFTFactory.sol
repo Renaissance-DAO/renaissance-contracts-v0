@@ -45,4 +45,6 @@ interface IFNFTFactory {
     function setFeeReceiver(address payable _receiver) external;
 
     function setFlashLoanFee(uint256 fee) external;
+
+    function setFeeDistributor(address _feeDistributor) external;
 }

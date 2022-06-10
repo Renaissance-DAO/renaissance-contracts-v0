@@ -41,9 +41,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function setUp() public {
         setupEnvironment(10 ether);
         (pairFactory, priceOracle, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
-
         fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 100);
-
         token = new MockNFT();
 
         token.mint(address(this), 1);

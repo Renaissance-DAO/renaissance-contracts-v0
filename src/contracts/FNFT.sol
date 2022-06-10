@@ -493,8 +493,8 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         uint256 swapFee = IFNFTFactory(factory).swapFee();
         if (swapFee > 0) {
             address priceOracle = IFNFTFactory(factory).priceOracle();
-            IWETH weth = IWETH(IFNFTFactory(factory).WETH());
-            IUniswapV2Pair pair = IUniswapV2Pair(IPriceOracle(priceOracle).getPairAddress(address(this), weth));
+            address weth = address(IFNFTFactory(factory).WETH());
+            address pair = IPriceOracle(priceOracle).getPairAddress(address(this), weth);
 
             if (to == pair) {                
                 uint256 feeAmount = amount * swapFee / 10000;

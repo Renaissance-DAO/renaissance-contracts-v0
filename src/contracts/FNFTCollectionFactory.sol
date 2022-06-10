@@ -20,7 +20,8 @@ contract FNFTCollectionFactory is
     address public override zapContract; // No longer needed, but keeping for compatibility.
     address public override feeDistributor;
     address public override eligibilityManager;
-
+    address public override priceOracle;
+    
     mapping(address => address[]) _vaultsForAsset;
 
     address[] internal vaults;
@@ -74,6 +75,11 @@ contract FNFTCollectionFactory is
         IFeeDistributor(feeDistributor).initializeVaultReceivers(_vaultId);
         emit NewVault(_vaultId, vaultAddr, _assetAddress);
         return _vaultId;
+    }
+
+    function setPriceOracle(address _newOracle) external onlyOwner {
+        emit UpdatePriceOracle(priceOracle, _newOracle);
+        priceOracle = _newOracle;
     }
 
     function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {

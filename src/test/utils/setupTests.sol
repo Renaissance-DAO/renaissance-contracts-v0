@@ -57,9 +57,9 @@ contract SetupEnvironment {
         );
     }
 
-    function setupFNFTFactory(address _ifoFactory, address _priceOracle) public returns (FNFTFactory fnftFactory) {
+    function setupFNFTFactory(address _ifoFactory, address _priceOracle, address _feeDistributor) public returns (FNFTFactory fnftFactory) {
         fnftFactory = FNFTFactory(
-            deployer.deployFNFTFactory(address(new FNFTFactory()), address(weth), _ifoFactory)
+            deployer.deployFNFTFactory(address(new FNFTFactory()), address(weth), _ifoFactory, _feeDistributor)
         );
         fnftFactory.setPriceOracle(_priceOracle);
     }
@@ -133,10 +133,15 @@ contract SetupEnvironment {
             FNFT fnft
         )
     {
+        StakingTokenProvider stakingTokenProvider = setupStakingTokenProvider();
+        LPStaking lpStaking = setupLPStaking(address(stakingTokenProvider));
+        FeeDistributor feeDistributor = setupFeeDistributor(address(lpStaking));
+
         pairFactory = setupPairFactory();
-        priceOracle = setupPriceOracle(address(pairFactory));        
+        priceOracle = setupPriceOracle(address(pairFactory));    
+
         ifoFactory = setupIFOFactory();
-        fnftFactory = setupFNFTFactory(address(ifoFactory), address(priceOracle));
+        fnftFactory = setupFNFTFactory(address(ifoFactory), address(priceOracle), address(feeDistributor));
         fnft = setupFNFT(address(fnftFactory), _fnftAmount);
     }
 
