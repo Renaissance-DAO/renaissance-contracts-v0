@@ -13,7 +13,7 @@ import {console, CheatCodes, SetupEnvironment} from "./utils/utils.sol";
 contract FNFTFactoryTest is DSTest, SetupEnvironment {
     FNFTFactory public fnftFactory;
     MockNFT public token;
-    MockNFT public token2;    
+    MockNFT public token2;
 
     function setUp() public {
         setupEnvironment(10 ether);
@@ -58,7 +58,7 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
 
     // too high
     function testSetGovernanceFeeTooHigh() public {
-        vm.expectRevert(FNFTFactory.GovFeeTooHigh.selector);
+        vm.expectRevert(FNFTFactory.FeeTooHigh.selector);
         fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 1001);
     }
 
@@ -98,5 +98,16 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
 
     function test_setFeeReceiver() public {
         fnftFactory.setFeeReceiver(payable(address(this)));
+    }
+
+    function testSetFlashLoanFeeTooHigh() public {
+        vm.expectRevert(FNFTFactory.FeeTooHigh.selector);
+        fnftFactory.setFlashLoanFee(501);
+    }
+
+    function testSetFlashLoanFeeNotOwner() public {
+        vm.expectRevert("Ownable: caller is not the owner");
+        vm.prank(address(1));
+        fnftFactory.setFlashLoanFee(499);
     }
 }

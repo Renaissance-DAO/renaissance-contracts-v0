@@ -23,7 +23,11 @@ abstract contract ERC20FlashMintUpgradeable is Initializable, ERC20Upgradeable, 
 
     function __ERC20FlashMint_init_unchained() internal onlyInitializing {
     }
-    bytes32 internal constant _ON_FLASH_LOAN_RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
+    bytes32 private constant _ON_RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
+
+    error ExceedsMaxFlashLoan();
+    error FlashLoanNotRepaid();
+    error InvalidFlashLoanReturnValue();
 
     /**
      * @dev Returns the maximum amount of tokens available for loan.
@@ -33,6 +37,30 @@ abstract contract ERC20FlashMintUpgradeable is Initializable, ERC20Upgradeable, 
     function maxFlashLoan(address token) public view virtual override returns (uint256) {
         return token == address(this) ? type(uint256).max - ERC20Upgradeable.totalSupply() : 0;
     }
+
+    function _flashLoan(
+        IERC3156FlashBorrowerUpgradeable receiver,
+        address token,
+        uint256 amount,
+        uint256 fee,
+        bytes calldata data
+    ) internal returns (bool) {
+        if (amount > maxFlashLoan(token)) revert ExceedsMaxFlashLoan();
+
+        _mint(address(receiver), amount);
+        if (receiver.onFlashLoan(msg.sender, token, amount, fee, data) != _ON_RETURN_VALUE) revert InvalidFlashLoanReturnValue();
+        uint256 currentAllowance = allowance(address(receiver), address(this));
+        if (amount + fee > currentAllowance) revert FlashLoanNotRepaid();
+
+        _approve(address(receiver), address(this), currentAllowance - amount - fee);
+
+        _burn(address(receiver), amount);
+        _chargeAndDistributeFees(address(receiver), fee);
+
+        return true;
+    }
+
+    function _chargeAndDistributeFees(address user, uint256 amount) internal virtual;
 
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new

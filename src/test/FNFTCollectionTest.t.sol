@@ -11,6 +11,7 @@ import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
 import {FNFTCollection} from "../contracts/FNFTCollection.sol";
 import {FeeDistributor} from "../contracts/FeeDistributor.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
+import {ERC20FlashMintUpgradeable} from "../contracts/token/ERC20FlashMintUpgradeable.sol";
 
 /// @author 0xkowloon
 /// @title Tests for FNFT collection vaults
@@ -505,22 +506,21 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     failedSwap(tokenIds, new uint256[](0), FNFTCollection.Paused.selector);
   }
 
+  // TODO: we need an FNFTCollectionFactoryTest contract
   function testSetFlashLoanFeeTooHigh() public {
-    mintVaultTokens(1);
-    vm.expectRevert(FNFTCollection.FeeTooHigh.selector);
-    vault.setFlashLoanFee(501);
+    vm.expectRevert(FNFTCollectionFactory.FeeTooHigh.selector);
+    factory.setFlashLoanFee(501);
   }
 
   function testSetFlashLoanFeeNotOwner() public {
-    mintVaultTokens(1);
     vm.expectRevert("Ownable: caller is not the owner");
     vm.prank(address(1));
-    vault.setFlashLoanFee(499);
+    factory.setFlashLoanFee(499);
   }
 
   function testFlashLoanGood() public {
     mintVaultTokens(1);
-    vault.setFlashLoanFee(100); // 1%
+    factory.setFlashLoanFee(100); // 1%
 
     FlashBorrower flashBorrower = new FlashBorrower(address(vault));
     vault.transfer(address(flashBorrower), 0.01 ether); // for fees
@@ -544,7 +544,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
   function testFlashLoanGoodFeeExcluded() public {
     mintVaultTokens(1);
-    vault.setFlashLoanFee(100); // 1%
+    factory.setFlashLoanFee(100); // 1%
 
     FlashBorrower flashBorrower = new FlashBorrower(address(vault));
     factory.setFeeExclusion(address(flashBorrower), true);
@@ -565,7 +565,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
   function testFlashLoanBad() public {
     mintVaultTokens(1);
-    vault.setFlashLoanFee(100); // 1%
+    factory.setFlashLoanFee(100); // 1%
 
     FlashBorrower flashBorrower = new FlashBorrower(address(vault));
     vault.transfer(address(flashBorrower), 0.01 ether); // for fees
@@ -573,12 +573,13 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     assertEq(vault.totalSupply(), 1 ether);
     assertEq(vault.balanceOf(address(vault)), 0);
 
-    vm.expectRevert(FNFTCollection.FlashLoanNotRepaid.selector);
+    vm.expectRevert(ERC20FlashMintUpgradeable.FlashLoanNotRepaid.selector);
     flashBorrower.badFlashLoan(1 ether);
 
     assertEq(vault.totalSupply(), 1 ether);
     assertEq(vault.balanceOf(address(flashBorrower)), 0.01 ether);
     assertEq(vault.balanceOf(address(vault)), 0);
+    assertEq(vault.allowance(address(flashBorrower), address(vault)), 0);
   }
 
   // TODO:

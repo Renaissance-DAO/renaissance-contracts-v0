@@ -9,11 +9,12 @@ import "./libraries/UniswapV2Library.sol";
 import "./interfaces/IFeeDistributor.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IPriceOracle} from "./PriceOracle.sol";
-import "./token/ERC20Upgradeable.sol";
+import "./token/ERC20FlashMintUpgradeable.sol";
 
-contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
+contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     using Address for address;
 
     /// -----------------------------------
@@ -132,6 +133,7 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
     error NotEnoughVoters();
     error AuctionNotLive();
     error NoTokens();
+    error WrongToken();
 
     function initialize(
         address _curator,
@@ -627,5 +629,24 @@ contract FNFT is ERC20Upgradeable, ERC721HolderUpgradeable {
         // NOTE: This might allow the recipient to attempt a limited reentrancy attack.
         (bool success, ) = to.call{value: value, gas: 30000}("");
         return success;
+    }
+
+    function flashFee(address loanToken, uint256 amount) public view returns (uint256) {
+        if (loanToken != address(this)) revert WrongToken();
+        return IFNFTFactory(factory).flashLoanFee() * amount / 10000;
+    }
+
+    function flashLoan(
+        IERC3156FlashBorrowerUpgradeable receiver,
+        address loanToken,
+        uint256 amount,
+        bytes calldata data
+    ) public override virtual returns (bool) {
+        uint256 flashLoanFee = flashFee(loanToken, amount);
+        return _flashLoan(receiver, loanToken, amount, flashLoanFee, data);
+    }
+
+    function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {
+        // TODO: charge a fee
     }
 }

@@ -38,7 +38,11 @@ interface IFNFTFactory {
 
     function instantBuyMultiplier() external view returns (uint256);
 
+    function flashLoanFee() external view returns (uint256);
+
     function feeReceiver() external view returns (address payable);
 
     function setFeeReceiver(address payable _receiver) external;
+
+    function setFlashLoanFee(uint256 fee) external;
 }

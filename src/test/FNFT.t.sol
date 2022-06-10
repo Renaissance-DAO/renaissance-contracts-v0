@@ -16,10 +16,12 @@ import {IWETH} from "../contracts/interfaces/IWETH.sol";
 import {MockNFT} from "../contracts/mocks/NFT.sol";
 import {WETH} from "../contracts/mocks/WETH.sol";
 import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH, PairWithFNFTAndWETH} from "./utils/utils.sol";
+import {ERC20FlashMintUpgradeable} from "../contracts/token/ERC20FlashMintUpgradeable.sol";
+import {FlashBorrower} from "./utils/FlashBorrower.sol";
 
 /// @author Nibble Market
 /// @title Tests for the vaults
-contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {    
+contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     IFOFactory public ifoFactory;
     IPriceOracle public priceOracle;
     IUniswapV2Factory public pairFactory;
@@ -592,6 +594,42 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         vm.expectRevert(FNFT.NotCurator.selector);
         vm.prank(address(user1));
         fnft.setVaultMetadata("Bored Ape", "BAYC");
+    }
+
+
+    // TODO: include fees
+    function testFlashLoanGood() public {
+        FlashBorrower flashBorrower = new FlashBorrower(address(fnft));
+
+        assertEq(fnft.totalSupply(), 100 ether);
+        assertEq(fnft.balanceOf(address(fnft)), 0);
+
+        flashBorrower.goodFlashLoan(1 ether);
+
+        assertEq(fnft.totalSupply(), 100 ether);
+        assertEq(fnft.balanceOf(address(fnft)), 0);
+        assertEq(fnft.balanceOf(address(flashBorrower)), 0);
+        assertEq(fnft.allowance(address(flashBorrower), address(fnft)), 0);
+    }
+
+    // TODO: implement
+    // function testFlashLoanGoodFeeExcluded() public {
+    // }
+
+    // TODO: include fees
+    function testFlashLoanBad() public {
+        FlashBorrower flashBorrower = new FlashBorrower(address(fnft));
+
+        assertEq(fnft.totalSupply(), 100 ether);
+        assertEq(fnft.balanceOf(address(fnft)), 0);
+
+        vm.expectRevert(ERC20FlashMintUpgradeable.FlashLoanNotRepaid.selector);
+        flashBorrower.badFlashLoan(1 ether);
+
+        assertEq(fnft.totalSupply(), 100 ether);
+        assertEq(fnft.balanceOf(address(flashBorrower)), 0);
+        assertEq(fnft.balanceOf(address(fnft)), 0);
+        assertEq(fnft.allowance(address(flashBorrower), address(fnft)), 0);
     }
 
     receive() external payable {}

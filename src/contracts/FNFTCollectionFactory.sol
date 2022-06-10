@@ -43,6 +43,7 @@ contract FNFTCollectionFactory is
     uint64 public override factoryTargetRedeemFee;
     uint64 public override factoryRandomSwapFee;
     uint64 public override factoryTargetSwapFee;
+    uint64 public override flashLoanFee;
 
     error FeeTooHigh();
     error CallerIsNotVault();
@@ -73,6 +74,12 @@ contract FNFTCollectionFactory is
         IFeeDistributor(feeDistributor).initializeVaultReceivers(_vaultId);
         emit NewVault(_vaultId, vaultAddr, _assetAddress);
         return _vaultId;
+    }
+
+    function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {
+        if (_flashLoanFee > 500) revert FeeTooHigh();
+        emit UpdateFlashLoanFee(flashLoanFee, _flashLoanFee);
+        flashLoanFee = uint64(_flashLoanFee);
     }
 
     function setFactoryFees(

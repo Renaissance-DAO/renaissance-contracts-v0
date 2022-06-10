@@ -39,8 +39,6 @@ contract FNFTCollection is
 
     uint256 randNonce;
 
-    uint256 flashLoanFee;
-
     address public override assetAddress;
     bool public override is1155;
     bool public override allowAllItems;
@@ -54,7 +52,6 @@ contract FNFTCollection is
     mapping(uint256 => uint256) quantity1155;
 
     event VaultShutdown(address assetAddress, uint256 numItems, address recipient);
-    event FlashLoanFeeUpdated(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
 
     error ZeroAddress();
     error IneligibleNFTs();
@@ -71,11 +68,8 @@ contract FNFTCollection is
     error TargetSwapDisabled();
     error NFTAlreadyInCollection();
     error NotNFTOwner();
-    error WrongToken();
     error FeeTooHigh();
-    error ExceedsMaxFlashLoan();
-    error FlashLoanNotRepaid();
-    error InvalidFlashLoanReturnValue();
+    error WrongToken();
 
     function __FNFTCollection_init(
         string memory _name,
@@ -281,15 +275,9 @@ contract FNFTCollection is
         return ids;
     }
 
-    function setFlashLoanFee(uint256 _flashLoanFee) external onlyOwner {
-        if (_flashLoanFee > 500) revert FeeTooHigh();
-        emit FlashLoanFeeUpdated(flashLoanFee, _flashLoanFee);
-        flashLoanFee = _flashLoanFee;
-    }
-
-    function flashFee(address token, uint256 amount) public view virtual override returns (uint256) {
+    function flashFee(address token, uint256 amount) public view returns (uint256) {
         if (token != address(this)) revert WrongToken();
-        return amount * flashLoanFee / 10000;
+        return uint256(factory.flashLoanFee()) * amount / 10000;
     }
 
     function flashLoan(
@@ -299,21 +287,9 @@ contract FNFTCollection is
         bytes calldata data
     ) public override virtual returns (bool) {
         onlyOwnerIfPaused(4);
-        if (amount > maxFlashLoan(token)) revert ExceedsMaxFlashLoan();
 
         uint256 fee = factory.excludedFromFees(address(receiver)) ? 0 : flashFee(token, amount);
-
-        _mint(address(receiver), amount);
-        if (receiver.onFlashLoan(msg.sender, token, amount, fee, data) != _ON_FLASH_LOAN_RETURN_VALUE) revert InvalidFlashLoanReturnValue();
-        uint256 currentAllowance = allowance(address(receiver), address(this));
-        if (amount + fee > currentAllowance) revert FlashLoanNotRepaid();
-
-        _approve(address(receiver), address(this), currentAllowance - amount - fee);
-
-        _burn(address(receiver), amount);
-        _chargeAndDistributeFees(address(receiver), fee);
-
-        return true;
+        return _flashLoan(receiver, token, amount, fee, data);
     }
 
     function mintFee() public view override virtual returns (uint256) {
@@ -479,7 +455,7 @@ contract FNFTCollection is
         return redeemedIds;
     }
 
-    function _chargeAndDistributeFees(address user, uint256 amount) internal virtual {
+    function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {
         // Do not charge fees if the zap contract is calling
         // Added in v1.0.3. Changed to mapping in v1.0.5.
 

@@ -61,7 +61,7 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
     }
 
     function testSetGovernanceFeeTooHigh() public {
-        vm.expectRevert(IFOFactory.GovFeeTooHigh.selector);
+        vm.expectRevert(IFOFactory.FeeTooHigh.selector);
         ifoFactory.setGovernanceFee(1001);
     }
 

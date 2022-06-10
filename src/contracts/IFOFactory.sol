@@ -42,7 +42,7 @@ contract IFOFactory is OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeabl
     );
 
     error ZeroAddressDisallowed();
-    error GovFeeTooHigh();
+    error FeeTooHigh();
     error InvalidDuration();
     error IFOExists(address nft);
 
@@ -130,7 +130,7 @@ contract IFOFactory is OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeabl
     }
 
     function setGovernanceFee(uint256 _fee) external onlyOwner {
-        if (_fee > MAX_GOV_FEE) revert GovFeeTooHigh();
+        if (_fee > MAX_GOV_FEE) revert FeeTooHigh();
 
         emit UpdateGovernanceFee(governanceFee, _fee);
 

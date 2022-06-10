@@ -21,6 +21,7 @@ interface IFNFTCollectionFactory is IBeacon {
   function factoryRandomSwapFee() external view returns (uint64);
   function factoryTargetSwapFee() external view returns (uint64);
   function vaultFees(uint256 vaultId) external view returns (uint256, uint256, uint256, uint256, uint256);
+  function flashLoanFee() external view returns (uint64);
 
   event NewFeeDistributor(address oldDistributor, address newDistributor);
   event NewZapContract(address oldZap, address newZap);
@@ -30,6 +31,7 @@ interface IFNFTCollectionFactory is IBeacon {
   event UpdateVaultFees(uint256 vaultId, uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
   event DisableVaultFees(uint256 vaultId);
   event UpdateFactoryFees(uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
+  event UpdateFlashLoanFee(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
 
   // Write functions.
   function __FNFTCollectionFactory_init(address _vaultImpl, address _feeDistributor) external;
@@ -61,4 +63,5 @@ interface IFNFTCollectionFactory is IBeacon {
       uint256 targetSwapFee
   ) external;
   function disableVaultFees(uint256 vaultId) external;
+  function setFlashLoanFee(uint256 fee) external;
 }
