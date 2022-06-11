@@ -39,7 +39,7 @@ interface IFNFTCollectionFactory is IBeacon {
   event UpdateSwapFee(uint256 _old, uint256 _new);
   
   // Write functions.
-  function __FNFTCollectionFactory_init(address _feeDistributor) external;
+  function __FNFTCollectionFactory_init(address _weth, address _feeDistributor) external;  
   function createVault(
       string calldata name,
       string calldata symbol,
@@ -51,6 +51,7 @@ interface IFNFTCollectionFactory is IBeacon {
   function setEligibilityManager(address _eligibilityManager) external;
   function setZapContract(address _zapContract) external;
   function setFeeExclusion(address _excludedAddr, bool excluded) external;
+  function setSwapFee(uint256 _swapFee) external;
 
   function setFactoryFees(
     uint256 mintFee,

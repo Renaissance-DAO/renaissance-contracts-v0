@@ -645,7 +645,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {        
-        IFNFTFactory _factory = factory;
+        IFNFTFactory _factory = IFNFTFactory(factory);
 
         if (_factory.excludedFromFees(msg.sender)) {
             return;

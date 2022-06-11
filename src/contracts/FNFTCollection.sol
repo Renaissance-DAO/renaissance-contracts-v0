@@ -595,7 +595,7 @@ contract FNFTCollection is
         address,
         uint256
     ) internal virtual override {
-        address priceOracle = IFNFTFactory(factory).priceOracle();
+        address priceOracle = IFNFTCollectionFactory(factory).priceOracle();
         if (priceOracle != address(0)) {
             IPriceOracle(priceOracle).updatefNFTPairInfo(address(this));
         }
