@@ -140,6 +140,24 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.accumulativeRewardOf(address(this)), 499999999999999999);
   }
 
+  function testTimelockedTokensCannotBeTransferred() public {
+    mintVaultTokens(2);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
+
+    createTrisolarisPair();
+    addLiquidity();
+    depositLPTokens();
+
+    vm.expectRevert(TimelockRewardDistributionTokenImpl.UserIsLocked.selector);
+    rewardDistToken.transfer(address(1), 0.01 ether);
+
+    // passed timelock, transfer goes through
+    vm.warp(block.timestamp + 3);
+    rewardDistToken.transfer(address(1), 0.01 ether);
+    assertEq(rewardDistToken.balanceOf(address(1)), 0.01 ether);
+  }
+
   function createTrisolarisPair() private {
     trisolarisPair = IUniswapV2Pair(trisolarisFactory.createPair(address(vault), stakingTokenProvider.defaultPairedToken()));
   }
