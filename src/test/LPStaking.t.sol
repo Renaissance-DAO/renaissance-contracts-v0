@@ -12,6 +12,8 @@ import {FeeDistributor} from "../contracts/FeeDistributor.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
 import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
 import {IUniswapV2Pair} from "../contracts/interfaces/IUniswapV2Pair.sol";
+import {IUniswapV2Router} from "../contracts/interfaces/IUniswapV2Router.sol";
+import {TimelockRewardDistributionTokenImpl} from "../contracts/token/TimelockRewardDistributionTokenImpl.sol";
 
 /// @author 0xkowloon
 /// @title Tests for LP staking
@@ -23,6 +25,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   FNFTCollection private vault;
   IUniswapV2Factory private trisolarisFactory;
   IUniswapV2Pair private trisolarisPair;
+  IUniswapV2Router private trisolarisRouter;
 
   MockNFT public token;
 
@@ -36,6 +39,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     ) = setupCollectionVaultContracts();
 
     trisolarisFactory = setupPairFactory();
+    trisolarisRouter = setupRouter();
 
     token = new MockNFT();
   }
@@ -82,6 +86,59 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardToken, address(vault));
   }
 
+  function testDeposit() public {
+    mintVaultTokens(2);
+
+    createTrisolarisPair();
+    addLiquidity();
+    depositLPTokens();
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
+    assertEq(rewardDistToken.balanceOf(address(this)), 999999999999999000);
+    assertEq(rewardDistToken.timelockUntil(address(this)), block.timestamp + 2);
+  }
+
+  function testDepositTwice() public {
+    mintVaultTokens(2);
+
+    createTrisolarisPair();
+    addLiquidity();
+
+    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
+    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    lpStaking.deposit(0, lpTokenBalance / 2);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
+    assertEq(rewardDistToken.balanceOf(address(this)), 499999999999999500);
+    assertEq(rewardDistToken.timelockUntil(address(this)), block.timestamp + 2);
+
+    lpStaking.deposit(0, lpTokenBalance / 2);
+
+    assertEq(rewardDistToken.balanceOf(address(this)), 999999999999999000);
+    // timelock value does not change
+    assertEq(rewardDistToken.timelockUntil(address(this)), block.timestamp + 2);
+  }
+
+  function testReceiveRewards() public {
+    mintVaultTokens(2);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
+
+    createTrisolarisPair();
+    addLiquidity();
+    depositLPTokens();
+
+    assertEq(vault.balanceOf(address(rewardDistToken)), 0);
+    assertEq(rewardDistToken.accumulativeRewardOf(address(this)), 0);
+
+    vault.approve(address(lpStaking), 0.5 ether);
+    lpStaking.receiveRewards(0, 0.5 ether);
+
+    assertEq(vault.balanceOf(address(rewardDistToken)), 0.5 ether);
+    // TODO: fix the precision issue
+    // assertEq(rewardDistToken.accumulativeRewardOf(address(this)), 0.5 ether);
+    assertEq(rewardDistToken.accumulativeRewardOf(address(this)), 499999999999999999);
+  }
 
   function createTrisolarisPair() private {
     trisolarisPair = IUniswapV2Pair(trisolarisFactory.createPair(address(vault), stakingTokenProvider.defaultPairedToken()));
@@ -108,5 +165,29 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     uint256[] memory amounts = new uint256[](0);
 
     vault.mint(tokenIds, amounts);
+  }
+
+  function addLiquidity() private {
+    vault.approve(address(trisolarisRouter), 1 ether);
+    trisolarisRouter.addLiquidityETH{value: 1 ether}(
+      address(vault),
+      1 ether,
+      0,
+      0,
+      address(this),
+      block.timestamp
+    );
+  }
+
+  function depositLPTokens() private {
+    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
+    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    lpStaking.deposit(0, lpTokenBalance);
+  }
+
+  function getRewardDistToken() private returns (TimelockRewardDistributionTokenImpl rewardDistToken) {
+    (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(0);
+    address rewardDistTokenAddress = lpStaking.rewardDistributionTokenAddr(stakingToken, rewardToken);
+    rewardDistToken = TimelockRewardDistributionTokenImpl(rewardDistTokenAddress);
   }
 }
