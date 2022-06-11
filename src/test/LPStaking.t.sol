@@ -158,6 +158,41 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.balanceOf(address(1)), 0.01 ether);
   }
 
+  function testExit() public {
+    mintVaultTokens(2);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
+
+    createTrisolarisPair();
+    addLiquidity();
+
+    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
+    trisolarisPair.transfer(address(1), lpTokenBalance);
+
+    vm.startPrank(address(1));
+    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    lpStaking.deposit(0, lpTokenBalance);
+    vm.stopPrank();
+
+    assertEq(trisolarisPair.balanceOf(address(1)), 0);
+    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
+    assertEq(vault.balanceOf(address(1)), 0);
+
+    vault.approve(address(lpStaking), 0.5 ether);
+    lpStaking.receiveRewards(0, 0.5 ether);
+
+    vm.warp(block.timestamp + 3);
+    vm.prank(address(1));
+    lpStaking.exit(0);
+
+    assertEq(trisolarisPair.balanceOf(address(1)), lpTokenBalance);
+    assertEq(vault.balanceOf(address(1)), 499999999999999999);
+    assertEq(rewardDistToken.balanceOf(address(1)), 0);
+    assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
+    assertEq(rewardDistToken.dividendOf(address(1)), 0);
+    assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
+  }
+
   function createTrisolarisPair() private {
     trisolarisPair = IUniswapV2Pair(trisolarisFactory.createPair(address(vault), stakingTokenProvider.defaultPairedToken()));
   }
