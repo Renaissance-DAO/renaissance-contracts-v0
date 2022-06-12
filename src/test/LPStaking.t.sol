@@ -159,27 +159,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   }
 
   function testExit() public {
-    mintVaultTokens(2);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-
-    createTrisolarisPair();
-    addLiquidity();
-
-    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
-    trisolarisPair.transfer(address(1), lpTokenBalance);
-
-    vm.startPrank(address(1));
-    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
-    lpStaking.deposit(0, lpTokenBalance);
-    vm.stopPrank();
-
-    assertEq(trisolarisPair.balanceOf(address(1)), 0);
-    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
-    assertEq(vault.balanceOf(address(1)), 0);
-
-    vault.approve(address(lpStaking), 0.5 ether);
-    lpStaking.receiveRewards(0, 0.5 ether);
+    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
 
     vm.warp(block.timestamp + 3);
     vm.prank(address(1));
@@ -187,6 +167,8 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     assertEq(trisolarisPair.balanceOf(address(1)), lpTokenBalance);
     assertEq(vault.balanceOf(address(1)), 499999999999999999);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
     assertEq(rewardDistToken.balanceOf(address(1)), 0);
     assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
     assertEq(rewardDistToken.dividendOf(address(1)), 0);
@@ -194,27 +176,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   }
 
   function testEmergencyExitAndClaim() public {
-    mintVaultTokens(2);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-
-    createTrisolarisPair();
-    addLiquidity();
-
-    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
-    trisolarisPair.transfer(address(1), lpTokenBalance);
-
-    vm.startPrank(address(1));
-    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
-    lpStaking.deposit(0, lpTokenBalance);
-    vm.stopPrank();
-
-    assertEq(trisolarisPair.balanceOf(address(1)), 0);
-    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
-    assertEq(vault.balanceOf(address(1)), 0);
-
-    vault.approve(address(lpStaking), 0.5 ether);
-    lpStaking.receiveRewards(0, 0.5 ether);
+    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
 
     vm.warp(block.timestamp + 3);
     (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(0);
@@ -223,6 +185,8 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     assertEq(trisolarisPair.balanceOf(address(1)), lpTokenBalance);
     assertEq(vault.balanceOf(address(1)), 499999999999999999);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
     assertEq(rewardDistToken.balanceOf(address(1)), 0);
     assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
     assertEq(rewardDistToken.dividendOf(address(1)), 0);
@@ -230,27 +194,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   }
 
   function testEmergencyExit() public {
-    mintVaultTokens(2);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-
-    createTrisolarisPair();
-    addLiquidity();
-
-    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
-    trisolarisPair.transfer(address(1), lpTokenBalance);
-
-    vm.startPrank(address(1));
-    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
-    lpStaking.deposit(0, lpTokenBalance);
-    vm.stopPrank();
-
-    assertEq(trisolarisPair.balanceOf(address(1)), 0);
-    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
-    assertEq(vault.balanceOf(address(1)), 0);
-
-    vault.approve(address(lpStaking), 0.5 ether);
-    lpStaking.receiveRewards(0, 0.5 ether);
+    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
 
     vm.warp(block.timestamp + 3);
     (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(0);
@@ -259,6 +203,8 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     assertEq(trisolarisPair.balanceOf(address(1)), lpTokenBalance);
     assertEq(vault.balanceOf(address(1)), 0);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
     assertEq(rewardDistToken.balanceOf(address(1)), 0);
     assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 0);
     assertEq(rewardDistToken.dividendOf(address(1)), 499999999999999999);
@@ -314,5 +260,29 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(0);
     address rewardDistTokenAddress = lpStaking.rewardDistributionTokenAddr(stakingToken, rewardToken);
     rewardDistToken = TimelockRewardDistributionTokenImpl(rewardDistTokenAddress);
+  }
+
+  function exitRelatedFunctionsSetUp() private returns (uint256 lpTokenBalance) {
+    mintVaultTokens(2);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
+
+    createTrisolarisPair();
+    addLiquidity();
+
+    lpTokenBalance = trisolarisPair.balanceOf(address(this));
+    trisolarisPair.transfer(address(1), lpTokenBalance);
+
+    vm.startPrank(address(1));
+    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    lpStaking.deposit(0, lpTokenBalance);
+    vm.stopPrank();
+
+    assertEq(trisolarisPair.balanceOf(address(1)), 0);
+    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
+    assertEq(vault.balanceOf(address(1)), 0);
+
+    vault.approve(address(lpStaking), 0.5 ether);
+    lpStaking.receiveRewards(0, 0.5 ether);
   }
 }
