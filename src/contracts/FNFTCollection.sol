@@ -457,8 +457,9 @@ contract FNFTCollection is
     }
 
     function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {
-        // Do not charge fees if the zap contract is calling
-        // Added in v1.0.3. Changed to mapping in v1.0.5.
+        if (amount == 0) {
+            return;
+        }
 
         IFNFTCollectionFactory _factory = factory;
 
@@ -466,13 +467,11 @@ contract FNFTCollection is
             return;
         }
 
-        // Mint fees directly to the distributor and distribute.
-        if (amount > 0) {
-            address feeDistributor = _factory.feeDistributor();
-            // Changed to a _transfer() in v1.0.3.
-            super._transfer(user, feeDistributor, amount);
-            IFeeDistributor(feeDistributor).distribute(vaultId);
-        }
+        // Mint fees directly to the distributor and distribute.        
+        address feeDistributor = _factory.feeDistributor();
+        // Changed to a _transfer() in v1.0.3.
+        super._transfer(user, feeDistributor, amount);
+        IFeeDistributor(feeDistributor).distribute(vaultId);
     }
 
     function transferERC721(address assetAddr, address to, uint256 tokenId) internal virtual {
