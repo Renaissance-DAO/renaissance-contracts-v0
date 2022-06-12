@@ -215,10 +215,11 @@ contract FNFTFactory is
             if (_fee > 1000) revert FeeTooHigh();
             emit UpdateGovernanceFee(governanceFee, _fee);
             governanceFee = _fee;
-        } else if (feeType == FeeType.MaxCuratorFee) {
+        } else if (feeType == FeeType.MaxCuratorFee) {            
             emit UpdateCuratorFee(maxCuratorFee, _fee);
             maxCuratorFee = _fee;
         } else if (feeType == FeeType.SwapFee) {
+            if (_fee > 500) revert FeeTooHigh();
             emit UpdateSwapFee(swapFee, _fee);
             swapFee = _fee;
         }
