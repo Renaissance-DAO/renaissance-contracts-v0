@@ -211,6 +211,25 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
   }
 
+  function testWithdraw() public {
+    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
+
+    vm.warp(block.timestamp + 3);
+    (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(0);
+    vm.prank(address(1));
+
+    lpStaking.withdraw(0, 100000000000000000);
+
+    assertEq(trisolarisPair.balanceOf(address(1)), 100000000000000000);
+    assertEq(vault.balanceOf(address(1)), 499999999999999999);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
+    assertEq(rewardDistToken.balanceOf(address(1)), 899999999999999000);
+    assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
+    assertEq(rewardDistToken.dividendOf(address(1)), 0);
+    assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
+  }
+
   function createTrisolarisPair() private {
     trisolarisPair = IUniswapV2Pair(trisolarisFactory.createPair(address(vault), stakingTokenProvider.defaultPairedToken()));
   }
