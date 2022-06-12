@@ -135,8 +135,7 @@ contract FNFTFactory is
         feeDistributor = _feeDistributor;
         maxAuctionLength = 2 weeks;
         minAuctionLength = 3 days;
-        feeReceiver = payable(msg.sender);
-        swapFee = 0; // 0%
+        feeReceiver = payable(msg.sender);        
         minReserveFactor = 2000; // 20%
         maxReserveFactor = 50000; // 500%
         minBidIncrease = 500; // 5%
