@@ -47,4 +47,6 @@ interface IFNFTFactory {
     function setFlashLoanFee(uint256 fee) external;
 
     function setFeeDistributor(address _feeDistributor) external;
+
+    function setFeeExclusion(address _excludedAddr, bool excluded) external;
 }

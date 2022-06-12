@@ -103,6 +103,8 @@ contract FNFTFactory is
 
     event NewFeeDistributor(address oldDistributor, address newDistributor);
 
+    event FeeExclusion(address feeExcluded, bool excluded);
+
     event FNFTCreated(
         address indexed token,
         address FNFT,
@@ -227,6 +229,11 @@ contract FNFTFactory is
         if (_feeDistributor == address(0)) revert ZeroAddressDisallowed();
         emit NewFeeDistributor(feeDistributor, _feeDistributor);
         feeDistributor = _feeDistributor;
+    }
+
+    function setFeeExclusion(address _excludedAddr, bool excluded) public onlyOwner virtual override {
+        emit FeeExclusion(_excludedAddr, excluded);
+        excludedFromFees[_excludedAddr] = excluded;
     }
 
     function setMinBidIncrease(uint256 _min) external onlyOwner {
