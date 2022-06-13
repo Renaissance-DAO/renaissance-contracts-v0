@@ -98,6 +98,23 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.timelockUntil(address(this)), block.timestamp + 2);
   }
 
+  function testTimelockDepositFor() public {
+    mintVaultTokens(2);
+
+    createTrisolarisPair();
+    addLiquidity();
+
+    factory.setFeeExclusion(address(this), true);
+
+    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
+    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    lpStaking.timelockDepositFor(0, address(1), lpTokenBalance, 123);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
+    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
+    assertEq(rewardDistToken.timelockUntil(address(1)), block.timestamp + 123);
+  }
+
   function testDepositTwice() public {
     mintVaultTokens(2);
 
@@ -230,7 +247,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   }
 
   function testClaimRewards() public {
-    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
+    exitRelatedFunctionsSetUp();
 
     vm.warp(block.timestamp + 3);
     vm.prank(address(1));
