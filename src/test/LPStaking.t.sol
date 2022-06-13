@@ -115,6 +115,18 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.timelockUntil(address(1)), block.timestamp + 123);
   }
 
+  function testTimelockDepositForNotExcludedFromFees() public {
+    mintVaultTokens(2);
+
+    createTrisolarisPair();
+    addLiquidity();
+
+    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
+    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    vm.expectRevert(LPStaking.NotExcludedFromFees.selector);
+    lpStaking.timelockDepositFor(0, address(1), lpTokenBalance, 123);
+  }
+
   function testDepositTwice() public {
     mintVaultTokens(2);
 
