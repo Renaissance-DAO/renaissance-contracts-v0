@@ -212,10 +212,9 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   }
 
   function testWithdraw() public {
-    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
+    exitRelatedFunctionsSetUp();
 
     vm.warp(block.timestamp + 3);
-    (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(0);
     vm.prank(address(1));
 
     lpStaking.withdraw(0, 100000000000000000);
@@ -225,6 +224,24 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
     assertEq(rewardDistToken.balanceOf(address(1)), 899999999999999000);
+    assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
+    assertEq(rewardDistToken.dividendOf(address(1)), 0);
+    assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
+  }
+
+  function testClaimRewards() public {
+    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
+
+    vm.warp(block.timestamp + 3);
+    vm.prank(address(1));
+
+    lpStaking.claimRewards(0);
+
+    assertEq(trisolarisPair.balanceOf(address(1)), 0);
+    assertEq(vault.balanceOf(address(1)), 499999999999999999);
+
+    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
+    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
     assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
     assertEq(rewardDistToken.dividendOf(address(1)), 0);
     assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
@@ -275,7 +292,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     lpStaking.deposit(0, lpTokenBalance);
   }
 
-  function getRewardDistToken() private returns (TimelockRewardDistributionTokenImpl rewardDistToken) {
+  function getRewardDistToken() private view returns (TimelockRewardDistributionTokenImpl rewardDistToken) {
     (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(0);
     address rewardDistTokenAddress = lpStaking.rewardDistributionTokenAddr(stakingToken, rewardToken);
     rewardDistToken = TimelockRewardDistributionTokenImpl(rewardDistTokenAddress);
