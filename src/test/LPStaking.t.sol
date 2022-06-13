@@ -127,6 +127,18 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     lpStaking.timelockDepositFor(0, address(1), lpTokenBalance, 123);
   }
 
+  function testTimelockDepositForTimelockTooLong() public {
+    mintVaultTokens(2);
+
+    createTrisolarisPair();
+    addLiquidity();
+
+    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
+    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    vm.expectRevert(LPStaking.TimelockTooLong.selector);
+    lpStaking.timelockDepositFor(0, address(1), lpTokenBalance, 2592000);
+  }
+
   function testDepositTwice() public {
     mintVaultTokens(2);
 
