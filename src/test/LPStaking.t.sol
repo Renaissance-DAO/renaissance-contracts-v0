@@ -72,8 +72,12 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     lpStaking.addPoolForVault(0);
   }
 
-  // function testAddPoolForVaultFactoryDoesNotExist() public {
-  // }
+  function testAddPoolForVaultFactoryDoesNotExist() public {
+    stakingTokenProvider = setupStakingTokenProvider();
+    lpStaking = setupLPStaking(address(stakingTokenProvider));
+    vm.expectRevert(LPStaking.FactoryNotSet.selector);
+    lpStaking.addPoolForVault(0);
+  }
 
   function testVaultStakingInfo() public {
     mintVaultTokens(1);
