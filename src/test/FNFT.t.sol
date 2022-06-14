@@ -648,5 +648,21 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         assertEq(fnft.balanceOf(distributor), swapFeeAmount);
     }
 
+    function testExcludeSwapFeeFromFeeExclusion() public {
+        fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
+        fnftFactory.setFeeExclusion(address(this), true);
+        assertTrue(fnftFactory.excludedFromFees(address(this)));        
+
+        uint originalBalance = fnft.balanceOf(address(this));        
+        address distributor = fnftFactory.feeDistributor();                    
+        address pairAddress = address(pair.uPair());
+
+        fnft.transfer(pairAddress, 1 ether);
+
+        assertEq(fnft.balanceOf(pairAddress), 1 ether);        
+        assertEq(fnft.balanceOf(address(this)), originalBalance - 1 ether);
+        assertEq(fnft.balanceOf(distributor), 0);
+    }
+
     receive() external payable {}
 }
