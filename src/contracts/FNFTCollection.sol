@@ -571,13 +571,14 @@ contract FNFTCollection is
         uint256 amount
     ) internal virtual override {
         //Take fee here
-        uint256 swapFee = IFNFTCollectionFactory(factory).swapFee();
+        IFNFTCollectionFactory _factory = IFNFTCollectionFactory(factory);
+        uint256 swapFee = _factory.swapFee();
         if (swapFee > 0) {
-            address priceOracle = IFNFTCollectionFactory(factory).priceOracle();
-            address weth = address(IFNFTCollectionFactory(factory).WETH());
+            address priceOracle = _factory.priceOracle();
+            address weth = address(_factory.WETH());
             address pair = IPriceOracle(priceOracle).getPairAddress(address(this), weth);
 
-            if (to == pair) {                
+            if (to == pair && !_factory.excludedFromFees(address(to))) {      
                 uint256 feeAmount = amount * swapFee / 10000;
 
                 _chargeAndDistributeFees(from, feeAmount);

@@ -490,13 +490,14 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         uint256 amount
     ) internal virtual override {
         //Take fee here
-        uint256 swapFee = IFNFTFactory(factory).swapFee();
+        IFNFTFactory _factory = IFNFTFactory(factory);
+        uint256 swapFee = _factory.swapFee();
         if (swapFee > 0) {
-            address priceOracle = IFNFTFactory(factory).priceOracle();
-            address weth = address(IFNFTFactory(factory).WETH());
-            address pair = IPriceOracle(priceOracle).getPairAddress(address(this), weth);
+            address priceOracle = _factory.priceOracle();
+            address weth = address(_factory.WETH());
+            address pair = IPriceOracle(priceOracle).getPairAddress(address(this), weth);            
 
-            if (to == pair) {                
+            if (to == pair && !_factory.excludedFromFees(address(to))) {
                 uint256 feeAmount = amount * swapFee / 10000;
 
                 _chargeAndDistributeFees(from, feeAmount);

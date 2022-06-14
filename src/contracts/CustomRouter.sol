@@ -4,12 +4,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 import "./interfaces/IWETH.sol";
+import "./libraries/UniswapV2Library.sol";
 
 contract CustomRouter {
     using SafeERC20 for IERC20;
 
-    address public immutable override factory;
-    address public immutable override WETH;
+    address public immutable factory;
+    address public immutable WETH;
 
     error Expired();
     error InsufficientA();
@@ -66,7 +67,7 @@ contract CustomRouter {
         uint amountETHMin,
         address to,
         uint deadline
-    ) external virtual override payable ensure(deadline) returns (uint amountToken, uint amountETH, uint liquidity) {
+    ) external virtual payable ensure(deadline) returns (uint amountToken, uint amountETH, uint liquidity) {
         (amountToken, amountETH) = _addLiquidity(
             token,
             WETH,
