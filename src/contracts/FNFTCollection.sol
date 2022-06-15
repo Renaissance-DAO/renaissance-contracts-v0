@@ -35,6 +35,7 @@ contract FNFTCollection is
 
     uint256 public override vaultId;
     address public override manager;
+    address public override pair;
     IFNFTCollectionFactory public override factory;
     IEligibility public override eligibilityStorage;
 
@@ -82,11 +83,13 @@ contract FNFTCollection is
         __Ownable_init();
         __ERC20_init(_name, _symbol);
         if (_assetAddress == address(0)) revert ZeroAddress();
+        IFNFTCollectionFactory _factory = IFNFTCollectionFactory(msg.sender);
         assetAddress = _assetAddress;
-        factory = IFNFTCollectionFactory(msg.sender);
+        factory = _factory;
         vaultId = factory.numVaults();
         is1155 = _is1155;
         allowAllItems = _allowAllItems;
+        pair = IPriceOracle(_factory.priceOracle()).createFNFTPair(address(this));
         emit VaultInit(vaultId, _assetAddress, _is1155, _allowAllItems);
         setVaultFeatures(true /*enableMint*/, true /*enableRandomRedeem*/, true /*enableTargetRedeem*/, true /*enableRandomSwap*/, true /*enableTargetSwap*/);
     }
@@ -573,18 +576,12 @@ contract FNFTCollection is
         //Take fee here
         IFNFTCollectionFactory _factory = IFNFTCollectionFactory(factory);
         uint256 swapFee = _factory.swapFee();
-        if (swapFee > 0) {
-            address priceOracle = _factory.priceOracle();
-            address weth = address(_factory.WETH());
-            address pair = IPriceOracle(priceOracle).getPairAddress(address(this), weth);
+        if (swapFee > 0 && to == pair && !_factory.excludedFromFees(msg.sender)) {            
+            uint256 feeAmount = amount * swapFee / 10000;
 
-            if (to == pair && !_factory.excludedFromFees(msg.sender)) {
-                uint256 feeAmount = amount * swapFee / 10000;
+            _chargeAndDistributeFees(from, feeAmount);
 
-                _chargeAndDistributeFees(from, feeAmount);
-
-                amount = amount - feeAmount;
-            }
+            amount = amount - feeAmount;            
         }
 
         super._transfer(from, to, amount);
@@ -597,7 +594,7 @@ contract FNFTCollection is
     ) internal virtual override {
         address priceOracle = IFNFTCollectionFactory(factory).priceOracle();
         if (priceOracle != address(0)) {
-            IPriceOracle(priceOracle).updatefNFTPairInfo(address(this));
+            IPriceOracle(priceOracle).updateFNFTPairInfo(address(this));
         }
     }
 }

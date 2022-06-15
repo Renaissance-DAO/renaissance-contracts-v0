@@ -24,7 +24,9 @@ interface IPriceOracle {
 
     function updatePairInfo(address _token0, address _token1) external;
 
-    function updatefNFTPairInfo(address _fNFT) external;
+    function updateFNFTPairInfo(address _FNFT) external;
+
+    function createFNFTPair(address _FNFT) external returns (address);
 
     function consult(
         address _token,
@@ -34,7 +36,7 @@ interface IPriceOracle {
 
     function getPairAddress(address _token0, address _token1) external view returns (address pairAddress);
 
-    function getfNFTPriceETH(address _fNFT, uint256 _amountIn) external view returns (uint256 amountOut);
+    function getFNFTPriceETH(address _FNFT, uint256 _amountIn) external view returns (uint256 amountOut);
 
     function WETH() external view returns (address);
 

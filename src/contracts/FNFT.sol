@@ -13,6 +13,7 @@ import "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgr
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IPriceOracle} from "./PriceOracle.sol";
 import "./token/ERC20FlashMintUpgradeable.sol";
+import {console} from "../test/utils/utils.sol";
 
 contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     using Address for address;
@@ -45,6 +46,8 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
 
     /// @notice the current user winning the token auction
     address payable public winning;
+
+    address public pair;
 
     enum State {
         Inactive,
@@ -161,7 +164,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         lastClaimed = block.timestamp;
         userReservePrice[_curator] = _listPrice;
         initialReserve = _listPrice;
-
+        pair = IPriceOracle(IFNFTFactory(msg.sender).priceOracle()).createFNFTPair(address(this));
         _mint(_curator, _supply);
     }
 
@@ -425,7 +428,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     function _getTWAP() internal view returns (uint256) {
-        try IPriceOracle(IFNFTFactory(factory).priceOracle()).getfNFTPriceETH(address(this), totalSupply()) returns (uint256 twapPrice) {
+        try IPriceOracle(IFNFTFactory(factory).priceOracle()).getFNFTPriceETH(address(this), totalSupply()) returns (uint256 twapPrice) {
             return twapPrice;
         } catch {
             return 0;
@@ -491,20 +494,14 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     ) internal virtual override {
         //Take fee here
         IFNFTFactory _factory = IFNFTFactory(factory);
-        uint256 swapFee = _factory.swapFee();
-        if (swapFee > 0) {
-            address priceOracle = _factory.priceOracle();
-            address weth = address(_factory.WETH());
-            address pair = IPriceOracle(priceOracle).getPairAddress(address(this), weth);            
+        uint256 swapFee = _factory.swapFee();              
+        if (swapFee > 0 && to == pair && !_factory.excludedFromFees(address(msg.sender))) {
+            uint256 feeAmount = amount * swapFee / 10000;
 
-            if (to == pair && !_factory.excludedFromFees(address(msg.sender))) {
-                uint256 feeAmount = amount * swapFee / 10000;
+            _chargeAndDistributeFees(from, feeAmount);
 
-                _chargeAndDistributeFees(from, feeAmount);
-
-                amount = amount - feeAmount;
-            }
-        }
+            amount = amount - feeAmount;
+        }        
 
         super._transfer(from, to, amount);
     }
@@ -516,7 +513,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     ) internal virtual override {
         address priceOracle = IFNFTFactory(factory).priceOracle();
         if (priceOracle != address(0)) {
-            IPriceOracle(priceOracle).updatefNFTPairInfo(address(this));
+            IPriceOracle(priceOracle).updateFNFTPairInfo(address(this));
         }
     }
 

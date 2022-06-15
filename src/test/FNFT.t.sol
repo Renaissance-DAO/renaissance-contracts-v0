@@ -15,7 +15,7 @@ import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
 import {IWETH} from "../contracts/interfaces/IWETH.sol";
 import {MockNFT} from "../contracts/mocks/NFT.sol";
 import {WETH} from "../contracts/mocks/WETH.sol";
-import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH, PairWithFNFTAndWETH} from "./utils/utils.sol";
+import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH} from "./utils/utils.sol";
 import {ERC20FlashMintUpgradeable} from "../contracts/token/ERC20FlashMintUpgradeable.sol";
 import {FlashBorrower} from "./utils/FlashBorrower.sol";
 
@@ -33,8 +33,6 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     User public user2;
     User public user3;
     UserNoETH public user4;
-
-    PairWithFNFTAndWETH public pair;
 
     Curator public curator;
 
@@ -58,8 +56,6 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
             1 ether, // initialReserve
             500 // fee (5%)
         ));
-
-        pair = new PairWithFNFTAndWETH(address(pairFactory), address(fnft), fnftFactory.WETH(), vm);
 
         // create a curator account
         curator = new Curator(address(fnft));
@@ -634,12 +630,12 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function testSwapFee() public {
         fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
-
-        uint originalBalance = fnft.balanceOf(address(this));        
-        address distributor = fnftFactory.feeDistributor();        
+          
+        uint originalBalance = fnft.balanceOf(address(this));                
         uint swapFee = fnftFactory.swapFee();
         uint swapFeeAmount = 1 ether * swapFee / 10000;
-        address pairAddress = address(pair.uPair());
+        address distributor = fnftFactory.feeDistributor();                    
+        address pairAddress = fnft.pair();
 
         fnft.transfer(pairAddress, 1 ether);
 
@@ -655,7 +651,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
         uint originalBalance = fnft.balanceOf(address(this));        
         address distributor = fnftFactory.feeDistributor();                    
-        address pairAddress = address(pair.uPair());
+        address pairAddress = fnft.pair();
 
         fnft.transfer(pairAddress, 1 ether);
 

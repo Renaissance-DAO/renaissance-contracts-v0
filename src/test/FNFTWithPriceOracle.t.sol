@@ -160,7 +160,7 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         assertTrue(wethReserve * 2 > fnftFactory.liquidityThreshold());
 
         // Verify that the auction price returns the compared price between TWAP and initial reserve.
-        uint256 twapPrice = priceOracle.getfNFTPriceETH(address(fnft), fnft.totalSupply());
+        uint256 twapPrice = priceOracle.getFNFTPriceETH(address(fnft), fnft.totalSupply());
         uint256 initialReservePrice = fnft.initialReserve();
         assertEq(auctionPrice, twapPrice > initialReservePrice ? twapPrice : initialReservePrice);
     }
@@ -199,7 +199,7 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
 
         // verify that the auction price selects the maximum price between twap and user reserve price.
         uint256 reservePrice = fnft.reservePrice();
-        uint256 twapPrice = priceOracle.getfNFTPriceETH(address(fnft), fnft.totalSupply());
+        uint256 twapPrice = priceOracle.getFNFTPriceETH(address(fnft), fnft.totalSupply());
         assertEq(auctionPrice, reservePrice >= twapPrice ? reservePrice : twapPrice);
     }
 

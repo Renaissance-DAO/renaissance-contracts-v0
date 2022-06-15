@@ -86,8 +86,12 @@ contract PriceOracle is OwnableUpgradeable, IPriceOracle {
     }
 
     // Update fNFT-WETH pair info.
-    function updatefNFTPairInfo(address _fNFT) external {
-        _updatePairInfo(_fNFT, WETH);
+    function updateFNFTPairInfo(address _FNFT) external {
+        _updatePairInfo(_FNFT, WETH);
+    }
+
+    function createFNFTPair(address _token0) external returns (address) {
+        return _createPairAddress(_token0, WETH);
     }
 
     // Get TWAP price of a token.
@@ -104,13 +108,13 @@ contract PriceOracle is OwnableUpgradeable, IPriceOracle {
 
     // Get fNFT TWAP Price in ETH/WETH.
     // note this will always return 0 before update has been called successfully for the first time.
-    function getfNFTPriceETH(address _fNFT, uint256 _amountIn) external view returns (uint256 amountOut) {
-        address pair = _getPairAddress(_fNFT, WETH);
+    function getFNFTPriceETH(address _FNFT, uint256 _amountIn) external view returns (uint256 amountOut) {
+        address pair = _getPairAddress(_FNFT, WETH);
         PairInfo memory pairInfo = _getTwap[pair];
         if (!pairInfo.exists) revert PairInfoDoesNotExist();
         if (pairInfo.totalUpdates < minimumPairInfoUpdate) revert NotEnoughUpdates();
 
-        amountOut = _calculatePrice(_fNFT, _amountIn, pairInfo);
+        amountOut = _calculatePrice(_FNFT, _amountIn, pairInfo);
     }
 
     // Calculate token twap price based on pair info and the amount in.
@@ -185,5 +189,10 @@ contract PriceOracle is OwnableUpgradeable, IPriceOracle {
     // Get pair address from uniswap pair factory.
     function _getPairAddress(address _token0, address _token1) internal view returns (address) {
         return IUniswapV2Factory(FACTORY).getPair(_token0, _token1);
+    }
+
+    // Create pair address from uniswap pair factory.
+    function _createPairAddress(address _token0, address _token1) internal returns (address) {
+        return IUniswapV2Factory(FACTORY).createPair(_token0, _token1);
     }
 }

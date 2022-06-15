@@ -195,7 +195,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
 
         // Get Price of FNFT in ETH.
         uint fNFTAmount = 50 ether;
-        uint ethPrice = priceOracle.getfNFTPriceETH(fnft, fNFTAmount);
+        uint ethPrice = priceOracle.getFNFTPriceETH(fnft, fNFTAmount);
 
         // VERIFY
         assertEq(ethPrice, fNFTAmount * weth.balanceOf(pairAddress)/IERC20Upgradeable(fnft).balanceOf(pairAddress));
@@ -226,7 +226,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
 
         vm.expectRevert(PriceOracle.NotEnoughUpdates.selector);
         // Get Price of FNFT in ETH.
-        priceOracle.getfNFTPriceETH(fnft, 50 ether);
+        priceOracle.getFNFTPriceETH(fnft, 50 ether);
     }
 
     /**
@@ -237,7 +237,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
 
         vm.expectRevert(PriceOracle.PairInfoDoesNotExist.selector);
         // Get Price of fakeToken in ETH.
-        priceOracle.getfNFTPriceETH(fakeToken, 50 ether);
+        priceOracle.getFNFTPriceETH(fakeToken, 50 ether);
     }
 
     event UpdatePeriod(uint256 _old, uint256 _new);

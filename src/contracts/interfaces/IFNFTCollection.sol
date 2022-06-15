@@ -8,6 +8,7 @@ import "../token/ERC20Upgradeable.sol";
 
 interface IFNFTCollection is IERC20Upgradeable {
     function manager() external view returns (address);
+    function pair() external view returns (address);
     function assetAddress() external view returns (address);
     function factory() external view returns (IFNFTCollectionFactory);
     function eligibilityStorage() external view returns (IEligibility);
