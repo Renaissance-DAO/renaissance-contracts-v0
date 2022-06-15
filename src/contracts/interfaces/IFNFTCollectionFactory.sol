@@ -28,7 +28,7 @@ interface IFNFTCollectionFactory is IBeacon {
 
   event NewFeeDistributor(address oldDistributor, address newDistributor);
   event NewZapContract(address oldZap, address newZap);
-  event FeeExclusion(address feeExcluded, bool excluded);
+  event FeeExclusion(address target, bool excluded);
   event UpdatePriceOracle(address oldPriceOracle, address newPriceOracle);
   event NewEligibilityManager(address oldEligManager, address newEligManager);
   event NewVault(uint256 indexed vaultId, address vaultAddress, address assetAddress);

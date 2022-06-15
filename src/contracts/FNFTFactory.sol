@@ -103,7 +103,7 @@ contract FNFTFactory is
 
     event NewFeeDistributor(address oldDistributor, address newDistributor);
 
-    event FeeExclusion(address feeExcluded, bool excluded);
+    event FeeExclusion(address target, bool excluded);
 
     event FNFTCreated(
         address indexed token,
