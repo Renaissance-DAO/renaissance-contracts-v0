@@ -13,7 +13,6 @@ import "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgr
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IPriceOracle} from "./PriceOracle.sol";
 import "./token/ERC20FlashMintUpgradeable.sol";
-import {console} from "../test/utils/utils.sol";
 
 contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     using Address for address;

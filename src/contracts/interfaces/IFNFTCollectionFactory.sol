@@ -70,4 +70,5 @@ interface IFNFTCollectionFactory is IBeacon {
   ) external;
   function disableVaultFees(uint256 vaultId) external;
   function setFlashLoanFee(uint256 fee) external;
+  function setPriceOracle(address _newOracle) external;
 }

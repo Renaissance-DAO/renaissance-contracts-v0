@@ -59,9 +59,8 @@ contract SetupEnvironment {
 
     function setupFNFTFactory(address _ifoFactory, address _priceOracle, address _feeDistributor) public returns (FNFTFactory fnftFactory) {
         fnftFactory = FNFTFactory(
-            deployer.deployFNFTFactory(address(new FNFTFactory()), address(weth), _ifoFactory, _feeDistributor)
+            deployer.deployFNFTFactory(address(new FNFTFactory()), address(weth), _priceOracle, _ifoFactory, _feeDistributor)
         );
-        fnftFactory.setPriceOracle(_priceOracle);
     }
 
     function setupFNFT(address _fnftFactory, uint256 _amountToMint) public returns (FNFT fnft) {
@@ -107,11 +106,12 @@ contract SetupEnvironment {
         );
     }
 
-    function setupFNFTCollectionFactory(address feeDistributor) public returns (FNFTCollectionFactory fnftCollectionFactory) {
+    function setupFNFTCollectionFactory(address priceOracle, address feeDistributor) public returns (FNFTCollectionFactory fnftCollectionFactory) {
         fnftCollectionFactory = FNFTCollectionFactory(
             deployer.deployFNFTCollectionFactory(
                 address(new FNFTCollectionFactory()),
                 WETH_ADDRESS,
+                priceOracle,
                 feeDistributor
             )
         );
@@ -155,10 +155,13 @@ contract SetupEnvironment {
             FNFTCollectionFactory fnftCollectionFactory
         )
     {
+        IUniswapV2Factory pairFactory = setupPairFactory();
+        PriceOracle priceOracle = setupPriceOracle(address(pairFactory));    
+
         stakingTokenProvider = setupStakingTokenProvider();
         lpStaking = setupLPStaking(address(stakingTokenProvider));
         feeDistributor = setupFeeDistributor(address(lpStaking));
-        fnftCollectionFactory = setupFNFTCollectionFactory(address(feeDistributor));
+        fnftCollectionFactory = setupFNFTCollectionFactory(address(priceOracle), address(feeDistributor));
 
         feeDistributor.setFNFTCollectionFactory(address(fnftCollectionFactory));
         lpStaking.setFNFTCollectionFactory(address(fnftCollectionFactory));

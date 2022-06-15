@@ -46,6 +46,7 @@ contract Deployer is Ownable {
     function deployFNFTFactory(
         address _logic,
         address _weth,
+        address _priceOracle,
         address _ifoFactory,
         address _feeDistributor
     ) external onlyOwner returns (address fnftFactory) {
@@ -60,6 +61,7 @@ contract Deployer is Ownable {
 
         fnftFactory = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));
         IFNFTFactory(fnftFactory).setFeeReceiver(payable(msg.sender));
+        IFNFTFactory(fnftFactory).setPriceOracle(_priceOracle);
         IOwnable(fnftFactory).transferOwnership(msg.sender);        
 
         proxyController.deployerUpdateProxy(FNFT_FACTORY, fnftFactory);
@@ -123,7 +125,12 @@ contract Deployer is Ownable {
 
     /// @notice the function to deploy FNFTCollectionFactory
     /// @param _logic the implementation
-    function deployFNFTCollectionFactory(address _logic, address _weth, address feeDistributor) external onlyOwner returns (address factory) {
+    function deployFNFTCollectionFactory(
+        address _logic,         
+        address _weth, 
+        address _priceOracle, 
+        address feeDistributor
+    ) external onlyOwner returns (address factory) {
         if (address(proxyController) == address(0)) revert NoController();
 
         bytes memory _initializationCalldata = abi.encodeWithSelector(
@@ -133,6 +140,7 @@ contract Deployer is Ownable {
         );
 
         factory = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));
+        IFNFTCollectionFactory(factory).setPriceOracle(_priceOracle);
         IOwnable(factory).transferOwnership(msg.sender);
 
         proxyController.deployerUpdateProxy(FNFT_COLLECTION_FACTORY, factory);
