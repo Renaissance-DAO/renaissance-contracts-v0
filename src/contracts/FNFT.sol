@@ -648,10 +648,6 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
 
         IFNFTFactory _factory = IFNFTFactory(factory);
 
-        if (_factory.excludedFromFees(msg.sender)) {
-            return;
-        }
-
         // Mint fees directly to the distributor and distribute.
         address feeDistributor = _factory.feeDistributor();
         // Changed to a _transfer() in v1.0.3.
