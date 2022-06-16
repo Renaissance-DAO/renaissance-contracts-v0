@@ -488,7 +488,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         //Take fee here
         IFNFTFactory _factory = IFNFTFactory(factory);
         uint256 swapFee = _factory.swapFee();
-        if (swapFee > 0 && !_factory.excludedFromFees(address(msg.sender))) {
+        if (swapFee > 0 && to == address(pair) && !_factory.excludedFromFees(address(msg.sender))) {
             uint256 feeAmount = amount * swapFee / 10000;
 
             _chargeAndDistributeFees(from, feeAmount);
