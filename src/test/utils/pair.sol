@@ -101,7 +101,7 @@ contract PairWithFNFTAndWETH{
     CheatCodes public vm;
 
     constructor(address _uniswapFactory, address _fnft, address _weth, CheatCodes _vm) {
-        address pairAddress = IUniswapV2Factory(_uniswapFactory).createPair(_fnft, _weth);
+        address pairAddress = IUniswapV2Factory(_uniswapFactory).getPair(_fnft, _weth);
         uFactory = IUniswapV2Factory(_uniswapFactory);
         uPair = IUniswapV2Pair(pairAddress);
         fnft = IFNFT(_fnft);

@@ -630,16 +630,16 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function testSwapFee() public {
         fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
-          
-        uint originalBalance = fnft.balanceOf(address(this));                
+
+        uint originalBalance = fnft.balanceOf(address(this));
         uint swapFee = fnftFactory.swapFee();
         uint swapFeeAmount = 1 ether * swapFee / 10000;
-        address distributor = fnftFactory.feeDistributor();                    
-        address pairAddress = fnft.pair();
+        address distributor = fnftFactory.feeDistributor();
+        address pairAddress = address(fnft.pair());
 
         fnft.transfer(pairAddress, 1 ether);
 
-        assertEq(fnft.balanceOf(pairAddress), 1 ether - swapFeeAmount);        
+        assertEq(fnft.balanceOf(pairAddress), 1 ether - swapFeeAmount);
         assertEq(fnft.balanceOf(address(this)), originalBalance - 1 ether);
         assertEq(fnft.balanceOf(distributor), swapFeeAmount);
     }
@@ -647,15 +647,15 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function testExcludeSwapFeeFromFeeExclusion() public {
         fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
         fnftFactory.setFeeExclusion(address(this), true);
-        assertTrue(fnftFactory.excludedFromFees(address(this)));        
+        assertTrue(fnftFactory.excludedFromFees(address(this)));
 
-        uint originalBalance = fnft.balanceOf(address(this));        
-        address distributor = fnftFactory.feeDistributor();                    
-        address pairAddress = fnft.pair();
+        uint originalBalance = fnft.balanceOf(address(this));
+        address distributor = fnftFactory.feeDistributor();
+        address pairAddress = address(fnft.pair());
 
         fnft.transfer(pairAddress, 1 ether);
 
-        assertEq(fnft.balanceOf(pairAddress), 1 ether);        
+        assertEq(fnft.balanceOf(pairAddress), 1 ether);
         assertEq(fnft.balanceOf(address(this)), originalBalance - 1 ether);
         assertEq(fnft.balanceOf(distributor), 0);
     }

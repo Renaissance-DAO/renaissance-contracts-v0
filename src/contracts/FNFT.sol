@@ -46,7 +46,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     /// @notice the current user winning the token auction
     address payable public winning;
 
-    address public pair;
+    IUniswapV2Pair public pair;
 
     enum State {
         Inactive,
@@ -163,7 +163,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         lastClaimed = block.timestamp;
         userReservePrice[_curator] = _listPrice;
         initialReserve = _listPrice;
-        pair = IPriceOracle(IFNFTFactory(msg.sender).priceOracle()).createFNFTPair(address(this));
+        pair = IUniswapV2Pair(IPriceOracle(IFNFTFactory(msg.sender).priceOracle()).createFNFTPair(address(this)));
         _mint(_curator, _supply);
     }
 
@@ -392,13 +392,8 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
 
         if (address(priceOracle) != address(0)) {
             address weth = IFNFTFactory(factory).WETH();
-            IUniswapV2Pair pair = IUniswapV2Pair(IPriceOracle(priceOracle).getPairAddress(address(this), weth));
-            uint256 reserve1;
-            uint256 twapPrice;
-            if (IPriceOracle(priceOracle).getPairInfo(address(pair)).exists) {
-                (, reserve1) = UniswapV2Library.getReserves(pair.factory(), address(this), weth);
-                twapPrice = _getTWAP();
-            }
+            (, uint256 reserve1) = UniswapV2Library.getReserves(pair.factory(), address(this), weth);
+            uint256 twapPrice = _getTWAP();
 
             bool aboveLiquidityThreshold = reserve1 * 2 > IFNFTFactory(factory).liquidityThreshold();
 
