@@ -632,15 +632,15 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
 
         uint originalBalance = fnft.balanceOf(address(this));
-        uint swapFee = fnftFactory.swapFee();
-        uint swapFeeAmount = 1 ether * swapFee / 10000;
+        uint transferAmount = 1 ether;
+        uint swapFeeAmount = 0.01 ether;
         address distributor = fnftFactory.feeDistributor();
         address pairAddress = address(fnft.pair());
 
-        fnft.transfer(pairAddress, 1 ether);
+        fnft.transfer(pairAddress, transferAmount);
 
-        assertEq(fnft.balanceOf(pairAddress), 1 ether - swapFeeAmount);
-        assertEq(fnft.balanceOf(address(this)), originalBalance - 1 ether);
+        assertEq(fnft.balanceOf(pairAddress), transferAmount - swapFeeAmount);
+        assertEq(fnft.balanceOf(address(this)), originalBalance - transferAmount);
         assertEq(fnft.balanceOf(distributor), swapFeeAmount);
     }
 
@@ -650,13 +650,14 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         assertTrue(fnftFactory.excludedFromFees(address(this)));
 
         uint originalBalance = fnft.balanceOf(address(this));
+        uint transferAmount = 1 ether;
         address distributor = fnftFactory.feeDistributor();
         address pairAddress = address(fnft.pair());
 
-        fnft.transfer(pairAddress, 1 ether);
+        fnft.transfer(pairAddress, transferAmount);
 
-        assertEq(fnft.balanceOf(pairAddress), 1 ether);
-        assertEq(fnft.balanceOf(address(this)), originalBalance - 1 ether);
+        assertEq(fnft.balanceOf(pairAddress), transferAmount);
+        assertEq(fnft.balanceOf(address(this)), originalBalance - transferAmount);
         assertEq(fnft.balanceOf(distributor), 0);
     }
 
