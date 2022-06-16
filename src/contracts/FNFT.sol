@@ -393,11 +393,11 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         if (address(priceOracle) != address(0)) {
             address weth = IFNFTFactory(factory).WETH();
             (, uint256 reserve1) = UniswapV2Library.getReserves(pair.factory(), address(this), weth);
-            uint256 twapPrice = _getTWAP();
 
             bool aboveLiquidityThreshold = reserve1 * 2 > IFNFTFactory(factory).liquidityThreshold();
 
             if (aboveLiquidityThreshold) {
+                uint256 twapPrice = _getTWAP();
                 if (aboveQuorum) {
                     //twap price if twap > reserve
                     //reserve price if twap < reserve
