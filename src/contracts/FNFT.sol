@@ -5,7 +5,7 @@ import "./interfaces/IFNFTFactory.sol";
 import "./interfaces/IWETH.sol";
 import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IIFO.sol";
-import "./libraries/UniswapV2Library.sol";
+import "./interfaces/IUniswapV2Pair.sol";
 import "./interfaces/IFeeDistributor.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
@@ -391,8 +391,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         uint256 _reservePrice = reservePrice();
 
         if (address(priceOracle) != address(0)) {
-            address weth = IFNFTFactory(factory).WETH();
-            (, uint256 reserve1) = UniswapV2Library.getReserves(pair.factory(), address(this), weth);
+            (, uint256 reserve1,) = pair.getReserves();
 
             bool aboveLiquidityThreshold = reserve1 * 2 > IFNFTFactory(factory).liquidityThreshold();
 

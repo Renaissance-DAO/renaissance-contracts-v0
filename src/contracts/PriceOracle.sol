@@ -4,7 +4,6 @@ pragma solidity 0.8.13;
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./libraries/PriceOracleLibrary.sol";
 import "./libraries/UQ112x112.sol";
-import "./libraries/UniswapV2Library.sol";
 import "./libraries/math/FixedPoint.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 import {IPriceOracle, PairInfo} from "./interfaces/IPriceOracle.sol";
