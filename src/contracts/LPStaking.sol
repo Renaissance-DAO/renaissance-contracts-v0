@@ -76,7 +76,7 @@ contract LPStaking is Pausable {
 
     function addPoolForVault(uint256 vaultId) external onlyAdmin {
         if (address(fnftCollectionFactory) == address(0)) revert FactoryNotSet();
-        if (vaultStakingInfo[vaultId].stakingToken != address(0)) revert PoolDoesNotExist();
+        if (vaultStakingInfo[vaultId].stakingToken != address(0)) revert PoolAlreadyExists();
         address _rewardToken = fnftCollectionFactory.vault(vaultId);
         address _stakingToken = stakingTokenProvider.stakingTokenForVaultToken(_rewardToken);
         StakingPool memory pool = StakingPool(_stakingToken, _rewardToken);
