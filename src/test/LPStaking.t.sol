@@ -23,9 +23,9 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   FeeDistributor private feeDistributor;
   FNFTCollectionFactory private factory;
   FNFTCollection private vault;
-  IUniswapV2Factory private trisolarisFactory;
-  IUniswapV2Pair private trisolarisPair;
-  IUniswapV2Router private trisolarisRouter;
+  IUniswapV2Factory private uniswapV2Factory;
+  IUniswapV2Pair private uniswapV2Pair;
+  IUniswapV2Router private uniswapV2Router;
 
   MockNFT public token;
 
@@ -38,8 +38,8 @@ contract LPStakingTest is DSTest, SetupEnvironment {
       factory
     ) = setupCollectionVaultContracts();
 
-    trisolarisFactory = setupPairFactory();
-    trisolarisRouter = setupRouter();
+    uniswapV2Factory = setupPairFactory();
+    uniswapV2Router = setupRouter();
 
     token = new MockNFT();
   }
@@ -82,18 +82,18 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testVaultStakingInfo() public {
     mintVaultTokens(1);
 
-    createTrisolarisPair();
+    createUniswapV2Pair();
 
-    // actually, even if the Trisolaris pair is not created, the address is still pre-computed.
+    // actually, even if the uniswapV2 pair is not created, the address is still pre-computed.
     (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(0);
-    assertEq(stakingToken, address(trisolarisPair));
+    assertEq(stakingToken, address(uniswapV2Pair));
     assertEq(rewardToken, address(vault));
   }
 
   function testDeposit() public {
     mintVaultTokens(2);
 
-    createTrisolarisPair();
+    createUniswapV2Pair();
     addLiquidity();
     depositLPTokens();
 
@@ -105,13 +105,13 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testTimelockDepositFor() public {
     mintVaultTokens(2);
 
-    createTrisolarisPair();
+    createUniswapV2Pair();
     addLiquidity();
 
     factory.setFeeExclusion(address(this), true);
 
-    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
-    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
+    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
     lpStaking.timelockDepositFor(0, address(1), lpTokenBalance, 123);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
@@ -122,11 +122,11 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testTimelockDepositForNotExcludedFromFees() public {
     mintVaultTokens(2);
 
-    createTrisolarisPair();
+    createUniswapV2Pair();
     addLiquidity();
 
-    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
-    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
+    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
     vm.expectRevert(LPStaking.NotExcludedFromFees.selector);
     lpStaking.timelockDepositFor(0, address(1), lpTokenBalance, 123);
   }
@@ -134,11 +134,11 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testTimelockDepositForTimelockTooLong() public {
     mintVaultTokens(2);
 
-    createTrisolarisPair();
+    createUniswapV2Pair();
     addLiquidity();
 
-    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
-    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
+    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
     vm.expectRevert(LPStaking.TimelockTooLong.selector);
     lpStaking.timelockDepositFor(0, address(1), lpTokenBalance, 2592000);
   }
@@ -146,11 +146,11 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testDepositTwice() public {
     mintVaultTokens(2);
 
-    createTrisolarisPair();
+    createUniswapV2Pair();
     addLiquidity();
 
-    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
-    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
+    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
     lpStaking.deposit(0, lpTokenBalance / 2);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
@@ -169,7 +169,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
 
-    createTrisolarisPair();
+    createUniswapV2Pair();
     addLiquidity();
     depositLPTokens();
 
@@ -190,7 +190,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
 
-    createTrisolarisPair();
+    createUniswapV2Pair();
     addLiquidity();
     depositLPTokens();
 
@@ -210,7 +210,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     vm.prank(address(1));
     lpStaking.exit(0);
 
-    assertEq(trisolarisPair.balanceOf(address(1)), lpTokenBalance);
+    assertEq(uniswapV2Pair.balanceOf(address(1)), lpTokenBalance);
     assertEq(vault.balanceOf(address(1)), 499999999999999999);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
@@ -228,7 +228,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     vm.prank(address(1));
     lpStaking.emergencyExitAndClaim(stakingToken, rewardToken);
 
-    assertEq(trisolarisPair.balanceOf(address(1)), lpTokenBalance);
+    assertEq(uniswapV2Pair.balanceOf(address(1)), lpTokenBalance);
     assertEq(vault.balanceOf(address(1)), 499999999999999999);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
@@ -246,7 +246,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     vm.prank(address(1));
     lpStaking.emergencyExit(stakingToken, rewardToken);
 
-    assertEq(trisolarisPair.balanceOf(address(1)), lpTokenBalance);
+    assertEq(uniswapV2Pair.balanceOf(address(1)), lpTokenBalance);
     assertEq(vault.balanceOf(address(1)), 0);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
@@ -264,7 +264,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     lpStaking.withdraw(0, 100000000000000000);
 
-    assertEq(trisolarisPair.balanceOf(address(1)), 100000000000000000);
+    assertEq(uniswapV2Pair.balanceOf(address(1)), 100000000000000000);
     assertEq(vault.balanceOf(address(1)), 499999999999999999);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
@@ -282,7 +282,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     lpStaking.claimRewards(0);
 
-    assertEq(trisolarisPair.balanceOf(address(1)), 0);
+    assertEq(uniswapV2Pair.balanceOf(address(1)), 0);
     assertEq(vault.balanceOf(address(1)), 499999999999999999);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
@@ -292,8 +292,8 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
   }
 
-  function createTrisolarisPair() private {
-    trisolarisPair = IUniswapV2Pair(trisolarisFactory.createPair(address(vault), stakingTokenProvider.defaultPairedToken()));
+  function createUniswapV2Pair() private {
+    uniswapV2Pair = IUniswapV2Pair(uniswapV2Factory.createPair(address(vault), stakingTokenProvider.defaultPairedToken()));
   }
 
   // TODO: merge with FNFTCollectionTest.t.sol
@@ -320,8 +320,8 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   }
 
   function addLiquidity() private {
-    vault.approve(address(trisolarisRouter), 1 ether);
-    trisolarisRouter.addLiquidityETH{value: 1 ether}(
+    vault.approve(address(uniswapV2Router), 1 ether);
+    uniswapV2Router.addLiquidityETH{value: 1 ether}(
       address(vault),
       1 ether,
       0,
@@ -332,8 +332,8 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   }
 
   function depositLPTokens() private {
-    uint256 lpTokenBalance = trisolarisPair.balanceOf(address(this));
-    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
+    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
     lpStaking.deposit(0, lpTokenBalance);
   }
 
@@ -348,18 +348,18 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
 
-    createTrisolarisPair();
+    createUniswapV2Pair();
     addLiquidity();
 
-    lpTokenBalance = trisolarisPair.balanceOf(address(this));
-    trisolarisPair.transfer(address(1), lpTokenBalance);
+    lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
+    uniswapV2Pair.transfer(address(1), lpTokenBalance);
 
     vm.startPrank(address(1));
-    trisolarisPair.approve(address(lpStaking), lpTokenBalance);
+    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
     lpStaking.deposit(0, lpTokenBalance);
     vm.stopPrank();
 
-    assertEq(trisolarisPair.balanceOf(address(1)), 0);
+    assertEq(uniswapV2Pair.balanceOf(address(1)), 0);
     assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
     assertEq(vault.balanceOf(address(1)), 0);
 
