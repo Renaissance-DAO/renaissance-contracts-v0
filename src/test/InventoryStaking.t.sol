@@ -58,19 +58,27 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
   }
 
   function testDeposit() public {
-    mintVaultTokens(1);
+    mintVaultTokens(2);
 
     inventoryStaking.deployXTokenForVault(0);
     inventoryStaking.setInventoryLockTimeErc20(10 seconds);
-    vault.approve(address(inventoryStaking), 0.9 ether);
-    inventoryStaking.deposit(0, 0.9 ether);
+    vault.approve(address(inventoryStaking), 1 ether);
+    inventoryStaking.deposit(0, 1 ether);
 
-    assertEq(vault.balanceOf(address(this)), 0);
+    assertEq(vault.balanceOf(address(this)), 0.8 ether);
 
     address xTokenAddress = inventoryStaking.vaultXToken(0);
     XTokenUpgradeable xToken = XTokenUpgradeable(xTokenAddress);
-    assertEq(xToken.balanceOf(address(this)), 0.9 ether);
+    assertEq(xToken.balanceOf(address(this)), 1 ether);
     assertEq(xToken.timelockUntil(address(this)), block.timestamp + 10 seconds);
+
+    vault.transfer(address(1), 0.5 ether);
+    vm.startPrank(address(1));
+    vault.approve(address(inventoryStaking), 0.5 ether);
+    inventoryStaking.deposit(0, 0.5 ether);
+    vm.stopPrank();
+    assertEq(xToken.balanceOf(address(1)), 0.5 ether);
+    assertEq(xToken.timelockUntil(address(1)), block.timestamp + 10 seconds);
   }
 
   function testTimelockMintFor() public {
