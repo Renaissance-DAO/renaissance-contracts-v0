@@ -56,6 +56,7 @@ contract InventoryStaking is Pausable, BeaconUpgradeable, IInventoryStaking {
         _;
     }
 
+    // TODO: timelock exclude list is not yet implemented
     function setTimelockExcludeList(address addr) external onlyOwner {
         timelockExcludeList = ITimelockExcludeList(addr);
     }
