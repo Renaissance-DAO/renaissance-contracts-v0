@@ -73,6 +73,42 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
     assertEq(xToken.timelockUntil(address(this)), block.timestamp + 10 seconds);
   }
 
+  function testTimelockMintFor() public {
+    mintVaultTokens(1);
+
+    inventoryStaking.deployXTokenForVault(0);
+    factory.setZapContract(address(123));
+    factory.setFeeExclusion(address(123), true);
+    vm.prank(address(123));
+    inventoryStaking.timelockMintFor(0, 123 ether, address(this), 3 seconds);
+
+    // Nothing is taken from the account
+    assertEq(vault.balanceOf(address(this)), 0.9 ether);
+
+    address xTokenAddress = inventoryStaking.vaultXToken(0);
+    XTokenUpgradeable xToken = XTokenUpgradeable(xTokenAddress);
+    assertEq(xToken.balanceOf(address(this)), 123 ether);
+    assertEq(xToken.timelockUntil(address(this)), block.timestamp + 3 seconds);
+  }
+
+  function testTimelockMintForNotZapContract() public {
+    mintVaultTokens(1);
+
+    inventoryStaking.deployXTokenForVault(0);
+    vm.expectRevert(InventoryStaking.NotZapContract.selector);
+    inventoryStaking.timelockMintFor(0, 123 ether, address(this), 3 seconds);
+  }
+
+  function testTimelockMintForNotExcludedFromFees() public {
+    mintVaultTokens(1);
+
+    inventoryStaking.deployXTokenForVault(0);
+    factory.setZapContract(address(123));
+    vm.prank(address(123));
+    vm.expectRevert(InventoryStaking.NotExcludedFromFees.selector);
+    inventoryStaking.timelockMintFor(0, 123 ether, address(this), 3 seconds);
+  }
+
   // TODO: merge with FNFTCollectionTest.t.sol
   function createVault() private {
     factory.createVault("Doodles", "DOODLE", address(token), false, true);
