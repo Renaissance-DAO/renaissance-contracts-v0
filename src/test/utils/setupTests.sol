@@ -13,6 +13,7 @@ import {StakingTokenProvider} from "../../contracts/StakingTokenProvider.sol";
 import {FNFTCollectionFactory} from "../../contracts/FNFTCollectionFactory.sol";
 import {FNFTCollection} from "../../contracts/FNFTCollection.sol";
 import {LPStaking} from "../../contracts/LPStaking.sol";
+import {InventoryStaking} from "../../contracts/InventoryStaking.sol";
 import {FeeDistributor} from "../../contracts/FeeDistributor.sol";
 import {IUniswapV2Factory} from "../../contracts/interfaces/IUniswapV2Factory.sol";
 import {IUniswapV2Router} from "../../contracts/interfaces/IUniswapV2Router.sol";
@@ -102,6 +103,15 @@ contract SetupEnvironment {
         );
     }
 
+    function setupInventoryStaking(address fnftCollectionFactory) public returns (InventoryStaking inventoryStaking) {
+        inventoryStaking = InventoryStaking(
+            deployer.deployInventoryStaking(
+                address(new InventoryStaking()),
+                fnftCollectionFactory
+            )
+        );
+    }
+
     function setupFeeDistributor(address lpStaking) public returns (FeeDistributor feeDistributor) {
         feeDistributor = FeeDistributor(
             deployer.deployFeeDistributor(
@@ -145,7 +155,7 @@ contract SetupEnvironment {
         FeeDistributor feeDistributor = setupFeeDistributor(address(lpStaking));
 
         pairFactory = setupPairFactory();
-        priceOracle = setupPriceOracle(address(pairFactory));    
+        priceOracle = setupPriceOracle(address(pairFactory));
         ifoFactory = setupIFOFactory();
         fnftFactory = setupFNFTFactory(address(ifoFactory), address(priceOracle), address(feeDistributor));
         fnft = setupFNFT(address(fnftFactory), _fnftAmount);
@@ -157,16 +167,18 @@ contract SetupEnvironment {
             StakingTokenProvider stakingTokenProvider,
             LPStaking lpStaking,
             FeeDistributor feeDistributor,
-            FNFTCollectionFactory fnftCollectionFactory
+            FNFTCollectionFactory fnftCollectionFactory,
+            InventoryStaking inventoryStaking
         )
     {
         IUniswapV2Factory pairFactory = setupPairFactory();
-        PriceOracle priceOracle = setupPriceOracle(address(pairFactory));    
+        PriceOracle priceOracle = setupPriceOracle(address(pairFactory));
 
         stakingTokenProvider = setupStakingTokenProvider();
         lpStaking = setupLPStaking(address(stakingTokenProvider));
         feeDistributor = setupFeeDistributor(address(lpStaking));
         fnftCollectionFactory = setupFNFTCollectionFactory(address(priceOracle), address(feeDistributor));
+        inventoryStaking = setupInventoryStaking(address(fnftCollectionFactory));
 
         feeDistributor.setFNFTCollectionFactory(address(fnftCollectionFactory));
         lpStaking.setFNFTCollectionFactory(address(fnftCollectionFactory));

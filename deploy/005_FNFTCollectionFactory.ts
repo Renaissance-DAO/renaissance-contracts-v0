@@ -28,6 +28,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
   });
 
+  const inventoryStakingImpl = await deploy('InventoryStaking', {
+    from: deployer,
+    log: true,
+  });
+
   const feeDistributorImpl = await deploy('FeeDistributor', {
     from: deployer,
     log: true,
@@ -78,10 +83,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   event = feeDistributorReceipt.events.find((event: ethers.Event) => event.event === "ProxyDeployed");
   const [,feeDistributorAddress,] = event.args;
 
-  await deployerContract.deployFNFTCollectionFactory(
+  const fnftCollectionFactoryReceipt = await deployerContract.deployFNFTCollectionFactory(
     factoryImpl.address,
     feeDistributorAddress
   );
+  event = fnftCollectionFactoryReceipt.events.find((event: ethers.Event) => event.event === "ProxyDeployed");
+  const [,fnftCollectionFactoryAddress,] = event.args;
+
+  const inventoryStakingTx = await deployerContract.deployInventoryStaking(
+    inventoryStakingImpl.address,
+    fnftCollectionFactoryAddress
+  );
+  const inventoryStakingReceipt = await inventoryStakingTx.wait();
+  event = inventoryStakingReceipt.events.find((event: ethers.Event) => event.event === "ProxyDeployed");
+  const [,inventoryStakingAddress,] = event.args;
+
 
   const feeDistributorInfo = await get('FeeDistributor');
   const feeDistributorContract = new Contract(

@@ -37,7 +37,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
       stakingTokenProvider,
       lpStaking,
       feeDistributor,
-      factory
+      factory,
     ) = setupCollectionVaultContracts();
 
     uniswapV2Factory = setupPairFactory();
