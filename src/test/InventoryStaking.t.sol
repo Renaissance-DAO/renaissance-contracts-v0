@@ -7,6 +7,7 @@ import {console, SetupEnvironment} from "./utils/utils.sol";
 import {InventoryStaking} from "../contracts/InventoryStaking.sol";
 import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
 import {FNFTCollection} from "../contracts/FNFTCollection.sol";
+import {XTokenUpgradeable} from "../contracts/token/XTokenUpgradeable.sol";
 
 /// @author 0xkowloon
 /// @title Tests for inventory staking
@@ -54,6 +55,22 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
     inventoryStaking.deployXTokenForVault(0);
     // contract deployed, does not throw an error
     inventoryStaking.vaultXToken(0);
+  }
+
+  function testDeposit() public {
+    mintVaultTokens(1);
+
+    inventoryStaking.deployXTokenForVault(0);
+    inventoryStaking.setInventoryLockTimeErc20(10 seconds);
+    vault.approve(address(inventoryStaking), 0.9 ether);
+    inventoryStaking.deposit(0, 0.9 ether);
+
+    assertEq(vault.balanceOf(address(this)), 0);
+
+    address xTokenAddress = inventoryStaking.vaultXToken(0);
+    XTokenUpgradeable xToken = XTokenUpgradeable(xTokenAddress);
+    assertEq(xToken.balanceOf(address(this)), 0.9 ether);
+    assertEq(xToken.timelockUntil(address(this)), block.timestamp + 10 seconds);
   }
 
   // TODO: merge with FNFTCollectionTest.t.sol
