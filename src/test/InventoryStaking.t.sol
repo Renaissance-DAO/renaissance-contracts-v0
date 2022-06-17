@@ -117,6 +117,44 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
     inventoryStaking.timelockMintFor(0, 123 ether, address(this), 3 seconds);
   }
 
+  function testReceiveRewardsAndWithdraw() public {
+    mintVaultTokens(2);
+
+    inventoryStaking.deployXTokenForVault(0);
+
+    vault.transfer(address(1), 1 ether);
+    vm.startPrank(address(1));
+    vault.approve(address(inventoryStaking), 1 ether);
+    inventoryStaking.deposit(0, 1 ether);
+    vm.stopPrank();
+
+    vault.transfer(address(2), 0.5 ether);
+    vm.startPrank(address(2));
+    vault.approve(address(inventoryStaking), 0.5 ether);
+    inventoryStaking.deposit(0, 0.5 ether);
+    vm.stopPrank();
+
+    address xTokenAddress = inventoryStaking.vaultXToken(0);
+    XTokenUpgradeable xToken = XTokenUpgradeable(xTokenAddress);
+
+    vault.approve(address(inventoryStaking), 0.3 ether);
+    inventoryStaking.receiveRewards(0, 0.3 ether);
+
+    assertEq(inventoryStaking.xTokenShareValue(0), 1.2 ether);
+
+    vm.warp(block.timestamp + 1 seconds);
+
+    vm.prank(address(1));
+    inventoryStaking.withdraw(0, 1 ether);
+    assertEq(xToken.balanceOf(address(1)), 0);
+    assertEq(vault.balanceOf(address(1)), 1.2 ether);
+
+    vm.prank(address(2));
+    inventoryStaking.withdraw(0, 0.5 ether);
+    assertEq(xToken.balanceOf(address(2)), 0);
+    assertEq(vault.balanceOf(address(2)), 0.6 ether);
+  }
+
   // TODO: merge with FNFTCollectionTest.t.sol
   function createVault() private {
     factory.createVault("Doodles", "DOODLE", address(token), false, true);
