@@ -157,6 +157,12 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
     assertEq(vault.balanceOf(address(2)), 0.6 ether);
   }
 
+  function testVaultXTokenNotDeployed() public {
+    mintVaultTokens(1);
+    vm.expectRevert(InventoryStaking.XTokenNotDeployed.selector);
+    inventoryStaking.vaultXToken(0);
+  }
+
   function testXTokenShareValueXTokenNotDeployed() public {
     mintVaultTokens(1);
     vm.expectRevert(InventoryStaking.XTokenNotDeployed.selector);
