@@ -10,6 +10,7 @@ import "./interfaces/ILPStaking.sol";
 import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/IInventoryStaking.sol";
 import "./interfaces/IFNFTCollectionFactory.sol";
+import "./interfaces/IFNFTFactory.sol";
 import "./util/Pausable.sol";
 
 contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable {
@@ -18,6 +19,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   bool public distributionPaused;
 
   address public override fnftCollectionFactory;
+  address public override fnftSingleFactory;
   address public override lpStaking;
   address public override treasury;
 
@@ -31,6 +33,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   event UpdateLPStakingAddress(address newLPStaking);
   event UpdateInventoryStakingAddress(address newInventoryStaking);
   event UpdateFNFTCollectionFactory(address factory);
+  event UpdateFNFTSingleFactory(address factory);
   event PauseDistribution(bool paused);
 
   event AddFeeReceiver(address receiver, uint256 allocPoint);
@@ -51,10 +54,19 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     _addReceiver(0.8 ether, lpStaking, true);
   }
 
-  function distribute(uint256 vaultId) external override virtual nonReentrant {
+  function distributeSingleRewards(uint vaultId) external override {
+    if (fnftSingleFactory == address(0)) revert ZeroAddress();
+    address _vault = IFNFTFactory(fnftSingleFactory).vault(vaultId);
+    _distribute(_vault, vaultId);
+  }
+
+  function distributeCollectionRewards(uint vaultId) external override {
     if (fnftCollectionFactory == address(0)) revert ZeroAddress();
     address _vault = IFNFTCollectionFactory(fnftCollectionFactory).vault(vaultId);
+    _distribute(_vault, vaultId);
+  }
 
+  function _distribute(address _vault, uint vaultId) internal virtual nonReentrant {    
     uint256 tokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
 
     if (distributionPaused || allocTotal == 0) {
@@ -90,7 +102,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   }
 
   function initializeVaultReceivers(uint256 _vaultId) external override {
-    if (msg.sender != fnftCollectionFactory) revert CallerIsNotFactory();
+    if (msg.sender != fnftCollectionFactory || msg.sender != fnftSingleFactory) revert CallerIsNotFactory();    
     ILPStaking(lpStaking).addPoolForVault(_vaultId);
     if (inventoryStaking != address(0))
       IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
@@ -144,6 +156,12 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     if (address(fnftCollectionFactory) != address(0)) revert FactoryIsImmutable();
     fnftCollectionFactory = _factory;
     emit UpdateFNFTCollectionFactory(_factory);
+  }
+
+  function setFNFTSingleFactory(address _factory) external override onlyOwner {
+    if (address(fnftSingleFactory) != address(0)) revert FactoryIsImmutable();
+    fnftSingleFactory = _factory;
+    emit UpdateFNFTSingleFactory(_factory);
   }
 
   function pauseFeeDistribution(bool _pause) external onlyOwner {

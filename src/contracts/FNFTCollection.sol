@@ -474,7 +474,7 @@ contract FNFTCollection is
         address feeDistributor = _factory.feeDistributor();
         // Changed to a _transfer() in v1.0.3.
         super._transfer(user, feeDistributor, amount);
-        IFeeDistributor(feeDistributor).distribute(vaultId);
+        IFeeDistributor(feeDistributor).distributeCollectionRewards(vaultId);
     }
 
     function transferERC721(address assetAddr, address to, uint256 tokenId) internal virtual {

@@ -655,6 +655,6 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         address feeDistributor = _factory.feeDistributor();
         // Changed to a _transfer() in v1.0.3.
         super._transfer(user, feeDistributor, amount);
-        IFeeDistributor(feeDistributor).distribute(vaultId);
+        IFeeDistributor(feeDistributor).distributeSingleRewards(vaultId);
     }
 }
