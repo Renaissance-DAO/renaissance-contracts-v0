@@ -182,11 +182,11 @@ contract FNFTFactory is
         uint256 _vaultId = uint256(keccak256(abi.encodePacked(_nft, _tokenId, numVaults)));
         _vaultsForAsset[_nft][_tokenId].push(fnft);
         vaults[_vaultId] = fnft;
-        numVaults++;
-
-        emit FNFTCreated(_nft, fnft, msg.sender, _listPrice, _name, _symbol);
+        numVaults++;        
 
         IERC721(_nft).safeTransferFrom(msg.sender, fnft, _tokenId);
+        IFeeDistributor(feeDistributor).initializeVaultReceivers(_vaultId);
+        emit FNFTCreated(_nft, fnft, msg.sender, _listPrice, _name, _symbol);
         return fnft;
     }
 
