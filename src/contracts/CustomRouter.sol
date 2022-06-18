@@ -85,6 +85,47 @@ contract CustomRouter {
         if (msg.value > amountETH) _safeTransferETH(msg.sender, msg.value - amountETH);
     }
 
+    // **** REMOVE LIQUIDITY ****
+    function removeLiquidity(
+        address tokenA,
+        address tokenB,
+        uint liquidity,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline
+    ) public virtual ensure(deadline) returns (uint amountA, uint amountB) {
+        address pair = UniswapV2Library.pairFor(factory, tokenA, tokenB);
+        IUniswapV2Pair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
+        (uint amount0, uint amount1) = IUniswapV2Pair(pair).burn(to);
+        (address token0,) = UniswapV2Library.sortTokens(tokenA, tokenB);
+        (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
+        require(amountA >= amountAMin, "UniswapV2Router: INSUFFICIENT_A_AMOUNT");
+        require(amountB >= amountBMin, "UniswapV2Router: INSUFFICIENT_B_AMOUNT");
+    }
+
+    function removeLiquidityETH(
+        address token,
+        uint liquidity,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) public virtual ensure(deadline) returns (uint amountToken, uint amountETH) {
+        (amountToken, amountETH) = removeLiquidity(
+            token,
+            WETH,
+            liquidity,
+            amountTokenMin,
+            amountETHMin,
+            address(this),
+            deadline
+        );
+        IERC20(token).safeTransfer(to, amountToken);        
+        IWETH(WETH).withdraw(amountETH);
+        _safeTransferETH(to, amountETH);
+    }
+
     /** @notice transfer ETH using call
     *   @param _to: address to transfer ETH to
     *   @param _value: amount of ETH to transfer
