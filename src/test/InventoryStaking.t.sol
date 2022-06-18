@@ -185,6 +185,15 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
     assertEq(inventoryStaking.xTokenAddr(address(vault)), xTokenAddress);
   }
 
+  function testXTokenStorageVariables() public {
+    mintVaultTokens(1);
+    inventoryStaking.deployXTokenForVault(0);
+    XTokenUpgradeable xToken = XTokenUpgradeable(inventoryStaking.vaultXToken(0));
+    assertEq(address(xToken.baseToken()), address(vault));
+    assertEq(xToken.name(), "xDOODLE");
+    assertEq(xToken.symbol(), "xDOODLE");
+  }
+
   // TODO: merge with FNFTCollectionTest.t.sol
   function createVault() private {
     factory.createVault("Doodles", "DOODLE", address(token), false, true);
