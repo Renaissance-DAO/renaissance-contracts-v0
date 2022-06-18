@@ -137,6 +137,8 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
     address xTokenAddress = inventoryStaking.vaultXToken(0);
     XTokenUpgradeable xToken = XTokenUpgradeable(xTokenAddress);
 
+    assertEq(inventoryStaking.xTokenShareValue(0), 1 ether);
+
     vault.approve(address(inventoryStaking), 0.3 ether);
     inventoryStaking.receiveRewards(0, 0.3 ether);
 
@@ -153,6 +155,28 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
     inventoryStaking.withdraw(0, 0.5 ether);
     assertEq(xToken.balanceOf(address(2)), 0);
     assertEq(vault.balanceOf(address(2)), 0.6 ether);
+  }
+
+  function testXTokenShareValueXTokenNotDeployed() public {
+    mintVaultTokens(1);
+    vm.expectRevert(InventoryStaking.XTokenNotDeployed.selector);
+    inventoryStaking.xTokenShareValue(0);
+  }
+
+  // NOTE: xTokenShareValue totalSupply > 0 scenarios tested above.
+  function testXTokenShareValueZeroTotalSupply() public {
+    mintVaultTokens(1);
+    inventoryStaking.deployXTokenForVault(0);
+    assertEq(inventoryStaking.xTokenShareValue(0), 1e18);
+  }
+
+  function testXTokenAddr() public {
+    mintVaultTokens(1);
+    address xTokenAddress = 0x4719D751f20fC6a6f8f3E9f71B5679B600e88D30;
+    // the address before and after deploy are the same
+    assertEq(inventoryStaking.xTokenAddr(address(vault)), xTokenAddress);
+    inventoryStaking.deployXTokenForVault(0);
+    assertEq(inventoryStaking.xTokenAddr(address(vault)), xTokenAddress);
   }
 
   // TODO: merge with FNFTCollectionTest.t.sol
