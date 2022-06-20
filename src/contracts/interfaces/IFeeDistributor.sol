@@ -23,7 +23,8 @@ interface IFeeDistributor {
   function distributeSingleRewards(uint vaultId) external;
   function distributeCollectionRewards(uint vaultId) external;
   function addReceiver(uint256 _allocPoint, address _receiver, bool _isContract) external;
-  function initializeVaultReceivers(uint256 _vaultId) external;
+  function initializeCollectionVaultReceivers(uint256 _vaultId) external;
+  function initializeSingleVaultReceivers(uint256 _vaultId) external;
 
   function changeReceiverAlloc(uint256 _idx, uint256 _allocPoint) external;
   function changeReceiverAddress(uint256 _idx, address _address, bool _isContract) external;

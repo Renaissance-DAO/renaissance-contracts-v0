@@ -3,7 +3,6 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import "./FNFT.sol";
@@ -185,7 +184,7 @@ contract FNFTFactory is
         numVaults++;        
 
         IERC721(_nft).safeTransferFrom(msg.sender, fnft, _tokenId);
-        IFeeDistributor(feeDistributor).initializeVaultReceivers(_vaultId);
+        IFeeDistributor(feeDistributor).initializeSingleVaultReceivers(_vaultId);
         emit FNFTCreated(_nft, fnft, msg.sender, _listPrice, _name, _symbol);
         return fnft;
     }

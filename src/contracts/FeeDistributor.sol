@@ -12,6 +12,7 @@ import "./interfaces/IInventoryStaking.sol";
 import "./interfaces/IFNFTCollectionFactory.sol";
 import "./interfaces/IFNFTFactory.sol";
 import "./util/Pausable.sol";
+import {console} from "../test/utils/utils.sol";
 
 contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -101,11 +102,25 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     _addReceiver(_allocPoint, _receiver, _isContract);
   }
 
-  function initializeVaultReceivers(uint256 _vaultId) external override {
-    if (msg.sender != fnftCollectionFactory || msg.sender != fnftSingleFactory) revert CallerIsNotFactory();    
-    ILPStaking(lpStaking).addPoolForVault(_vaultId);
+  function initializeCollectionVaultReceivers(uint256 _vaultId) external override {    
+    if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert CallerIsNotFactory();        
+    ILPStaking(lpStaking).addPoolForCollectionVault(_vaultId);    
+    if (inventoryStaking != address(0))
+      IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);      
+  }
+
+  function initializeSingleVaultReceivers(uint256 _vaultId) external override {
+    console.log("SENDER: ",msg.sender);
+    console.log("SENDER2: ",fnftCollectionFactory);
+    console.log("SENDER3: ",fnftSingleFactory);
+    if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert CallerIsNotFactory();    
+    console.log("SENDER4: ");
+    ILPStaking(lpStaking).addPoolForSingleVault(_vaultId);
+    console.log("SENDER5: ");
     if (inventoryStaking != address(0))
       IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
+      console.log("SENDER6: ");
+    console.log("SENDER7: ");
   }
 
   function changeReceiverAlloc(uint256 _receiverIdx, uint256 _allocPoint) public override virtual onlyOwner {

@@ -148,9 +148,8 @@ contract SetupEnvironment {
         priceOracle = setupPriceOracle(address(pairFactory));    
         ifoFactory = setupIFOFactory();
         fnftFactory = setupFNFTFactory(address(ifoFactory), address(priceOracle), address(feeDistributor));
-        fnft = setupFNFT(address(fnftFactory), _fnftAmount);
-
         feeDistributor.setFNFTSingleFactory(address(fnftFactory));
+        fnft = setupFNFT(address(fnftFactory), _fnftAmount);        
     }
 
     function setupCollectionVaultContracts()

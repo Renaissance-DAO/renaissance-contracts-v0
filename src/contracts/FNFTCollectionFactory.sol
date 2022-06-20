@@ -78,7 +78,7 @@ contract FNFTCollectionFactory is
         _vaultsForAsset[_assetAddress].push(vaultAddr);
         vaults[_vaultId] = vaultAddr;
         numVaults++;
-        IFeeDistributor(feeDistributor).initializeVaultReceivers(_vaultId);
+        IFeeDistributor(feeDistributor).initializeCollectionVaultReceivers(_vaultId);
         emit NewVault(_vaultId, vaultAddr, _assetAddress);
         return _vaultId;
     }

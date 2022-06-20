@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 
 import "./interfaces/IFNFTCollectionFactory.sol";
+import "./interfaces/IFNFTFactory.sol";
 import "./interfaces/IRewardDistributionToken.sol";
 import "./util/Pausable.sol";
 import "./StakingTokenProvider.sol";
@@ -23,6 +24,7 @@ contract LPStaking is Pausable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IFNFTCollectionFactory public fnftCollectionFactory;
+    IFNFTFactory public fnftSingleFactory;
     IRewardDistributionToken public rewardDistTokenImpl;
     StakingTokenProvider public stakingTokenProvider;
 
@@ -60,7 +62,9 @@ contract LPStaking is Pausable {
     }
 
     modifier onlyAdmin() {
-        if (msg.sender != owner() && msg.sender != fnftCollectionFactory.feeDistributor()) revert Unauthorized();
+        if (msg.sender != owner() && 
+            msg.sender != fnftCollectionFactory.feeDistributor() &&
+            msg.sender != fnftSingleFactory.feeDistributor()) revert Unauthorized();
         _;
     }
 
@@ -69,15 +73,31 @@ contract LPStaking is Pausable {
         fnftCollectionFactory = IFNFTCollectionFactory(newFactory);
     }
 
+    function setFNFTSingleFactory(address newFactory) external onlyOwner {
+        if (address(fnftSingleFactory) != address(0)) revert FactoryAlreadySet();
+        fnftSingleFactory = IFNFTFactory(newFactory);
+    }
+
     function setStakingTokenProvider(address newProvider) external onlyOwner {
         if (newProvider == address(0)) revert ZeroAddress();
         stakingTokenProvider = StakingTokenProvider(newProvider);
     }
 
-    function addPoolForVault(uint256 vaultId) external onlyAdmin {
+    function addPoolForCollectionVault(uint256 vaultId) external onlyAdmin {
         if (address(fnftCollectionFactory) == address(0)) revert FactoryNotSet();
         if (vaultStakingInfo[vaultId].stakingToken != address(0)) revert PoolAlreadyExists();
         address _rewardToken = fnftCollectionFactory.vault(vaultId);
+        address _stakingToken = stakingTokenProvider.stakingTokenForVaultToken(_rewardToken);
+        StakingPool memory pool = StakingPool(_stakingToken, _rewardToken);
+        vaultStakingInfo[vaultId] = pool;
+        address newRewardDistToken = _deployDividendToken(pool);
+        emit PoolCreated(vaultId, newRewardDistToken);
+    }
+
+    function addPoolForSingleVault(uint256 vaultId) external onlyAdmin {
+        if (address(fnftSingleFactory) == address(0)) revert FactoryNotSet();
+        if (vaultStakingInfo[vaultId].stakingToken != address(0)) revert PoolAlreadyExists();
+        address _rewardToken = fnftSingleFactory.vault(vaultId);
         address _stakingToken = stakingTokenProvider.stakingTokenForVaultToken(_rewardToken);
         StakingPool memory pool = StakingPool(_stakingToken, _rewardToken);
         vaultStakingInfo[vaultId] = pool;
@@ -153,9 +173,21 @@ contract LPStaking is Pausable {
         }
     }
 
-    function timelockDepositFor(uint256 vaultId, address account, uint256 amount, uint256 timelockLength) external {
+    function timelockDepositForCollection(uint256 vaultId, address account, uint256 amount, uint256 timelockLength) external {
         if (timelockLength >= 2592000) revert TimelockTooLong();
         if (!fnftCollectionFactory.excludedFromFees(msg.sender)) revert NotExcludedFromFees();
+        onlyOwnerIfPaused(10);
+        // Check the pool in case its been updated.
+        updatePoolForVault(vaultId);
+        StakingPool memory pool = vaultStakingInfo[vaultId];
+        if (pool.stakingToken == address(0)) revert PoolDoesNotExist();
+        IERC20Upgradeable(pool.stakingToken).safeTransferFrom(msg.sender, address(this), amount);
+        _rewardDistributionTokenAddr(pool).timelockMint(account, amount, timelockLength);
+    }
+
+    function timelockDepositForSingle(uint256 vaultId, address account, uint256 amount, uint256 timelockLength) external {
+        if (timelockLength >= 2592000) revert TimelockTooLong();
+        if (!fnftSingleFactory.excludedFromFees(msg.sender)) revert NotExcludedFromFees();
         onlyOwnerIfPaused(10);
         // Check the pool in case its been updated.
         updatePoolForVault(vaultId);

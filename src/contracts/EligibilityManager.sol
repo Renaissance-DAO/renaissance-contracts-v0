@@ -3,7 +3,6 @@
 pragma experimental ABIEncoderV2;
 pragma solidity 0.8.13;
 
-import "./interfaces/IFNFTCollectionFactory.sol";
 import "./interfaces/IEligibility.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";

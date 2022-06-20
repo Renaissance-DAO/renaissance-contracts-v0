@@ -73,14 +73,14 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testAddPoolForVaultPoolAlreadyExists() public {    
     mintVaultTokens(1);
     vm.expectRevert(LPStaking.PoolAlreadyExists.selector);
-    lpStaking.addPoolForVault(vaultId);
+    lpStaking.addPoolForCollectionVault(vaultId);
   }
 
   function testAddPoolForVaultFactoryDoesNotExist() public {    
     stakingTokenProvider = setupStakingTokenProvider();
     lpStaking = setupLPStaking(address(stakingTokenProvider));
     vm.expectRevert(LPStaking.FactoryNotSet.selector);
-    lpStaking.addPoolForVault(vaultId);
+    lpStaking.addPoolForCollectionVault(vaultId);
   }
 
   function testVaultStakingInfo() public {    
@@ -116,7 +116,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
     uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
-    lpStaking.timelockDepositFor(vaultId, address(1), lpTokenBalance, 123);
+    lpStaking.timelockDepositForCollection(vaultId, address(1), lpTokenBalance, 123);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
     assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
@@ -132,7 +132,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
     uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
     vm.expectRevert(LPStaking.NotExcludedFromFees.selector);
-    lpStaking.timelockDepositFor(vaultId, address(1), lpTokenBalance, 123);
+    lpStaking.timelockDepositForCollection(vaultId, address(1), lpTokenBalance, 123);
   }
 
   function testTimelockDepositForTimelockTooLong() public {    
@@ -144,7 +144,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
     uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
     vm.expectRevert(LPStaking.TimelockTooLong.selector);
-    lpStaking.timelockDepositFor(vaultId, address(1), lpTokenBalance, 2592000);
+    lpStaking.timelockDepositForCollection(vaultId, address(1), lpTokenBalance, 2592000);
   }
 
   function testDepositTwice() public {    

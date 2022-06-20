@@ -18,12 +18,14 @@ interface ILPStaking {
     function __LPStaking__init(address _stakingTokenProvider) external;
     function setFNFTCollectionFactory(address newFactory) external;
     function setStakingTokenProvider(address newProvider) external;
-    function addPoolForVault(uint256 vaultId) external;
+    function addPoolForCollectionVault(uint256 vaultId) external;
+    function addPoolForSingleVault(uint256 vaultId) external;
     function updatePoolForVault(uint256 vaultId) external;
     function updatePoolForVaults(uint256[] calldata vaultId) external;
     function receiveRewards(uint256 vaultId, uint256 amount) external returns (bool);
     function deposit(uint256 vaultId, uint256 amount) external;
-    function timelockDepositFor(uint256 vaultId, address account, uint256 amount, uint256 timelockLength) external;
+    function timelockDepositForCollection(uint256 vaultId, address account, uint256 amount, uint256 timelockLength) external;
+    function timelockDepositForSingle(uint256 vaultId, address account, uint256 amount, uint256 timelockLength) external;
     function exit(uint256 vaultId, uint256 amount) external;
     function rescue(uint256 vaultId) external;
     function withdraw(uint256 vaultId, uint256 amount) external;
