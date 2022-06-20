@@ -178,9 +178,8 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
 
   function testXTokenAddr() public {
     mintVaultTokens(1);
-    address xTokenAddress = 0x4719D751f20fC6a6f8f3E9f71B5679B600e88D30;
     // the address before and after deploy are the same
-    assertEq(inventoryStaking.xTokenAddr(address(vault)), xTokenAddress);
+    address xTokenAddress = inventoryStaking.xTokenAddr(address(vault));
     inventoryStaking.deployXTokenForVault(0);
     assertEq(inventoryStaking.xTokenAddr(address(vault)), xTokenAddress);
   }
