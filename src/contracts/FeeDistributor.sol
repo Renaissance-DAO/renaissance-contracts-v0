@@ -12,7 +12,7 @@ import "./interfaces/IInventoryStaking.sol";
 import "./interfaces/IFNFTCollectionFactory.sol";
 import "./interfaces/IFNFTFactory.sol";
 import "./util/Pausable.sol";
-import {console} from "../test/utils/utils.sol";
+// import {console} from "../test/utils/console.sol";
 
 contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -77,8 +77,8 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
     uint256 length = feeReceivers.length;
     uint256 leftover;
-    for (uint256 i; i < length; ++i) {
-      FeeReceiver memory _feeReceiver = feeReceivers[i];
+    for (uint256 i; i < length; ++i) {      
+      FeeReceiver memory _feeReceiver = feeReceivers[i];      
       uint256 amountToSend = leftover + ((tokenBalance * _feeReceiver.allocPoint) / allocTotal);
       uint256 currentTokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
       amountToSend = amountToSend > currentTokenBalance ? currentTokenBalance : amountToSend;
@@ -90,7 +90,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
       } else {
         leftover = 0;
       }
-    }
+    }    
 
     if (leftover != 0) {
       uint256 currentTokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
@@ -109,18 +109,11 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
       IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);      
   }
 
-  function initializeSingleVaultReceivers(uint256 _vaultId) external override {
-    console.log("SENDER: ",msg.sender);
-    console.log("SENDER2: ",fnftCollectionFactory);
-    console.log("SENDER3: ",fnftSingleFactory);
+  function initializeSingleVaultReceivers(uint256 _vaultId) external override {    
     if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert CallerIsNotFactory();    
-    console.log("SENDER4: ");
-    ILPStaking(lpStaking).addPoolForSingleVault(_vaultId);
-    console.log("SENDER5: ");
+    ILPStaking(lpStaking).addPoolForSingleVault(_vaultId);    
     if (inventoryStaking != address(0))
-      IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
-      console.log("SENDER6: ");
-    console.log("SENDER7: ");
+      IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);    
   }
 
   function changeReceiverAlloc(uint256 _receiverIdx, uint256 _allocPoint) public override virtual onlyOwner {

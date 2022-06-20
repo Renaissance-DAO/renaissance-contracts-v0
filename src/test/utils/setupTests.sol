@@ -137,7 +137,7 @@ contract SetupEnvironment {
             PriceOracle priceOracle,
             IFOFactory ifoFactory,
             FNFTFactory fnftFactory,
-            FNFT fnft
+            FNFT fnft            
         )
     {
         StakingTokenProvider stakingTokenProvider = setupStakingTokenProvider();
@@ -148,7 +148,12 @@ contract SetupEnvironment {
         priceOracle = setupPriceOracle(address(pairFactory));    
         ifoFactory = setupIFOFactory();
         fnftFactory = setupFNFTFactory(address(ifoFactory), address(priceOracle), address(feeDistributor));
+        FNFTCollectionFactory fnftCollectionFactory = setupFNFTCollectionFactory(address(priceOracle), address(feeDistributor));        
+
         feeDistributor.setFNFTSingleFactory(address(fnftFactory));
+        feeDistributor.setFNFTCollectionFactory(address(fnftCollectionFactory));
+        lpStaking.setFNFTSingleFactory(address(fnftFactory));
+        lpStaking.setFNFTCollectionFactory(address(fnftCollectionFactory));
         fnft = setupFNFT(address(fnftFactory), _fnftAmount);        
     }
 
@@ -167,9 +172,15 @@ contract SetupEnvironment {
         stakingTokenProvider = setupStakingTokenProvider();
         lpStaking = setupLPStaking(address(stakingTokenProvider));
         feeDistributor = setupFeeDistributor(address(lpStaking));
+
+        IFOFactory ifoFactory = setupIFOFactory();
+        FNFTFactory fnftFactory = setupFNFTFactory(address(ifoFactory), address(priceOracle), address(feeDistributor));
+
         fnftCollectionFactory = setupFNFTCollectionFactory(address(priceOracle), address(feeDistributor));
 
+        feeDistributor.setFNFTSingleFactory(address(fnftFactory));
         feeDistributor.setFNFTCollectionFactory(address(fnftCollectionFactory));
+        lpStaking.setFNFTSingleFactory(address(fnftFactory));
         lpStaking.setFNFTCollectionFactory(address(fnftCollectionFactory));
     }
 }

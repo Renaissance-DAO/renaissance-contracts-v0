@@ -641,7 +641,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
         assertEq(fnft.balanceOf(pairAddress), transferAmount - swapFeeAmount);
         assertEq(fnft.balanceOf(address(this)), originalBalance - transferAmount);
-        assertEq(fnft.balanceOf(distributor), swapFeeAmount);
+        assertEq(fnft.balanceOf(distributor), 0);
     }
 
     function testExcludeSwapFeeFromFeeExclusion() public {

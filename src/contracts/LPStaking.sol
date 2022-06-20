@@ -14,7 +14,7 @@ import "./interfaces/IRewardDistributionToken.sol";
 import "./util/Pausable.sol";
 import "./StakingTokenProvider.sol";
 import "./token/TimelockRewardDistributionTokenImpl.sol";
-
+import {console} from "../test/utils/console.sol";
 // Author: 0xKiwi.
 
 // Pausing codes for LP staking are:
@@ -61,9 +61,20 @@ contract LPStaking is Pausable {
         newTimelockRewardDistTokenImpl.__TimelockRewardDistributionToken_init(IERC20Upgradeable(address(0)), "", "");
     }
 
-    modifier onlyAdmin() {
+    modifier onlyCollectionAdmin() {        
+        if (msg.sender != owner() && msg.sender != fnftCollectionFactory.feeDistributor()) revert Unauthorized();
+        _;
+    }
+
+    modifier onlySingleAdmin() {        
+        if (msg.sender != owner() && msg.sender != fnftSingleFactory.feeDistributor()) revert Unauthorized();
+        _;
+    }
+
+    modifier onlyAdmin() {     
+        if (address(fnftCollectionFactory) == address(0) || address(fnftSingleFactory) == address(0)) revert FactoryNotSet(); 
         if (msg.sender != owner() && 
-            msg.sender != fnftCollectionFactory.feeDistributor() &&
+            msg.sender != fnftCollectionFactory.feeDistributor() && 
             msg.sender != fnftSingleFactory.feeDistributor()) revert Unauthorized();
         _;
     }
@@ -83,7 +94,7 @@ contract LPStaking is Pausable {
         stakingTokenProvider = StakingTokenProvider(newProvider);
     }
 
-    function addPoolForCollectionVault(uint256 vaultId) external onlyAdmin {
+    function addPoolForCollectionVault(uint256 vaultId) external onlyCollectionAdmin {
         if (address(fnftCollectionFactory) == address(0)) revert FactoryNotSet();
         if (vaultStakingInfo[vaultId].stakingToken != address(0)) revert PoolAlreadyExists();
         address _rewardToken = fnftCollectionFactory.vault(vaultId);
@@ -94,9 +105,9 @@ contract LPStaking is Pausable {
         emit PoolCreated(vaultId, newRewardDistToken);
     }
 
-    function addPoolForSingleVault(uint256 vaultId) external onlyAdmin {
-        if (address(fnftSingleFactory) == address(0)) revert FactoryNotSet();
-        if (vaultStakingInfo[vaultId].stakingToken != address(0)) revert PoolAlreadyExists();
+    function addPoolForSingleVault(uint256 vaultId) external onlySingleAdmin {        
+        if (address(fnftSingleFactory) == address(0)) revert FactoryNotSet();        
+        if (vaultStakingInfo[vaultId].stakingToken != address(0)) revert PoolAlreadyExists();        
         address _rewardToken = fnftSingleFactory.vault(vaultId);
         address _stakingToken = stakingTokenProvider.stakingTokenForVaultToken(_rewardToken);
         StakingPool memory pool = StakingPool(_stakingToken, _rewardToken);
@@ -130,7 +141,7 @@ contract LPStaking is Pausable {
         emit PoolUpdated(vaultId, newRewardDistToken);
     }
 
-    function receiveRewards(uint256 vaultId, uint256 amount) external onlyAdmin returns (bool) {
+    function receiveRewards(uint256 vaultId, uint256 amount) external onlyAdmin returns (bool) {        
         StakingPool memory pool = vaultStakingInfo[vaultId];
         if (pool.stakingToken == address(0)) {
             // In case the pair is updated, but not yet
