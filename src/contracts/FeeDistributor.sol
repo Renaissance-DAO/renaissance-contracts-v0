@@ -111,9 +111,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   function initializeSingleVaultReceivers(uint256 _vaultId) external override {    
     if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert CallerIsNotFactory();    
-    ILPStaking(lpStaking).addPoolForSingleVault(_vaultId);    
-    if (inventoryStaking != address(0))
-      IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);    
+    ILPStaking(lpStaking).addPoolForSingleVault(_vaultId);        
   }
 
   function changeReceiverAlloc(uint256 _receiverIdx, uint256 _allocPoint) public override virtual onlyOwner {
