@@ -10,6 +10,7 @@ import "./FNFT.sol";
 import "./proxy/BeaconUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
 import "./interfaces/IFNFTFactory.sol";
+import "./interfaces/IVaultManager.sol";
 import "./interfaces/IFeeDistributor.sol";
 
 contract FNFTFactory is
@@ -21,24 +22,9 @@ contract FNFTFactory is
     enum FeeType { GovernanceFee, MaxCuratorFee, SwapFee }
     enum Boundary { Min, Max }
 
+    address public override vaultManager;
+
     /// @notice fee exclusion for swaps
-
-    mapping(address => mapping(uint256 => address[])) _vaultsForAsset;    
-    
-    mapping(address => bool) public override excludedFromFees;
-
-    mapping(uint256 => address) internal vaults;
-
-    address public override feeDistributor;
-
-    address public override WETH;
-
-    address public override priceOracle;
-
-    address public override ifoFactory;
-
-    uint256 public override numVaults;
-
     uint256 public override swapFee;
 
     /// @notice the maximum auction length
@@ -74,11 +60,6 @@ contract FNFTFactory is
     /// @notice flash loan fee basis point
     uint256 public override flashLoanFee;
 
-    /// @notice the address who receives auction fees
-    address payable public override feeReceiver;
-
-    event UpdatePriceOracle(address _old, address _new);
-
     event UpdateMaxAuctionLength(uint256 _old, uint256 _new);
 
     event UpdateMinAuctionLength(uint256 _old, uint256 _new);
@@ -101,11 +82,9 @@ contract FNFTFactory is
 
     event UpdateInstantBuyMultiplier(uint256 _old, uint256 _new);
 
-    event UpdateFeeReceiver(address _old, address _new);
-
     event UpdateFlashLoanFee(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
 
-    event NewFeeDistributor(address oldDistributor, address newDistributor);
+    event UpdateVaultManager(address _old, address _new);
 
     event FeeExclusion(address target, bool excluded);
 
@@ -129,17 +108,14 @@ contract FNFTFactory is
     error ZeroAddressDisallowed();
     error MultiplierTooLow();
 
-    function initialize(address _weth, address _ifoFactory, address _feeDistributor) external initializer {
+    function initialize(address _vaultManager) external initializer {
         __Ownable_init();
         __Pausable_init();
         __BeaconUpgradeable__init(address(new FNFT()));
+        setVaultManager(_vaultManager);
 
-        WETH = _weth;
-        ifoFactory = _ifoFactory;
-        feeDistributor = _feeDistributor;
         maxAuctionLength = 2 weeks;
         minAuctionLength = 3 days;
-        feeReceiver = payable(msg.sender);        
         minReserveFactor = 2000; // 20%
         maxReserveFactor = 50000; // 500%
         minBidIncrease = 500; // 5%
@@ -179,10 +155,9 @@ contract FNFTFactory is
 
         address fnft = address(new BeaconProxy(address(this), _initializationCalldata));
 
-        uint256 _vaultId = uint256(keccak256(abi.encodePacked(_nft, _tokenId, numVaults)));
-        _vaultsForAsset[_nft][_tokenId].push(fnft);
-        vaults[_vaultId] = fnft;
-        numVaults++;
+        IVaultManager _vaultManager = IVaultManager(vaultManager);        
+        uint vaultId = _vaultManager.setVault(fnft);
+        _vaultManager.initializeVaultReceivers(vaultId);
 
         emit FNFTCreated(_nft, fnft, msg.sender, _listPrice, _name, _symbol);
 
@@ -194,9 +169,9 @@ contract FNFTFactory is
         paused() ? _unpause() : _pause();
     }
 
-    function setPriceOracle(address _newOracle) external onlyOwner {
-        emit UpdatePriceOracle(priceOracle, _newOracle);
-        priceOracle = _newOracle;
+    function setVaultManager(address _vaultManager) public virtual override onlyOwner {
+        emit UpdateVaultManager(vaultManager, _vaultManager);
+        vaultManager = _vaultManager;
     }
 
     function setAuctionLength(Boundary boundary, uint256 _length) external onlyOwner {
@@ -224,17 +199,6 @@ contract FNFTFactory is
             emit UpdateSwapFee(swapFee, _fee);
             swapFee = _fee;
         }
-    }
-
-    function setFeeDistributor(address _feeDistributor) public onlyOwner virtual override {
-        if (_feeDistributor == address(0)) revert ZeroAddressDisallowed();
-        emit NewFeeDistributor(feeDistributor, _feeDistributor);
-        feeDistributor = _feeDistributor;
-    }
-
-    function setFeeExclusion(address _excludedAddr, bool excluded) public onlyOwner virtual override {
-        emit FeeExclusion(_excludedAddr, excluded);
-        excludedFromFees[_excludedAddr] = excluded;
     }
 
     function setMinBidIncrease(uint256 _min) external onlyOwner {
@@ -280,25 +244,9 @@ contract FNFTFactory is
         instantBuyMultiplier = _multiplier;
     }
 
-    function setFeeReceiver(address payable _receiver) external onlyOwner {
-        if (_receiver == address(0)) revert ZeroAddressDisallowed();
-
-        emit UpdateFeeReceiver(feeReceiver, _receiver);
-
-        feeReceiver = _receiver;
-    }
-
     function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {
         if (_flashLoanFee > 500) revert FeeTooHigh();
         emit UpdateFlashLoanFee(flashLoanFee, _flashLoanFee);
         flashLoanFee = _flashLoanFee;
-    }
-
-    function vaultsForAsset(address assetAddress, uint256 tokenId) external view override virtual returns (address[] memory) {
-        return _vaultsForAsset[assetAddress][tokenId];
-    }
-
-    function vault(uint256 vaultId) external view override virtual returns (address) {
-        return vaults[vaultId];
     }
 }
