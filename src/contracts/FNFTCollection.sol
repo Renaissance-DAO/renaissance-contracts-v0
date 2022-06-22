@@ -88,7 +88,7 @@ contract FNFTCollection is
         factory = _factory;
         vaultId = uint256(keccak256(abi.encodePacked(_assetAddress, _factory.numVaults())));
         is1155 = _is1155;
-        allowAllItems = _allowAllItems;        
+        allowAllItems = _allowAllItems;
         pair = IPriceOracle(_factory.priceOracle()).createFNFTPair(address(this));
         emit VaultInit(vaultId, _assetAddress, _is1155, _allowAllItems);
         setVaultFeatures(true /*enableMint*/, true /*enableRandomRedeem*/, true /*enableTargetRedeem*/, true /*enableRandomSwap*/, true /*enableTargetSwap*/);

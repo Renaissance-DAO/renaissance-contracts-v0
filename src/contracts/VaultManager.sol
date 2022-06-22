@@ -10,12 +10,14 @@ contract VaultManager is
     OwnableUpgradeable,
     PausableUpgradeable,
     IVaultManager
-{
-    mapping(address => mapping(uint256 => address[])) internal _vaultsForAsset;    
-    
+{    
     mapping(address => bool) public override excludedFromFees;
 
     mapping(uint256 => address) public override vaults;
+
+    address public override fnftSingleFactory;
+
+    address public override fnftCollectionFactory;
 
     address public override feeDistributor;
 
@@ -30,10 +32,18 @@ contract VaultManager is
     /// @notice the address who receives auction fees
     address payable public override feeReceiver;
 
-    function initialize(address _weth, address _ifoFactory, address _feeDistributor) external initializer {
+    function initialize(
+        address _fnftSingleFactory,
+        address _fnftCollectionFactory, 
+        address _weth, 
+        address _ifoFactory, 
+        address _feeDistributor
+    ) external initializer {
         __Ownable_init();
         __Pausable_init();
 
+        fnftSingleFactory = _fnftSingleFactory;
+        fnftCollectionFactory = _fnftCollectionFactory;
         WETH = _weth;
         ifoFactory = _ifoFactory;
         feeDistributor = _feeDistributor;
@@ -50,13 +60,13 @@ contract VaultManager is
     }
 
 
-    function setFeeDistributor(address _feeDistributor) public onlyOwner virtual override {
+    function setFeeDistributor(address _feeDistributor) public onlyOwner override {
         if (_feeDistributor == address(0)) revert ZeroAddressDisallowed();
         emit NewFeeDistributor(feeDistributor, _feeDistributor);
         feeDistributor = _feeDistributor;
     }
 
-    function setFeeExclusion(address _excludedAddr, bool excluded) public onlyOwner virtual override {
+    function setFeeExclusion(address _excludedAddr, bool excluded) public onlyOwner override {
         emit FeeExclusion(_excludedAddr, excluded);
         excludedFromFees[_excludedAddr] = excluded;
     }
@@ -69,11 +79,16 @@ contract VaultManager is
         feeReceiver = _receiver;
     }
 
-    function vaultsForAsset(address assetAddress, uint256 tokenId) external view override virtual returns (address[] memory) {
-        return _vaultsForAsset[assetAddress][tokenId];
+    function setVault(uint256 _vaultId, address _fnft) external override {
+        if (_fnft == address(0)) revert ZeroAddressDisallowed();
+        if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert OnlyFactory();
+
+        emit VaultSet(_vaultId, _fnft);
+
+        vaults[_vaultId] = _fnft;
     }
 
-    function vault(uint256 vaultId) external view override virtual returns (address) {
+    function vault(uint256 vaultId) external view override returns (address) {
         return vaults[vaultId];
     }
 }

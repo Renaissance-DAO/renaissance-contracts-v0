@@ -2,6 +2,8 @@
 pragma solidity 0.8.13;
 
 interface IVaultManager {     
+    function fnftSingleFactory() external view returns (address);
+    function fnftCollectionFactory() external view returns (address);
     function excludedFromFees(address) external view returns (bool);
     function feeDistributor() external view returns (address);
     function WETH() external view returns (address);
@@ -10,18 +12,19 @@ interface IVaultManager {
     function numVaults() external view returns (uint256);
     function feeReceiver() external view returns (address payable);
     function togglePaused() external;
+    function setVault(uint256 _vaultId, address _fnft) external;
     function setPriceOracle(address _newOracle) external;
     function setFeeDistributor(address _feeDistributor) external;
     function setFeeExclusion(address _excludedAddr, bool excluded) external;
     function setFeeReceiver(address payable _receiver) external;
-    function vaultsForAsset(address assetAddress, uint256 tokenId) external view returns (address[] memory);
     function vault(uint256 vaultId) external view returns (address);
     function vaults(uint256) external view returns (address);
 
     event UpdatePriceOracle(address _old, address _new);
     event UpdateFeeReceiver(address _old, address _new);
+    event VaultSet(uint256 _vaultId, address _fnft);
     event NewFeeDistributor(address oldDistributor, address newDistributor);
-    event FeeExclusion(address target, bool excluded);
+    event FeeExclusion(address target, bool excluded);    
 
     error MaxAuctionLengthOutOfBounds();
     error MinAuctionLengthOutOfBounds();
@@ -32,4 +35,5 @@ interface IVaultManager {
     error MinReserveFactorTooHigh();
     error ZeroAddressDisallowed();
     error MultiplierTooLow();
+    error OnlyFactory();
 }
