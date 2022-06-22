@@ -17,7 +17,15 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(10 ether);
-        (, , , fnftFactory, ) = setupContracts(10 ether);
+        (   ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            fnftFactory,         
+        ) = setupContracts();
 
         token = new MockNFT();
         token2 = new MockNFT();
@@ -94,10 +102,6 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
     function testSetMaxReserveFactorTooHigh() public {
         vm.expectRevert(FNFTFactory.MinReserveFactorTooHigh.selector);
         fnftFactory.setReserveFactor(FNFTFactory.Boundary.Min, 60000);
-    }
-
-    function test_setFeeReceiver() public {
-        fnftFactory.setFeeReceiver(payable(address(this)));
     }
 
     function testSetFlashLoanFeeTooHigh() public {

@@ -33,7 +33,15 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(10 ether);
-        (, priceOracle, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
+        (   ,
+            ,
+            ifoFactory,
+            ,
+            priceOracle,
+            ,
+            ,
+            fnftFactory,    
+        ) = setupContracts();
 
         fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 0);
 

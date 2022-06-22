@@ -28,7 +28,15 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(1000 ether);
-        (pairFactory, priceOracle, , , ) = setupContracts(10 ether);
+        (   ,
+            ,
+            ,
+            pairFactory,
+            priceOracle,
+            ,
+            ,
+            ,
+        ) = setupContracts();        
 
         MockERC20Upgradeable token0 = new MockERC20Upgradeable();
         token0.initialize("Fake Token 0", "FT0");

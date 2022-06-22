@@ -5,7 +5,6 @@ import "ds-test/test.sol";
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import {FNFTFactory} from "../contracts/FNFTFactory.sol";
 import {PriceOracle, IPriceOracle, PairInfo} from "../contracts/PriceOracle.sol";
 import {FNFTFactory} from "../contracts/FNFTFactory.sol";
 import {FNFT} from "../contracts/FNFT.sol";
@@ -38,7 +37,16 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         // Set up fnft environment.
 
         setupEnvironment(1000 ether);
-        (pairFactory, priceOracle, , fnftFactory, fnft) = setupContracts(100 ether);
+        (   ,
+            ,
+            ,
+            pairFactory,
+            priceOracle,
+            ,
+            ,
+            fnftFactory,      
+        ) = setupContracts();
+        fnft = setupFNFTSingle(address(fnftFactory), 100 ether);
 
         // Initialize mock fnft-WETH pair with empty reserves.
         pair = new PairWithFNFTAndWETH(address(pairFactory), address(fnft), address(weth), vm);
@@ -208,11 +216,20 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         SETUP
          */
         // Setup environment where weth supply is more than the buy now price.
-        uint256 fNFTAmount = 10 ether;
+        uint256 FNFTAmount = 10 ether;
         uint256 wethAmount = fnft.buyItNowPrice();
 
         setupEnvironment(wethAmount);
-        (pairFactory, priceOracle, , fnftFactory, fnft) = setupContracts(fNFTAmount);
+        (   ,
+            ,
+            ,
+            pairFactory,
+            priceOracle,
+            ,
+            ,
+            fnftFactory,
+        ) = setupContracts();
+        fnft = setupFNFTSingle(address(fnftFactory), FNFTAmount);        
 
         // Transfer ETH to user to pay for NFT.
         weth.transfer(address(user1), weth.totalSupply());

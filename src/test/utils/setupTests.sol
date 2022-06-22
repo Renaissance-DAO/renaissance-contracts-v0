@@ -18,6 +18,7 @@ import {IUniswapV2Factory} from "../../contracts/interfaces/IUniswapV2Factory.so
 import {IUniswapV2Router} from "../../contracts/interfaces/IUniswapV2Router.sol";
 import {IFNFT} from "../../contracts/interfaces/IFNFT.sol";
 import {FNFTFactory} from "../../contracts/FNFTFactory.sol";
+import {VaultManager} from "../../contracts/VaultManager.sol";
 import {FNFT} from "../../contracts/FNFT.sol";
 import {MockNFT} from "../../contracts/mocks/NFT.sol";
 
@@ -63,9 +64,20 @@ contract SetupEnvironment {
         );
     }
 
-    function setupFNFTFactory(address _ifoFactory, address _priceOracle, address _feeDistributor) public returns (FNFTFactory fnftFactory) {
+    function setupVaultManager(        
+        address _ifoFactory, 
+        address _priceOracle, 
+        address _feeDistributor
+    ) public returns (VaultManager vaultManager) {
+        vaultManager = VaultManager(
+            deployer.deployVaultManager(
+                address(new VaultManager()), address(weth), _ifoFactory, _priceOracle, _feeDistributor)
+        );
+    }
+
+    function setupFNFTFactory(address _vaultManager) public returns (FNFTFactory fnftFactory) {
         fnftFactory = FNFTFactory(
-            deployer.deployFNFTFactory(address(new FNFTFactory()), address(weth), _priceOracle, _ifoFactory, _feeDistributor)
+            deployer.deployFNFTFactory(address(new FNFTFactory()), _vaultManager)
         );
     }
 
@@ -80,6 +92,15 @@ contract SetupEnvironment {
 
         // FNFT minted on this test contract address.
         fnft = FNFT(factory.mint("testName", "TEST", address(token), 1, _amountToMint, 1 ether, 50));
+    }
+
+    function setupFNFTCollectionFactory(address vaultManager) public returns (FNFTCollectionFactory fnftCollectionFactory) {
+        fnftCollectionFactory = FNFTCollectionFactory(
+            deployer.deployFNFTCollectionFactory(
+                address(new FNFTCollectionFactory()),
+                vaultManager
+            )
+        );
     }
 
     function setupStakingTokenProvider() public returns (StakingTokenProvider stakingTokenProvider) {
@@ -112,17 +133,6 @@ contract SetupEnvironment {
         );
     }
 
-    function setupFNFTCollectionFactory(address priceOracle, address feeDistributor) public returns (FNFTCollectionFactory fnftCollectionFactory) {
-        fnftCollectionFactory = FNFTCollectionFactory(
-            deployer.deployFNFTCollectionFactory(
-                address(new FNFTCollectionFactory()),
-                WETH_ADDRESS,
-                priceOracle,
-                feeDistributor
-            )
-        );
-    }
-
 
     function setupEnvironment(uint256 _wethAmount) public {
         vm = CheatCodes(address(bytes20(uint160(uint256(keccak256("hevm cheat code"))))));
@@ -130,45 +140,34 @@ contract SetupEnvironment {
         setupWETH(_wethAmount);
     }
 
-    function setupContracts(uint256 _fnftAmount)
-        public
-        returns (
-            IUniswapV2Factory pairFactory,
-            PriceOracle priceOracle,
-            IFOFactory ifoFactory,
-            FNFTFactory fnftFactory,
-            FNFT fnft
-        )
-    {
-        StakingTokenProvider stakingTokenProvider = setupStakingTokenProvider();
-        LPStaking lpStaking = setupLPStaking(address(stakingTokenProvider));
-        FeeDistributor feeDistributor = setupFeeDistributor(address(lpStaking));
-
-        pairFactory = setupPairFactory();
-        priceOracle = setupPriceOracle(address(pairFactory));    
-        ifoFactory = setupIFOFactory();
-        fnftFactory = setupFNFTFactory(address(ifoFactory), address(priceOracle), address(feeDistributor));
-        fnft = setupFNFT(address(fnftFactory), _fnftAmount);
-    }
-
-    function setupCollectionVaultContracts()
+    function setupContracts() 
         public
         returns (
             StakingTokenProvider stakingTokenProvider,
             LPStaking lpStaking,
+            IFOFactory ifoFactory,        
+            IUniswapV2Factory pairFactory,            
+            PriceOracle priceOracle,
             FeeDistributor feeDistributor,
+            VaultManager vaultManager,            
+            FNFTFactory fnftFactory,
             FNFTCollectionFactory fnftCollectionFactory
         )
     {
-        IUniswapV2Factory pairFactory = setupPairFactory();
-        PriceOracle priceOracle = setupPriceOracle(address(pairFactory));    
-
         stakingTokenProvider = setupStakingTokenProvider();
         lpStaking = setupLPStaking(address(stakingTokenProvider));
+        ifoFactory = setupIFOFactory();
+        pairFactory = setupPairFactory();   
+        priceOracle = setupPriceOracle(address(pairFactory));
         feeDistributor = setupFeeDistributor(address(lpStaking));
-        fnftCollectionFactory = setupFNFTCollectionFactory(address(priceOracle), address(feeDistributor));
 
-        feeDistributor.setFNFTCollectionFactory(address(fnftCollectionFactory));
-        lpStaking.setFNFTCollectionFactory(address(fnftCollectionFactory));
+        vaultManager = setupVaultManager(address(ifoFactory), address(priceOracle), address(feeDistributor));
+                     
+        fnftFactory = setupFNFTFactory(address(vaultManager));
+        fnftCollectionFactory = setupFNFTCollectionFactory(address(vaultManager));        
+    }
+
+    function setupFNFTSingle(address fnftFactory, uint _fnftAmount) public returns (FNFT fnft) {
+        fnft = setupFNFT(fnftFactory, _fnftAmount);
     }
 }

@@ -8,6 +8,7 @@ import {FlashBorrower} from "./utils/FlashBorrower.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
 import {LPStaking} from "../contracts/LPStaking.sol";
 import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
+import {VaultManager} from "../contracts/VaultManager.sol";
 import {FNFTCollection} from "../contracts/FNFTCollection.sol";
 import {FeeDistributor} from "../contracts/FeeDistributor.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
@@ -19,32 +20,37 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   StakingTokenProvider private stakingTokenProvider;
   LPStaking private lpStaking;
   FeeDistributor private feeDistributor;
-  FNFTCollectionFactory private factory;
+  VaultManager private vaultManager;
+  FNFTCollectionFactory private fnftCollectionFactory;
   FNFTCollection private vault;
 
   MockNFT public token;
 
   function setUp() public {
     setupEnvironment(10 ether);
-    (
-      stakingTokenProvider,
-      lpStaking,
-      feeDistributor,
-      factory
-    ) = setupCollectionVaultContracts();
+    (   stakingTokenProvider,
+        lpStaking,
+        ,
+        ,
+        ,
+        feeDistributor,
+        vaultManager,
+        ,
+        fnftCollectionFactory
+    ) = setupContracts();    
 
     token = new MockNFT();
   }
 
   function testVarsAfterFactoryInit() public {
-    assertEq(factory.feeDistributor(), address(feeDistributor));
-    assertEq(FNFTCollection(factory.childImplementation()).vaultId(), 0);
+    assertEq(vaultManager.feeDistributor(), address(feeDistributor));
+    assertEq(FNFTCollection(fnftCollectionFactory.childImplementation()).vaultId(), 0);
 
-    assertEq(factory.factoryMintFee(), 0.1 ether);
-    assertEq(factory.factoryRandomRedeemFee(), 0.05 ether);
-    assertEq(factory.factoryTargetRedeemFee(), 0.1 ether);
-    assertEq(factory.factoryRandomSwapFee(), 0.05 ether);
-    assertEq(factory.factoryTargetSwapFee(), 0.1 ether);
+    assertEq(fnftCollectionFactory.factoryMintFee(), 0.1 ether);
+    assertEq(fnftCollectionFactory.factoryRandomRedeemFee(), 0.05 ether);
+    assertEq(fnftCollectionFactory.factoryTargetRedeemFee(), 0.1 ether);
+    assertEq(fnftCollectionFactory.factoryRandomSwapFee(), 0.05 ether);
+    assertEq(fnftCollectionFactory.factoryTargetSwapFee(), 0.1 ether);
   }
 
   function testCreateVault() public {
@@ -58,7 +64,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     assertEq(vault.manager(), address(this));
     assertEq(vault.owner(), address(this));
     assertEq(vault.vaultId(), vaultId);
-    assertEq(address(vault.factory()), address(factory));
+    assertEq(address(vault.factory()), address(fnftCollectionFactory));
     assertTrue(!vault.is1155());
     assertTrue(vault.allowAllItems());
     assertTrue(vault.enableMint());
@@ -67,18 +73,17 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     assertTrue(vault.enableRandomSwap());
     assertTrue(vault.enableTargetSwap());
 
-    assertEq(factory.numVaults(), 1);
-    assertEq(factory.vaultsForAsset(address(token))[0], address(vault));
+    assertEq(vaultManager.numVaults(), 1);
   }
 
   function testCreateVaultFactoryIsPaused() public {
-    assertTrue(!factory.isLocked(0));
+    assertTrue(!fnftCollectionFactory.isLocked(0));
     pauseFeature(0);
-    assertTrue(factory.isLocked(0));
+    assertTrue(fnftCollectionFactory.isLocked(0));
 
     vm.prank(address(1));
     vm.expectRevert(FNFTCollection.Paused.selector);
-    factory.createVault("Doodles", "DOODLE", address(token), false, true);
+    fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
   }
 
   function testCreateVaultOwnerCanBypassPausedFactory() public {
@@ -98,7 +103,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   }
 
   function testSetVaultFees() public {
-    factory.setVaultFees(
+    fnftCollectionFactory.setVaultFees(
       0,
       0.2 ether,
       0.1 ether,
@@ -113,7 +118,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
       uint256 targetRedeemFee,
       uint256 randomSwapFee,
       uint256 targetSwapFee
-    ) = factory.vaultFees(0);
+    ) = fnftCollectionFactory.vaultFees(0);
 
     assertEq(mintFee, 0.2 ether);
     assertEq(randomRedeemFee, 0.1 ether);
@@ -131,7 +136,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
       uint256 targetRedeemFee,
       uint256 randomSwapFee,
       uint256 targetSwapFee
-    ) = factory.vaultFees(0);
+    ) = fnftCollectionFactory.vaultFees(0);
 
     assertEq(mintFee, 0.1 ether);
     assertEq(randomRedeemFee, 0.05 ether);
@@ -143,7 +148,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   function testSetVaultFeesTooHigh() public {
     createVault();
     vm.expectRevert(FNFTCollectionFactory.FeeTooHigh.selector);
-    factory.setVaultFees(
+    fnftCollectionFactory.setVaultFees(
       0,
       0.6 ether,
       0.6 ether,
@@ -510,18 +515,18 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   // TODO: we need an FNFTCollectionFactoryTest contract
   function testSetFlashLoanFeeTooHigh() public {
     vm.expectRevert(FNFTCollectionFactory.FeeTooHigh.selector);
-    factory.setFlashLoanFee(501);
+    fnftCollectionFactory.setFlashLoanFee(501);
   }
 
   function testSetFlashLoanFeeNotOwner() public {
     vm.expectRevert("Ownable: caller is not the owner");
     vm.prank(address(1));
-    factory.setFlashLoanFee(499);
+    fnftCollectionFactory.setFlashLoanFee(499);
   }
 
   function testFlashLoanGood() public {
     mintVaultTokens(1);
-    factory.setFlashLoanFee(100); // 1%
+    fnftCollectionFactory.setFlashLoanFee(100); // 1%
 
     FlashBorrower flashBorrower = new FlashBorrower(address(vault));
     vault.transfer(address(flashBorrower), 0.01 ether); // for fees
@@ -545,10 +550,10 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
   function testFlashLoanGoodFeeExcluded() public {
     mintVaultTokens(1);
-    factory.setFlashLoanFee(100); // 1%
+    fnftCollectionFactory.setFlashLoanFee(100); // 1%
 
     FlashBorrower flashBorrower = new FlashBorrower(address(vault));
-    factory.setFeeExclusion(address(flashBorrower), true);
+    vaultManager.setFeeExclusion(address(flashBorrower), true);
 
     assertEq(vault.totalSupply(), 1 ether);
     assertEq(vault.balanceOf(address(vault)), 0);
@@ -566,7 +571,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
   function testFlashLoanBad() public {
     mintVaultTokens(1);
-    factory.setFlashLoanFee(100); // 1%
+    fnftCollectionFactory.setFlashLoanFee(100); // 1%
 
     FlashBorrower flashBorrower = new FlashBorrower(address(vault));
     vault.transfer(address(flashBorrower), 0.01 ether); // for fees
@@ -589,8 +594,8 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
   function createVault() private {
     uint256 vaultId = uint256(keccak256(abi.encodePacked(address(token), uint64(0))));
-    factory.createVault("Doodles", "DOODLE", address(token), false, true);
-    vault = FNFTCollection(factory.vault(vaultId));
+    fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
+    vault = FNFTCollection(vaultManager.vault(vaultId));
   }
 
   function mintVaultTokens(uint256 numberOfTokens) private {
@@ -611,8 +616,8 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   }
 
   function pauseFeature(uint256 lockId) private {
-    factory.setIsGuardian(address(this), true);
-    factory.pause(lockId);
+    fnftCollectionFactory.setIsGuardian(address(this), true);
+    fnftCollectionFactory.pause(lockId);
   }
 
   function failedSwap(uint256[] memory tokenIds, uint256[] memory specificIds, bytes4 errorSelector) private {

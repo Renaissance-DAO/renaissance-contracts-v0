@@ -17,7 +17,15 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(10 ether);
-        (, , ifoFactory, , ) = setupContracts(10 ether);
+        (   ,
+            ,
+            ifoFactory,
+            ,
+            ,
+            ,
+            ,
+            ,       
+        ) = setupContracts();        
     }
 
     function test_setCreatorIFOLock() public {

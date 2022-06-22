@@ -7,6 +7,7 @@ import {console, SetupEnvironment} from "./utils/utils.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
 import {LPStaking} from "../contracts/LPStaking.sol";
 import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
+import {VaultManager} from "../contracts/VaultManager.sol";
 import {FNFTCollection} from "../contracts/FNFTCollection.sol";
 import {FeeDistributor} from "../contracts/FeeDistributor.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
@@ -20,8 +21,9 @@ import {TimelockRewardDistributionTokenImpl} from "../contracts/token/TimelockRe
 contract LPStakingTest is DSTest, SetupEnvironment {
   StakingTokenProvider private stakingTokenProvider;
   LPStaking private lpStaking;
-  FeeDistributor private feeDistributor;
-  FNFTCollectionFactory private factory;
+  FeeDistributor private feeDistributor;  
+  FNFTCollectionFactory private fnftCollectionFactory;
+  VaultManager private vaultManager;
   FNFTCollection private vault;
   IUniswapV2Factory private uniswapV2Factory;
   IUniswapV2Pair private uniswapV2Pair;
@@ -33,12 +35,16 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
   function setUp() public {
     setupEnvironment(10 ether);
-    (
-      stakingTokenProvider,
-      lpStaking,
-      feeDistributor,
-      factory
-    ) = setupCollectionVaultContracts();
+    (   stakingTokenProvider,
+        lpStaking,
+        ,
+        ,
+        ,
+        feeDistributor,
+        vaultManager,
+        ,
+        fnftCollectionFactory
+    ) = setupContracts();    
 
     uniswapV2Factory = setupPairFactory();
     uniswapV2Router = setupRouter();
@@ -49,13 +55,13 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   }
 
   function testVariables() public {
-    assertEq(address(lpStaking.fnftCollectionFactory()), address(factory));
+    assertEq(address(lpStaking.vaultManager()), address(vaultManager));
     assertEq(address(lpStaking.stakingTokenProvider()), address(stakingTokenProvider));
   }
 
-  function testSetFNFTCollectionFactoryAlreadySet() public {
-    vm.expectRevert(LPStaking.FactoryAlreadySet.selector);
-    lpStaking.setFNFTCollectionFactory(address(1));
+  function testSetVaultManagerAlreadySet() public {
+    vm.expectRevert(LPStaking.VaultManagerAlreadySet.selector);
+    lpStaking.setVaultManager(address(1));
   }
 
   function testSetStakingTokenProvider() public {
@@ -77,7 +83,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testAddPoolForVaultFactoryDoesNotExist() public {    
     stakingTokenProvider = setupStakingTokenProvider();
     lpStaking = setupLPStaking(address(stakingTokenProvider));
-    vm.expectRevert(LPStaking.FactoryNotSet.selector);
+    vm.expectRevert(LPStaking.VaultManagerNotSet.selector);
     lpStaking.addPoolForVault(vaultId);
   }
 
@@ -110,7 +116,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     createUniswapV2Pair();
     addLiquidity();
 
-    factory.setFeeExclusion(address(this), true);
+    vaultManager.setFeeExclusion(address(this), true);
 
     uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
     uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
@@ -300,8 +306,8 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
   // TODO: merge with FNFTCollectionTest.t.sol
   function createVault() private {    
-    factory.createVault("Doodles", "DOODLE", address(token), false, true);
-    vault = FNFTCollection(factory.vault(vaultId));
+    fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
+    vault = FNFTCollection(vaultManager.vault(vaultId));
   }
 
   function mintVaultTokens(uint256 numberOfTokens) private {

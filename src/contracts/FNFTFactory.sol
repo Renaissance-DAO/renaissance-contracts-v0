@@ -159,7 +159,8 @@ contract FNFTFactory is
         uint vaultId = _vaultManager.setVault(fnft);
         _vaultManager.initializeVaultReceivers(vaultId);
 
-        emit FNFTCreated(_nft, fnft, msg.sender, _listPrice, _name, _symbol);
+        ///TODO: Fix stack too deep
+        // emit FNFTCreated(_nft, fnft, msg.sender, _listPrice, _name, _symbol);
 
         IERC721(_nft).safeTransferFrom(msg.sender, fnft, _tokenId);
         return fnft;

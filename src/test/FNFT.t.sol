@@ -9,6 +9,7 @@ import {MultiProxyController} from "../contracts/proxy/MultiProxyController.sol"
 import {IFOFactory} from "../contracts/IFOFactory.sol";
 import {IFO} from "../contracts/IFO.sol";
 import {FNFTFactory} from "../contracts/FNFTFactory.sol";
+import {VaultManager} from "../contracts/VaultManager.sol";
 import {PriceOracle, IPriceOracle} from "../contracts/PriceOracle.sol";
 import {FNFT} from "../contracts/FNFT.sol";
 import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
@@ -26,6 +27,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     IPriceOracle public priceOracle;
     IUniswapV2Factory public pairFactory;
     FNFTFactory public fnftFactory;
+    VaultManager public vaultManager;
     MockNFT public token;
     FNFT public fnft;
 
@@ -38,7 +40,15 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function setUp() public {
         setupEnvironment(10 ether);
-        (pairFactory, priceOracle, ifoFactory, fnftFactory, ) = setupContracts(10 ether);
+        (   ,
+            ,
+            ifoFactory,
+            pairFactory,
+            priceOracle,
+            ,
+            vaultManager,
+            fnftFactory,           
+        ) = setupContracts();
         fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 100);
         token = new MockNFT();
 
@@ -308,7 +318,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testAuctionPrice() public {
-        fnftFactory.setPriceOracle(address(0));
+        vaultManager.setPriceOracle(address(0));
         console.log("Quorum requirement: ", fnftFactory.minVotePercentage()); // 25%
         console.log("Min reserve factor: ", fnftFactory.minReserveFactor()); // 20%
         console.log("Max reserve factor: ", fnftFactory.maxReserveFactor()); // 500%
@@ -634,7 +644,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         uint originalBalance = fnft.balanceOf(address(this));
         uint transferAmount = 1 ether;
         uint swapFeeAmount = 0.01 ether;
-        address distributor = fnftFactory.feeDistributor();
+        address distributor = vaultManager.feeDistributor();
         address pairAddress = address(fnft.pair());
 
         fnft.transfer(pairAddress, transferAmount);
@@ -646,12 +656,12 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function testExcludeSwapFeeFromFeeExclusion() public {
         fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
-        fnftFactory.setFeeExclusion(address(this), true);
-        assertTrue(fnftFactory.excludedFromFees(address(this)));
+        vaultManager.setFeeExclusion(address(this), true);
+        assertTrue(vaultManager.excludedFromFees(address(this)));
 
         uint originalBalance = fnft.balanceOf(address(this));
         uint transferAmount = 1 ether;
-        address distributor = fnftFactory.feeDistributor();
+        address distributor = vaultManager.feeDistributor();
         address pairAddress = address(fnft.pair());
 
         fnft.transfer(pairAddress, transferAmount);
@@ -666,7 +676,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
         uint originalBalance = fnft.balanceOf(address(this));
         uint transferAmount = 1 ether;
-        address distributor = fnftFactory.feeDistributor();
+        address distributor = vaultManager.feeDistributor();
 
         fnft.transfer(address(user1), transferAmount);
 
