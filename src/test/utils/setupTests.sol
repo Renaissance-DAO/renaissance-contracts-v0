@@ -13,6 +13,7 @@ import {StakingTokenProvider} from "../../contracts/StakingTokenProvider.sol";
 import {FNFTCollectionFactory} from "../../contracts/FNFTCollectionFactory.sol";
 import {FNFTCollection} from "../../contracts/FNFTCollection.sol";
 import {LPStaking} from "../../contracts/LPStaking.sol";
+import {InventoryStaking} from "../../contracts/InventoryStaking.sol";
 import {FeeDistributor} from "../../contracts/FeeDistributor.sol";
 import {IUniswapV2Factory} from "../../contracts/interfaces/IUniswapV2Factory.sol";
 import {IUniswapV2Router} from "../../contracts/interfaces/IUniswapV2Router.sol";
