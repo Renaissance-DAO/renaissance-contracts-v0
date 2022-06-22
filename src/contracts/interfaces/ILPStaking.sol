@@ -3,7 +3,7 @@
 pragma solidity 0.8.13;
 
 interface ILPStaking {
-    function fnftCollectionFactory() external view returns (address);
+    function vaultManager() external view returns (address);
     function stakingTokenProvider() external view returns (address);
     function vaultToken(address _stakingToken) external view returns (address);
     function stakingToken(address _vaultToken) external view returns (address);
@@ -12,7 +12,7 @@ interface ILPStaking {
 
     // Write functions.
     function __LPStaking__init(address _stakingTokenProvider) external;
-    function setFNFTCollectionFactory(address newFactory) external;
+    function setVaultManager(address newFactory) external;
     function setStakingTokenProvider(address newProvider) external;
     function addPoolForVault(uint256 vaultId) external;
     function updatePoolForVault(uint256 vaultId) external;
