@@ -9,6 +9,7 @@ import "../PriceOracle.sol";
 import "../VaultManager.sol";
 import "../FNFTCollectionFactory.sol";
 import "../FeeDistributor.sol";
+import "../InventoryStaking.sol";
 import "../LPStaking.sol";
 import "../StakingTokenProvider.sol";
 import "./AdminUpgradeabilityProxy.sol";
@@ -32,6 +33,7 @@ contract Deployer is Ownable {
     bytes32 constant public FNFT_COLLECTION_FACTORY = bytes32(0x464e4654436f6c6c656374696f6e466163746f72790000000000000000000000);
     bytes32 constant public VAULT_MANAGER = bytes32(0x5661756c744d616e616765720000000000000000000000000000000000000000);
     bytes32 constant public FEE_DISTRIBUTOR = bytes32(0x4665654469737472696275746f72000000000000000000000000000000000000);
+    bytes32 constant public INVENTORY_STAKING = bytes32(0x496e76656e746f72795374616b696e6700000000000000000000000000000000);
     bytes32 constant public LP_STAKING = bytes32(0x4c505374616b696e670000000000000000000000000000000000000000000000);
     bytes32 constant public STAKING_TOKEN_PROVIDER = bytes32(0x5374616b696e67546f6b656e50726f7669646572000000000000000000000000);
 
@@ -52,7 +54,7 @@ contract Deployer is Ownable {
 
         ifoFactory = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));
         IIFOFactory(ifoFactory).setFeeReceiver(payable(msg.sender));
-        IOwnable(ifoFactory).transferOwnership(msg.sender);        
+        IOwnable(ifoFactory).transferOwnership(msg.sender);
 
         proxyController.deployerUpdateProxy(IFO_FACTORY, ifoFactory);
 
@@ -182,6 +184,24 @@ contract Deployer is Ownable {
         proxyController.deployerUpdateProxy(LP_STAKING, lpStaking);
 
         emit ProxyDeployed(LP_STAKING, lpStaking, msg.sender);
+    }
+
+    /// @notice the function to deploy InventoryStaking
+    /// @param _logic the implementation
+    function deployInventoryStaking(address _logic, address fnftCollectionFactory) external onlyOwner returns (address inventoryStaking) {
+        if (address(proxyController) == address(0)) revert NoController();
+
+        bytes memory _initializationCalldata = abi.encodeWithSelector(
+            InventoryStaking.__InventoryStaking_init.selector,
+            fnftCollectionFactory
+        );
+
+        inventoryStaking = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));
+        IOwnable(inventoryStaking).transferOwnership(msg.sender);
+
+        proxyController.deployerUpdateProxy(INVENTORY_STAKING, inventoryStaking);
+
+        emit ProxyDeployed(INVENTORY_STAKING, inventoryStaking, msg.sender);
     }
 
     /// @notice the function to deploy StakingTokenProvider
