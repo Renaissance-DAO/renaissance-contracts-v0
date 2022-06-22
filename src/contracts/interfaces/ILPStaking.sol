@@ -11,7 +11,7 @@ interface ILPStaking {
     function rewardDistributionTokenAddr(address stakedToken, address rewardToken) external view returns (address);
 
     // Write functions.
-    function __LPStaking__init(address _stakingTokenProvider) external;
+    function __LPStaking__init(address _vaultManager, address _stakingTokenProvider) external;
     function setVaultManager(address newFactory) external;
     function setStakingTokenProvider(address newProvider) external;
     function addPoolForVault(uint256 vaultId) external;

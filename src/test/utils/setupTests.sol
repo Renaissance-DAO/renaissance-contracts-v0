@@ -65,13 +65,13 @@ contract SetupEnvironment {
     }
 
     function setupVaultManager(        
-        address _ifoFactory, 
-        address _priceOracle, 
-        address _feeDistributor
+        address _ifoFactory,
+        address _priceOracle
     ) public returns (VaultManager vaultManager) {
         vaultManager = VaultManager(
             deployer.deployVaultManager(
-                address(new VaultManager()), address(weth), _ifoFactory, _priceOracle, _feeDistributor)
+                address(new VaultManager()), address(weth), _ifoFactory, _priceOracle
+            )
         );
     }
 
@@ -114,19 +114,21 @@ contract SetupEnvironment {
         );
     }
 
-    function setupLPStaking(address stakingTokenProvider) public returns (LPStaking lpStaking) {
+    function setupLPStaking(address vaultManager, address stakingTokenProvider) public returns (LPStaking lpStaking) {
         lpStaking = LPStaking(
             deployer.deployLPStaking(
                 address(new LPStaking()),
+                vaultManager,
                 stakingTokenProvider
             )
         );
     }
 
-    function setupFeeDistributor(address lpStaking) public returns (FeeDistributor feeDistributor) {
+    function setupFeeDistributor(address vaultManager, address lpStaking) public returns (FeeDistributor feeDistributor) {
         feeDistributor = FeeDistributor(
             deployer.deployFeeDistributor(
                 address(new FeeDistributor()),
+                vaultManager,
                 lpStaking,
                 TREASURY_ADDRESS
             )
@@ -153,18 +155,21 @@ contract SetupEnvironment {
             FNFTFactory fnftFactory,
             FNFTCollectionFactory fnftCollectionFactory
         )
-    {
-        stakingTokenProvider = setupStakingTokenProvider();
-        lpStaking = setupLPStaking(address(stakingTokenProvider));
+    {        
         ifoFactory = setupIFOFactory();
         pairFactory = setupPairFactory();   
         priceOracle = setupPriceOracle(address(pairFactory));
-        feeDistributor = setupFeeDistributor(address(lpStaking));
-
-        vaultManager = setupVaultManager(address(ifoFactory), address(priceOracle), address(feeDistributor));
-                     
+        vaultManager = setupVaultManager(address(ifoFactory), address(priceOracle));
+        stakingTokenProvider = setupStakingTokenProvider();
+        
+        lpStaking = setupLPStaking(address(vaultManager), address(stakingTokenProvider));
+        feeDistributor = setupFeeDistributor(address(vaultManager), address(lpStaking));
         fnftFactory = setupFNFTFactory(address(vaultManager));
         fnftCollectionFactory = setupFNFTCollectionFactory(address(vaultManager));        
+
+        vaultManager.setFNFTCollectionFactory(address(fnftCollectionFactory));
+        vaultManager.setFNFTSingleFactory(address(fnftFactory));
+        vaultManager.setFeeDistributor(address(feeDistributor));
     }
 
     function setupFNFTSingle(address fnftFactory, uint _fnftAmount) public returns (FNFT fnft) {

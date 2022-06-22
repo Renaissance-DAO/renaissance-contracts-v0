@@ -47,16 +47,14 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
             priceOracle,
             ,
             vaultManager,
-            fnftFactory,           
-        ) = setupContracts();
-        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 100);
-        token = new MockNFT();
-
-        token.mint(address(this), 1);
-
-        token.setApprovalForAll(address(fnftFactory), true);
-
+            fnftFactory,
+        ) = setupContracts();        
+        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 100);        
+        token = new MockNFT();        
+        token.mint(address(this), 1);        
+        token.setApprovalForAll(address(fnftFactory), true);        
         // FNFT minted on this test contract address.
+        console.log("WHY 3");
         fnft = FNFT(fnftFactory.mint(
             "testName",
             "TEST",
@@ -66,7 +64,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
             1 ether, // initialReserve
             500 // fee (5%)
         ));
-
+        console.log("WHY 4");
         // create a curator account
         curator = new Curator(address(fnft));
 
@@ -76,10 +74,13 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         user3 = new User(address(fnft));
         user4 = new UserNoETH(address(fnft));
 
+        console.log("WHY 5");
+
         payable(address(user1)).transfer(10 ether);
         payable(address(user2)).transfer(10 ether);
         payable(address(user3)).transfer(10 ether);
         payable(address(user4)).transfer(10 ether);
+        console.log("WHY 6");
     }
 
     function test_InitializeFeeTooHigh() public {

@@ -43,10 +43,11 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   error OutOfBounds();
   error ZeroAddress();
 
-  function __FeeDistributor__init__(address _lpStaking, address _treasury) public override initializer {
+  function __FeeDistributor__init__(address _vaultManager, address _lpStaking, address _treasury) public override initializer {
     __Pausable_init();
     setTreasuryAddress(_treasury);
     setLPStakingAddress(_lpStaking);
+    setVaultManager(_vaultManager);
 
     _addReceiver(0.8 ether, lpStaking, true);
   }
@@ -140,7 +141,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     emit UpdateInventoryStakingAddress(_inventoryStaking);
   }
 
-  function setVaultManager(address _vaultManager) external override onlyOwner {
+  function setVaultManager(address _vaultManager) public override onlyOwner {
     if (address(vaultManager) != address(0)) revert VaultManagerIsImmutable();
     vaultManager = _vaultManager;
     emit UpdateVaultManager(_vaultManager);

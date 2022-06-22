@@ -53,9 +53,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     assertEq(fnftCollectionFactory.factoryTargetSwapFee(), 0.1 ether);
   }
 
-  function testCreateVault() public {
-    uint256 vaultId = uint256(keccak256(abi.encodePacked(address(token), uint64(0))));
-
+  function testCreateVault() public {    
     createVault();
 
     assertEq(vault.name(), "Doodles");
@@ -63,7 +61,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     assertEq(vault.assetAddress(), address(token));
     assertEq(vault.manager(), address(this));
     assertEq(vault.owner(), address(this));
-    assertEq(vault.vaultId(), vaultId);
+    assertEq(vault.vaultId(), uint256(0));
     assertEq(address(vault.factory()), address(fnftCollectionFactory));
     assertTrue(!vault.is1155());
     assertTrue(vault.allowAllItems());
@@ -593,9 +591,8 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   // disable vault fees
 
   function createVault() private {
-    uint256 vaultId = uint256(keccak256(abi.encodePacked(address(token), uint64(0))));
     fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
-    vault = FNFTCollection(vaultManager.vault(vaultId));
+    vault = FNFTCollection(vaultManager.vault(uint256(0)));
   }
 
   function mintVaultTokens(uint256 numberOfTokens) private {

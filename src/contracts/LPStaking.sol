@@ -48,10 +48,11 @@ contract LPStaking is Pausable {
     error TimelockRewardDistTokenImplAlreadySet();
     error ZeroAddress();
 
-    function __LPStaking__init(address _stakingTokenProvider) external initializer {
+    function __LPStaking__init(address _vaultManager, address _stakingTokenProvider) external initializer {
         __Ownable_init();
         if (_stakingTokenProvider == address(0)) revert ZeroAddress();
         if (address(timelockRewardDistTokenImpl) != address(0)) revert TimelockRewardDistTokenImplAlreadySet();
+        setVaultManager(_vaultManager);
         stakingTokenProvider = StakingTokenProvider(_stakingTokenProvider);
         timelockRewardDistTokenImpl = new TimelockRewardDistributionTokenImpl();
         timelockRewardDistTokenImpl.__TimelockRewardDistributionToken_init(IERC20Upgradeable(address(0)), "", "");
@@ -62,7 +63,7 @@ contract LPStaking is Pausable {
         _;
     }
 
-    function setVaultManager(address _vaultManager) external onlyOwner {
+    function setVaultManager(address _vaultManager) public onlyOwner {
         if (address(vaultManager) != address(0)) revert VaultManagerAlreadySet();
         vaultManager = IVaultManager(_vaultManager);
     }

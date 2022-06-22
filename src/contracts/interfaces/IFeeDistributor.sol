@@ -17,7 +17,7 @@ interface IFeeDistributor {
   function allocTotal() external returns (uint256);
 
   // Write functions.
-  function __FeeDistributor__init__(address _lpStaking, address _treasury) external;
+  function __FeeDistributor__init__(address _vaultManager, address _lpStaking, address _treasury) external;
   function rescueTokens(address token) external;
   function distribute(uint256 vaultId) external;
   function addReceiver(uint256 _allocPoint, address _receiver, bool _isContract) external;

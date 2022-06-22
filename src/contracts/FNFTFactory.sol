@@ -12,6 +12,7 @@ import "./proxy/BeaconProxy.sol";
 import "./interfaces/IFNFTFactory.sol";
 import "./interfaces/IVaultManager.sol";
 import "./interfaces/IFeeDistributor.sol";
+import {console} from "../test/utils/console.sol";
 
 contract FNFTFactory is
     OwnableUpgradeable,
@@ -154,11 +155,9 @@ contract FNFTFactory is
         );
 
         address fnft = address(new BeaconProxy(address(this), _initializationCalldata));
-
-        IVaultManager _vaultManager = IVaultManager(vaultManager);        
+        IVaultManager _vaultManager = IVaultManager(vaultManager);
         uint vaultId = _vaultManager.setVault(fnft);
         _vaultManager.initializeVaultReceivers(vaultId);
-
         ///TODO: Fix stack too deep
         // emit FNFTCreated(_nft, fnft, msg.sender, _listPrice, _name, _symbol);
 

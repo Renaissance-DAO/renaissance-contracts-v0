@@ -78,11 +78,12 @@ contract Deployer is Ownable {
 
     /// @notice the function to deploy FeeDistributor
     /// @param _logic the implementation
-    function deployFeeDistributor(address _logic, address lpStaking, address treasury) external onlyOwner returns (address feeDistributor) {
+    function deployFeeDistributor(address _logic, address vaultManager, address lpStaking, address treasury) external onlyOwner returns (address feeDistributor) {
         if (address(proxyController) == address(0)) revert NoController();
 
         bytes memory _initializationCalldata = abi.encodeWithSelector(
             FeeDistributor.__FeeDistributor__init__.selector,
+            vaultManager,
             lpStaking,
             treasury
         );
@@ -101,8 +102,7 @@ contract Deployer is Ownable {
         address _logic,
         address _weth,
         address _ifoFactory,
-        address _priceOracle,
-        address _feeDistributor
+        address _priceOracle
     ) external onlyOwner returns (address vaultManager) {
         if (address(proxyController) == address(0)) revert NoController();
 
@@ -110,8 +110,7 @@ contract Deployer is Ownable {
             VaultManager.initialize.selector,
             _weth,
             _ifoFactory,
-            _priceOracle,
-            _feeDistributor
+            _priceOracle
         );
 
         vaultManager = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));        
@@ -168,11 +167,12 @@ contract Deployer is Ownable {
 
     /// @notice the function to deploy LPStaking
     /// @param _logic the implementation
-    function deployLPStaking(address _logic, address stakingTokenProvider) external onlyOwner returns (address lpStaking) {
+    function deployLPStaking(address _logic, address vaultManager, address stakingTokenProvider) external onlyOwner returns (address lpStaking) {
         if (address(proxyController) == address(0)) revert NoController();
 
         bytes memory _initializationCalldata = abi.encodeWithSelector(
             LPStaking.__LPStaking__init.selector,
+            vaultManager,
             stakingTokenProvider
         );
 

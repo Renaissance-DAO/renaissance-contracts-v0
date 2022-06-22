@@ -51,7 +51,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
     token = new MockNFT();
 
-    vaultId = uint256(keccak256(abi.encodePacked(address(token), uint64(0))));
+    vaultId = uint256(0);
   }
 
   function testVariables() public {
@@ -77,13 +77,6 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testAddPoolForVaultPoolAlreadyExists() public {    
     mintVaultTokens(1);
     vm.expectRevert(LPStaking.PoolAlreadyExists.selector);
-    lpStaking.addPoolForVault(vaultId);
-  }
-
-  function testAddPoolForVaultFactoryDoesNotExist() public {    
-    stakingTokenProvider = setupStakingTokenProvider();
-    lpStaking = setupLPStaking(address(stakingTokenProvider));
-    vm.expectRevert(LPStaking.VaultManagerNotSet.selector);
     lpStaking.addPoolForVault(vaultId);
   }
 
