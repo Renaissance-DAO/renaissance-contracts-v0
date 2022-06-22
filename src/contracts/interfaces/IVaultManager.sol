@@ -9,6 +9,7 @@ interface IVaultManager {
     function WETH() external view returns (address);
     function priceOracle() external view returns (address);
     function ifoFactory() external view returns (address);
+    function zapContract() external view returns (address);
     function feeReceiver() external view returns (address payable);
     function togglePaused() external;
     function setVault(address _fnft) external returns (uint256 vaultId);
@@ -16,6 +17,7 @@ interface IVaultManager {
     function setFeeDistributor(address _feeDistributor) external;
     function setFeeExclusion(address _excludedAddr, bool excluded) external;
     function setFeeReceiver(address payable _receiver) external;
+    function setZapContract(address _zapContract) external;
     function vault(uint256 vaultId) external view returns (address);
     function vaults(uint256) external view returns (address);
     function numVaults() external view returns (uint);
@@ -23,6 +25,7 @@ interface IVaultManager {
 
     event UpdatePriceOracle(address _old, address _new);
     event UpdateFeeReceiver(address _old, address _new);
+    event UpdateZapContract(address _old, address _new);
     event VaultSet(uint256 _vaultId, address _fnft);
     event NewFeeDistributor(address oldDistributor, address newDistributor);
     event FeeExclusion(address target, bool excluded);    

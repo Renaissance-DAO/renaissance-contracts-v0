@@ -2,10 +2,10 @@
 
 pragma solidity 0.8.13;
 
-import "./IFNFTCollectionFactory.sol";
+import "./IVaultManager.sol";
 
 interface IInventoryStaking {
-    function fnftCollectionFactory() external view returns (IFNFTCollectionFactory);
+    function vaultManager() external view returns (IVaultManager);
     function vaultXToken(uint256 vaultId) external view returns (address);
     function xTokenAddr(address baseToken) external view returns (address);
     function xTokenShareValue(uint256 vaultId) external view returns (uint256);
