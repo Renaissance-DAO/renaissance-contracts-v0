@@ -9,16 +9,16 @@ interface IVaultManager {
     function WETH() external view returns (address);
     function priceOracle() external view returns (address);
     function ifoFactory() external view returns (address);
-    function numVaults() external view returns (uint256);
     function feeReceiver() external view returns (address payable);
     function togglePaused() external;
-    function setVault(uint256 _vaultId, address _fnft) external;
+    function setVault(address _fnft) external returns (uint256 vaultId);
     function setPriceOracle(address _newOracle) external;
     function setFeeDistributor(address _feeDistributor) external;
     function setFeeExclusion(address _excludedAddr, bool excluded) external;
     function setFeeReceiver(address payable _receiver) external;
     function vault(uint256 vaultId) external view returns (address);
     function vaults(uint256) external view returns (address);
+    function numVaults() external view returns (uint);
 
     event UpdatePriceOracle(address _old, address _new);
     event UpdateFeeReceiver(address _old, address _new);

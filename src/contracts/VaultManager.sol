@@ -13,7 +13,7 @@ contract VaultManager is
 {    
     mapping(address => bool) public override excludedFromFees;
 
-    mapping(uint256 => address) public override vaults;
+    address[] public override vaults;
 
     address public override fnftSingleFactory;
 
@@ -26,8 +26,6 @@ contract VaultManager is
     address public override priceOracle;
 
     address public override ifoFactory;
-
-    uint256 public override numVaults;    
 
     /// @notice the address who receives auction fees
     address payable public override feeReceiver;
@@ -79,16 +77,19 @@ contract VaultManager is
         feeReceiver = _receiver;
     }
 
-    function setVault(uint256 _vaultId, address _fnft) external override {
+    function setVault(address _fnft) external override returns (uint256 vaultId) {
         if (_fnft == address(0)) revert ZeroAddressDisallowed();
         if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert OnlyFactory();
-
-        emit VaultSet(_vaultId, _fnft);
-
-        vaults[_vaultId] = _fnft;
+        vaultId = vaults.length;
+        vaults.push(_fnft);
+        emit VaultSet(vaultId, _fnft);
     }
 
     function vault(uint256 vaultId) external view override returns (address) {
         return vaults[vaultId];
+    }
+
+    function numVaults() external view override returns (uint) {
+        return vaults.length;
     }
 }
