@@ -51,8 +51,6 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testVariables() public {
     assertEq(address(lpStaking.fnftCollectionFactory()), address(factory));
     assertEq(address(lpStaking.stakingTokenProvider()), address(stakingTokenProvider));
-    // NOTE: where is this actually set?
-    assertEq(address(lpStaking.rewardDistTokenImpl()), address(0));
   }
 
   function testSetFNFTCollectionFactoryAlreadySet() public {

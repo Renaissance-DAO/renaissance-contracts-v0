@@ -7,8 +7,6 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
-import "../interfaces/IRewardDistributionToken.sol";
-
 /// @title Reward-Paying Token (renamed from Dividend)
 /// @author Roger Wu (https://github.com/roger-wu)
 /// @dev A mintable ERC20 token that allows anyone to pay and distribute a target token
