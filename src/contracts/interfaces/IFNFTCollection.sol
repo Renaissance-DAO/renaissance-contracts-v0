@@ -4,9 +4,11 @@ pragma solidity 0.8.13;
 
 import "./IEligibility.sol";
 import "./IFNFTCollectionFactory.sol";
+import "./IVaultManager.sol";
 import "../token/ERC20Upgradeable.sol";
 
 interface IFNFTCollection is IERC20Upgradeable {
+    function vaultManager() external view returns (IVaultManager);
     function manager() external view returns (address);
     function pair() external view returns (address);
     function assetAddress() external view returns (address);

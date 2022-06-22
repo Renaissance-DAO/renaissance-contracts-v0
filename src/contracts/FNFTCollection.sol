@@ -13,6 +13,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/utils/ERC1155HolderUpg
 
 import "./interfaces/IFNFTCollection.sol";
 import "./interfaces/IFNFTCollectionFactory.sol";
+import "./interfaces/IVaultManager.sol";
 import "./interfaces/IEligibility.sol";
 import "./interfaces/IEligibilityManager.sol";
 import "./interfaces/IFeeDistributor.sol";
@@ -34,8 +35,9 @@ contract FNFTCollection is
     uint256 constant base = 10**18;
 
     uint256 public override vaultId;
-    address public override manager;
+    address public override manager;    
     address public override pair;
+    IVaultManager public override vaultManager;
     IFNFTCollectionFactory public override factory;
     IEligibility public override eligibilityStorage;
 
@@ -84,12 +86,13 @@ contract FNFTCollection is
         __ERC20_init(_name, _symbol);
         if (_assetAddress == address(0)) revert ZeroAddress();
         IFNFTCollectionFactory _factory = IFNFTCollectionFactory(msg.sender);
+        vaultManager = IVaultManager(_factory.vaultManager());
         assetAddress = _assetAddress;
         factory = _factory;
-        vaultId = uint256(keccak256(abi.encodePacked(_assetAddress, _factory.numVaults())));
+        vaultId = vaultManager.numVaults();
         is1155 = _is1155;
         allowAllItems = _allowAllItems;
-        pair = IPriceOracle(_factory.priceOracle()).createFNFTPair(address(this));
+        pair = IPriceOracle(vaultManager.priceOracle()).createFNFTPair(address(this));
         emit VaultInit(vaultId, _assetAddress, _is1155, _allowAllItems);
         setVaultFeatures(true /*enableMint*/, true /*enableRandomRedeem*/, true /*enableTargetRedeem*/, true /*enableRandomSwap*/, true /*enableTargetSwap*/);
     }
@@ -292,7 +295,7 @@ contract FNFTCollection is
     ) public override virtual returns (bool) {
         onlyOwnerIfPaused(4);
 
-        uint256 fee = factory.excludedFromFees(address(receiver)) ? 0 : flashFee(token, amount);
+        uint256 fee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(token, amount);
         return _flashLoan(receiver, token, amount, fee, data);
     }
 
@@ -464,14 +467,14 @@ contract FNFTCollection is
             return;
         }
 
-        IFNFTCollectionFactory _factory = factory;
+        IVaultManager _vaultManager = vaultManager;
 
-        if (_factory.excludedFromFees(msg.sender)) {
+        if (_vaultManager.excludedFromFees(msg.sender)) {
             return;
         }
 
         // Mint fees directly to the distributor and distribute.        
-        address feeDistributor = _factory.feeDistributor();
+        address feeDistributor = _vaultManager.feeDistributor();
         // Changed to a _transfer() in v1.0.3.
         super._transfer(user, feeDistributor, amount);
         IFeeDistributor(feeDistributor).distribute(vaultId);
@@ -576,7 +579,7 @@ contract FNFTCollection is
         //Take fee here
         IFNFTCollectionFactory _factory = IFNFTCollectionFactory(factory);
         uint256 swapFee = _factory.swapFee();
-        if (swapFee > 0 && to == pair && !_factory.excludedFromFees(msg.sender)) {            
+        if (swapFee > 0 && to == pair && !vaultManager.excludedFromFees(msg.sender)) {            
             uint256 feeAmount = amount * swapFee / 10000;
 
             _chargeAndDistributeFees(from, feeAmount);
@@ -592,7 +595,7 @@ contract FNFTCollection is
         address,
         uint256
     ) internal virtual override {
-        address priceOracle = IFNFTCollectionFactory(factory).priceOracle();
+        address priceOracle = vaultManager.priceOracle();
         if (priceOracle != address(0)) {
             IPriceOracle(priceOracle).updateFNFTPairInfo(address(this));
         }
