@@ -20,13 +20,16 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
 
   function setUp() public {
     setupEnvironment(10 ether);
-    (
-      ,
-      ,
-      ,
-      factory,
-      inventoryStaking
-    ) = setupCollectionVaultContracts();
+    (   stakingTokenProvider,
+        lpStaking,
+        ,
+        ,
+        ,
+        feeDistributor,
+        vaultManager,
+        ,
+        fnftCollectionFactory
+    ) = setupContracts();
 
     token = new MockNFT();
     vaultId = uint256(keccak256(abi.encodePacked(address(token), uint64(0))));
