@@ -23,8 +23,8 @@ contract FNFTFactory is
 
     /// @notice fee exclusion for swaps
 
-    mapping(address => mapping(uint256 => address[])) _vaultsForAsset;    
-    
+    mapping(address => mapping(uint256 => address[])) _vaultsForAsset;
+
     mapping(address => bool) public override excludedFromFees;
 
     mapping(uint256 => address) internal vaults;
@@ -35,11 +35,11 @@ contract FNFTFactory is
 
     address public override priceOracle;
 
+    uint64 public override swapFee;
+
     address public override ifoFactory;
 
-    uint256 public override numVaults;
-
-    uint256 public override swapFee;
+    uint64 public override numVaults;
 
     /// @notice the maximum auction length
     uint256 public override maxAuctionLength;
@@ -139,7 +139,7 @@ contract FNFTFactory is
         feeDistributor = _feeDistributor;
         maxAuctionLength = 2 weeks;
         minAuctionLength = 3 days;
-        feeReceiver = payable(msg.sender);        
+        feeReceiver = payable(msg.sender);
         minReserveFactor = 2000; // 20%
         maxReserveFactor = 50000; // 500%
         minBidIncrease = 500; // 5%
@@ -216,13 +216,13 @@ contract FNFTFactory is
             if (_fee > 1000) revert FeeTooHigh();
             emit UpdateGovernanceFee(governanceFee, _fee);
             governanceFee = _fee;
-        } else if (feeType == FeeType.MaxCuratorFee) {            
+        } else if (feeType == FeeType.MaxCuratorFee) {
             emit UpdateCuratorFee(maxCuratorFee, _fee);
             maxCuratorFee = _fee;
         } else if (feeType == FeeType.SwapFee) {
             if (_fee > 500) revert FeeTooHigh();
             emit UpdateSwapFee(swapFee, _fee);
-            swapFee = _fee;
+            swapFee = uint64(_fee);
         }
     }
 
