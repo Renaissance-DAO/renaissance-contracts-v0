@@ -2,6 +2,7 @@
 pragma solidity 0.8.13;
 
 import "./interfaces/IFNFTFactory.sol";
+import "./interfaces/IVaultManager.sol";
 import "./interfaces/IWETH.sol";
 import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IIFO.sol";
@@ -65,6 +66,9 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
 
     /// @notice the governance contract which gets paid in ETH
     address public factory;
+
+    /// @notice the governance contract for all FNFTs
+    address public vaultManager;
 
     /// @notice whether or not this FNFT has been verified by DAO
     bool public verified;
@@ -154,16 +158,18 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         __ERC721Holder_init();
 
         IFNFTFactory _factory = IFNFTFactory(msg.sender);
-
+        IVaultManager _vaultManager = IVaultManager(_factory.vaultManager());
+        
         if (_fee > _factory.maxCuratorFee()) revert FeeTooHigh();
 
         // set storage variables
         factory = address(_factory);
+        vaultManager = address(_vaultManager);
         token = _token;
         vaultId = uint256(keccak256(abi.encodePacked(
             _token,
             _id,
-            _factory.numVaults()
+            _vaultManager.numVaults()
         )));
         id = _id;
         auctionLength = 3 days;
@@ -172,7 +178,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         lastClaimed = block.timestamp;
         userReservePrice[_curator] = _listPrice;
         initialReserve = _listPrice;
-        pair = IUniswapV2Pair(IPriceOracle(_factory.priceOracle()).createFNFTPair(address(this)));
+        pair = IUniswapV2Pair(IPriceOracle(_vaultManager.priceOracle()).createFNFTPair(address(this)));
         _mint(_curator, _supply);
     }
 
@@ -182,7 +188,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     modifier onlyGov() {
-        if (msg.sender != OwnableUpgradeable(factory).owner()) revert NotGov();
+        if (msg.sender != OwnableUpgradeable(vaultManager).owner()) revert NotGov();
         _;
     }
 
@@ -283,7 +289,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         uint256 curatorMint = sinceLastClaim * feePerSecond;
 
         // now lets do the same for governance
-        address govAddress = IFNFTFactory(factory).feeReceiver();
+        address govAddress = IVaultManager(vaultManager).feeReceiver();
         uint256 govFee = IFNFTFactory(factory).governanceFee();
         currentAnnualFee = (govFee * totalSupply()) / 10000;
         feePerSecond = currentAnnualFee / 31536000;
@@ -316,9 +322,9 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         if (msg.value < price) revert NotEnoughETH();
 
         _claimFees();
-
+        
         // deposit weth
-        IWETH(IFNFTFactory(factory).WETH()).deposit{value: msg.value}();
+        IWETH(IVaultManager(vaultManager).WETH()).deposit{value: msg.value}();
 
         // transfer erc721 to buyer
         IERC721(token).transferFrom(address(this), msg.sender, id);
@@ -386,7 +392,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     function _getQuorum() internal view returns (uint256) {
-        IIFO ifo = IIFO(IIFOFactory(IFNFTFactory(factory).ifoFactory()).getIFO(address(this)));
+        IIFO ifo = IIFO(IIFOFactory(IVaultManager(vaultManager).ifoFactory()).getIFO(address(this)));
         if (address(ifo) != address(0) && ifo.ended() && ifo.fnftLocked()) {
             return votingTokens * 10000 / (totalSupply() - ifo.lockedSupply());
         } else {
@@ -395,7 +401,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     function _getAuctionPrice() internal view returns (uint256) {
-        address priceOracle = IFNFTFactory(factory).priceOracle();
+        address priceOracle = IVaultManager(vaultManager).priceOracle();
         bool aboveQuorum = _getQuorum() > IFNFTFactory(factory).minVotePercentage();
         uint256 _reservePrice = reservePrice();
 
@@ -430,7 +436,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     function _getTWAP() internal view returns (uint256) {
-        try IPriceOracle(IFNFTFactory(factory).priceOracle()).getFNFTPriceETH(address(this), totalSupply()) returns (uint256 twapPrice) {
+        try IPriceOracle(IVaultManager(vaultManager).priceOracle()).getFNFTPriceETH(address(this), totalSupply()) returns (uint256 twapPrice) {
             return twapPrice;
         } catch {
             return 0;
@@ -495,9 +501,8 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         uint256 amount
     ) internal virtual override {
         //Take fee here
-        IFNFTFactory _factory = IFNFTFactory(factory);
-        uint256 swapFee = _factory.swapFee();
-        if (swapFee > 0 && to == address(pair) && !_factory.excludedFromFees(address(msg.sender))) {
+        uint256 swapFee = IFNFTFactory(factory).swapFee();
+        if (swapFee > 0 && to == address(pair) && !IVaultManager(vaultManager).excludedFromFees(address(msg.sender))) {
             uint256 feeAmount = amount * swapFee / 10000;
 
             _chargeAndDistributeFees(from, feeAmount);
@@ -513,7 +518,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         address,
         uint256
     ) internal virtual override {
-        address priceOracle = IFNFTFactory(factory).priceOracle();
+        address priceOracle = IVaultManager(vaultManager).priceOracle();
         if (priceOracle != address(0)) {
             IPriceOracle(priceOracle).updateFNFTPairInfo(address(this));
         }
@@ -610,7 +615,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
             // If the transfer fails, wrap and send as WETH, so that
             // the auction is not impeded and the recipient still
             // can claim ETH via the WETH contract (similar to escrow).
-            IWETH weth = IWETH(IFNFTFactory(factory).WETH());
+            IWETH weth = IWETH(IVaultManager(vaultManager).WETH());
             weth.deposit{value: value}();
             weth.transfer(to, value);
             // At this point, the recipient can unwrap WETH.
@@ -649,10 +654,8 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
             return;
         }
 
-        IFNFTFactory _factory = IFNFTFactory(factory);
-
         // Mint fees directly to the distributor and distribute.
-        address feeDistributor = _factory.feeDistributor();
+        address feeDistributor = IVaultManager(vaultManager).feeDistributor();
         // Changed to a _transfer() in v1.0.3.
         super._transfer(user, feeDistributor, amount);
         // IFeeDistributor(feeDistributor).distribute(vaultId);

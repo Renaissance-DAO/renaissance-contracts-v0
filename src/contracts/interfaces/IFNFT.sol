@@ -9,6 +9,10 @@ interface IFNFT {
         Redeemed
     }
 
+    function factory() external returns (address);
+
+    function vaultManager() external returns (address);
+
     function decimals() external returns (uint8);
 
     function balanceOf(address _account) external returns (uint256);
