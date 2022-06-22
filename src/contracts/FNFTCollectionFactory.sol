@@ -5,7 +5,6 @@ pragma solidity 0.8.13;
 import "./util/Pausable.sol";
 
 import "./interfaces/IFNFTCollectionFactory.sol";
-import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/IVaultManager.sol";
 import "./FNFTCollection.sol";
 import "./proxy/BeaconProxy.sol";
@@ -61,11 +60,11 @@ contract FNFTCollectionFactory is
         bool is1155,
         bool allowAllItems
     ) external virtual override returns (uint256) {
-        onlyOwnerIfPaused(0);        
+        onlyOwnerIfPaused(0);
         if (childImplementation() == address(0)) revert ZeroAddress();
         IVaultManager _vaultManager = IVaultManager(vaultManager);
         address vaultAddr = deployVault(name, symbol, _assetAddress, is1155, allowAllItems);
-        uint vaultId = _vaultManager.setVault(vaultAddr);        
+        uint vaultId = _vaultManager.setVault(vaultAddr);
         _vaultManager.initializeVaultReceivers(vaultId);
         emit NewVault(vaultId, vaultAddr, _assetAddress);
         return vaultId;

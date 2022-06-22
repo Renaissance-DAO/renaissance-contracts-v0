@@ -34,21 +34,30 @@ contract VaultManager is
     address payable public override feeReceiver;
 
     function initialize(
-        address _fnftSingleFactory,
-        address _fnftCollectionFactory, 
         address _weth, 
         address _ifoFactory, 
+        address _priceOracle,
         address _feeDistributor
     ) external initializer {
         __Ownable_init();
         __Pausable_init();
-
-        fnftSingleFactory = _fnftSingleFactory;
-        fnftCollectionFactory = _fnftCollectionFactory;
         WETH = _weth;
         ifoFactory = _ifoFactory;
+        priceOracle = _priceOracle;
         feeDistributor = _feeDistributor;
         feeReceiver = payable(msg.sender);        
+    }
+
+    function setFNFTCollectionFactory(address _fnftCollectionFactory) external override onlyOwner {
+        if (_fnftCollectionFactory == address(0)) revert ZeroAddressDisallowed();
+        emit UpdateFNFTCollectionFactory(fnftCollectionFactory, _fnftCollectionFactory);
+        fnftCollectionFactory = _fnftCollectionFactory;
+    }
+
+    function setFNFTSingleFactory(address _fnftSingleFactory) external override onlyOwner {
+        if (_fnftSingleFactory == address(0)) revert ZeroAddressDisallowed();
+        emit UpdateFNFTSingleFactory(fnftSingleFactory, _fnftSingleFactory);
+        fnftSingleFactory = _fnftSingleFactory;
     }
 
     function togglePaused() external onlyOwner {
