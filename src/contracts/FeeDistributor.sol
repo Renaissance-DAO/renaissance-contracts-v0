@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "./interfaces/ILPStaking.sol";
 import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/IInventoryStaking.sol";
-import "./interfaces/IFNFTCollectionFactory.sol";
+import "./interfaces/IVaultManager.sol";
 import "./util/Pausable.sol";
 
 contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable {
@@ -17,7 +17,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   bool public distributionPaused;
 
-  address public override fnftCollectionFactory;
+  address public override vaultManager;
   address public override lpStaking;
   address public override treasury;
 
@@ -30,7 +30,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   event UpdateTreasuryAddress(address newTreasury);
   event UpdateLPStakingAddress(address newLPStaking);
   event UpdateInventoryStakingAddress(address newInventoryStaking);
-  event UpdateFNFTCollectionFactory(address factory);
+  event UpdateVaultManager(address vaultManager);
   event PauseDistribution(bool paused);
 
   event AddFeeReceiver(address receiver, uint256 allocPoint);
@@ -38,8 +38,8 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   event UpdateFeeReceiverAddress(address oldReceiver, address newReceiver);
   event RemoveFeeReceiver(address receiver);
 
-  error CallerIsNotFactory();
-  error FactoryIsImmutable();
+  error CallerIsNotVaultManager();
+  error VaultManagerIsImmutable();
   error OutOfBounds();
   error ZeroAddress();
 
@@ -52,8 +52,8 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   }
 
   function distribute(uint256 vaultId) external override virtual nonReentrant {
-    if (fnftCollectionFactory == address(0)) revert ZeroAddress();
-    address _vault = IFNFTCollectionFactory(fnftCollectionFactory).vault(vaultId);
+    if (vaultManager == address(0)) revert ZeroAddress();
+    address _vault = IVaultManager(vaultManager).vault(vaultId);
 
     uint256 tokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
 
@@ -90,7 +90,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   }
 
   function initializeVaultReceivers(uint256 _vaultId) external override {
-    if (msg.sender != fnftCollectionFactory) revert CallerIsNotFactory();
+    if (msg.sender != vaultManager) revert CallerIsNotVaultManager();
     ILPStaking(lpStaking).addPoolForVault(_vaultId);
     if (inventoryStaking != address(0))
       IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
@@ -140,10 +140,10 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     emit UpdateInventoryStakingAddress(_inventoryStaking);
   }
 
-  function setFNFTCollectionFactory(address _factory) external override onlyOwner {
-    if (address(fnftCollectionFactory) != address(0)) revert FactoryIsImmutable();
-    fnftCollectionFactory = _factory;
-    emit UpdateFNFTCollectionFactory(_factory);
+  function setVaultManager(address _vaultManager) external override onlyOwner {
+    if (address(vaultManager) != address(0)) revert VaultManagerIsImmutable();
+    vaultManager = _vaultManager;
+    emit UpdateVaultManager(_vaultManager);
   }
 
   function pauseFeeDistribution(bool _pause) external onlyOwner {

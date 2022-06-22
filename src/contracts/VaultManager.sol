@@ -5,6 +5,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 import "./interfaces/IVaultManager.sol";
+import "./interfaces/IFeeDistributor.sol";
 
 contract VaultManager is
     OwnableUpgradeable,
@@ -91,5 +92,11 @@ contract VaultManager is
 
     function numVaults() external view override returns (uint) {
         return vaults.length;
+    }
+    
+    function initializeVaultReceivers(uint256 _vaultId) external override {         
+        if (address(feeDistributor) == address(0)) revert ZeroAddressDisallowed();
+        if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert OnlyFactory();
+        IFeeDistributor(feeDistributor).initializeVaultReceivers(_vaultId);
     }
 }

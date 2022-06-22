@@ -10,7 +10,7 @@ interface IFeeDistributor {
     bool isContract;
   }
 
-  function fnftCollectionFactory() external returns (address);
+  function vaultManager() external returns (address);
   function lpStaking() external returns (address);
   function inventoryStaking() external returns (address);
   function treasury() external returns (address);
@@ -31,5 +31,5 @@ interface IFeeDistributor {
   function setTreasuryAddress(address _treasury) external;
   function setLPStakingAddress(address _lpStaking) external;
   function setInventoryStakingAddress(address _inventoryStaking) external;
-  function setFNFTCollectionFactory(address _factory) external;
+  function setVaultManager(address _vaultManager) external;
 }

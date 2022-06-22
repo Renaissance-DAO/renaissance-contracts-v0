@@ -61,13 +61,12 @@ contract FNFTCollectionFactory is
         bool is1155,
         bool allowAllItems
     ) external virtual override returns (uint256) {
-        onlyOwnerIfPaused(0);
-        IFeeDistributor feeDistributor = IFeeDistributor(IVaultManager(vaultManager).feeDistributor());
-        if (address(feeDistributor) == address(0)) revert ZeroAddress();
+        onlyOwnerIfPaused(0);        
         if (childImplementation() == address(0)) revert ZeroAddress();
+        IVaultManager _vaultManager = IVaultManager(vaultManager);
         address vaultAddr = deployVault(name, symbol, _assetAddress, is1155, allowAllItems);
-        uint vaultId = IVaultManager(vaultManager).setVault(vaultAddr);        
-        feeDistributor.initializeVaultReceivers(vaultId);
+        uint vaultId = _vaultManager.setVault(vaultAddr);        
+        _vaultManager.initializeVaultReceivers(vaultId);
         emit NewVault(vaultId, vaultAddr, _assetAddress);
         return vaultId;
     }

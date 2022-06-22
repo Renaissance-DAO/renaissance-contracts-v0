@@ -19,6 +19,7 @@ interface IVaultManager {
     function vault(uint256 vaultId) external view returns (address);
     function vaults(uint256) external view returns (address);
     function numVaults() external view returns (uint);
+    function initializeVaultReceivers(uint256 _vaultId) external;
 
     event UpdatePriceOracle(address _old, address _new);
     event UpdateFeeReceiver(address _old, address _new);
