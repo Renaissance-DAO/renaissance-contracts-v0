@@ -23,7 +23,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     /// -----------------------------------
 
     /// @notice the ERC721 token address of the vault's token
-    address public token;    
+    address public token;
 
     /// @notice the current user winning the token auction
     address payable public winning;
@@ -159,18 +159,14 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
 
         IFNFTFactory _factory = IFNFTFactory(msg.sender);
         IVaultManager _vaultManager = IVaultManager(_factory.vaultManager());
-        
+
         if (_fee > _factory.maxCuratorFee()) revert FeeTooHigh();
 
         // set storage variables
         factory = address(_factory);
         vaultManager = address(_vaultManager);
         token = _token;
-        vaultId = uint256(keccak256(abi.encodePacked(
-            _token,
-            _id,
-            _vaultManager.numVaults()
-        )));
+        vaultId = _vaultManager.numVaults();
         id = _id;
         auctionLength = 3 days;
         curator = _curator;
@@ -322,7 +318,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         if (msg.value < price) revert NotEnoughETH();
 
         _claimFees();
-        
+
         // deposit weth
         IWETH(IVaultManager(vaultManager).WETH()).deposit{value: msg.value}();
 
@@ -649,7 +645,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         return _flashLoan(receiver, loanToken, amount, flashLoanFee, data);
     }
 
-    function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {        
+    function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {
         if (amount == 0) {
             return;
         }
