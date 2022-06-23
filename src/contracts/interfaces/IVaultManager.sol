@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-interface IVaultManager {     
+interface IVaultManager {
     function fnftSingleFactory() external view returns (address);
     function fnftCollectionFactory() external view returns (address);
     function excludedFromFees(address) external view returns (bool);
@@ -29,10 +29,10 @@ interface IVaultManager {
     event UpdateFeeReceiver(address _old, address _new);
     event UpdateZapContract(address _old, address _new);
     event UpdateFNFTCollectionFactory(address _old, address _new);
-    event UpdateFNFTSingleFactory(address _old, address _new);    
+    event UpdateFNFTSingleFactory(address _old, address _new);
     event VaultSet(uint256 _vaultId, address _fnft);
     event NewFeeDistributor(address oldDistributor, address newDistributor);
-    event FeeExclusion(address target, bool excluded);    
+    event FeeExclusion(address target, bool excluded);
 
     error MaxAuctionLengthOutOfBounds();
     error MinAuctionLengthOutOfBounds();

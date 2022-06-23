@@ -11,7 +11,7 @@ contract VaultManager is
     OwnableUpgradeable,
     PausableUpgradeable,
     IVaultManager
-{    
+{
     mapping(address => bool) public override excludedFromFees;
 
     address[] public override vaults;
@@ -106,7 +106,7 @@ contract VaultManager is
     function numVaults() external view override returns (uint) {
         return vaults.length;
     }
-    
+
     function initializeVaultReceivers(uint256 _vaultId) external override {
         if (address(feeDistributor) == address(0)) revert ZeroAddressDisallowed();
         if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert OnlyFactory();
