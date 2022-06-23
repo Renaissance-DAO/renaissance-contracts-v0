@@ -578,13 +578,13 @@ contract FNFTCollection is
     ) internal virtual override {
         //Take fee here
         IFNFTCollectionFactory _factory = IFNFTCollectionFactory(factory);
-        uint256 swapFee = _factory.swapFee();
-        if (swapFee > 0 && to == pair && !vaultManager.excludedFromFees(msg.sender)) {            
-            uint256 feeAmount = amount * swapFee / 10000;
-
-            _chargeAndDistributeFees(from, feeAmount);
-
-            amount = amount - feeAmount;            
+        if (to == pair) {
+            uint256 swapFee = _factory.swapFee();
+            if (swapFee > 0 && !vaultManager.excludedFromFees(msg.sender)) {
+                uint256 feeAmount = amount * swapFee / 10000;
+                _chargeAndDistributeFees(from, feeAmount);
+                amount = amount - feeAmount;
+            }
         }
 
         super._transfer(from, to, amount);
