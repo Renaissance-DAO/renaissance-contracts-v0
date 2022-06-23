@@ -251,8 +251,8 @@ contract IFO is Initializable {
 
         totalSold += payout;
 
-        address govAddress = IIFOFactory(factory).feeReceiver();        
-        uint256 govFee = IIFOFactory(factory).governanceFee();        
+        address govAddress = IIFOFactory(factory).feeReceiver();
+        uint256 govFee = IIFOFactory(factory).governanceFee();
 
         uint256 fee = (govFee * msg.value) / 10000;
         uint256 profit = msg.value - fee;
@@ -261,8 +261,8 @@ contract IFO is Initializable {
         totalRaised += msg.value;
         profitRaised += profit;
 
-        fnft.transfer(msg.sender, payout);        
-        _safeTransferETH(govAddress, fee);        
+        fnft.transfer(msg.sender, payout);
+        _safeTransferETH(govAddress, fee);
 
         emit Deposit(msg.sender, msg.value, payout);
     }
@@ -298,7 +298,7 @@ contract IFO is Initializable {
     /// @notice withdraws FNFT from sale only after IFO. Can only withdraw after NFT redemption if IFOLock enabled
     function adminWithdrawFNFT() external checkDeadline onlyCurator {
         if (!ended) revert SaleActive();
-        if (fnft.FNFT_TYPE() == uint256(FNFTType.FNFTSingle) &&             
+        if (fnft.FNFT_TYPE() == uint256(FNFTType.FNFTSingle) &&
             fnft.auctionState() != uint256(FNFTState.Ended) && _fnftLocked()) {
             revert FNFTLocked();
         }

@@ -23,6 +23,7 @@ interface IFNFTCollection is IERC20Upgradeable {
     function enableRandomSwap() external view returns (bool);
     function enableTargetSwap() external view returns (bool);
 
+    function FNFT_TYPE() external returns (uint256);
     function vaultId() external view returns (uint256);
     function nftIdAt(uint256 holdingsIndex) external view returns (uint256);
     function allHoldings() external view returns (uint256[] memory);

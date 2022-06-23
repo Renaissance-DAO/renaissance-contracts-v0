@@ -28,6 +28,8 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     /// @notice the current user winning the token auction
     address payable public winning;
 
+    uint256 public constant FNFT_TYPE = 1;
+
     uint256 public vaultId;
 
     /// @notice the ERC721 token ID of the vault's token

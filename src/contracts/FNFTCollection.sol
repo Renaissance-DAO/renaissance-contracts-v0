@@ -34,8 +34,9 @@ contract FNFTCollection is
 
     uint256 constant base = 10**18;
 
+    uint256 public constant FNFT_TYPE = 0;
     uint256 public override vaultId;
-    address public override manager;    
+    address public override manager;
     address public override pair;
     IVaultManager public override vaultManager;
     IFNFTCollectionFactory public override factory;
@@ -473,7 +474,7 @@ contract FNFTCollection is
             return;
         }
 
-        // Mint fees directly to the distributor and distribute.        
+        // Mint fees directly to the distributor and distribute.
         address feeDistributor = _vaultManager.feeDistributor();
         // Changed to a _transfer() in v1.0.3.
         super._transfer(user, feeDistributor, amount);

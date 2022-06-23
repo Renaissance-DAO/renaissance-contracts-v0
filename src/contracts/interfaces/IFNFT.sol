@@ -17,6 +17,8 @@ interface IFNFT {
 
     function decimals() external returns (uint8);
 
+    function FNFT_TYPE() external returns (uint256);
+
     function balanceOf(address _account) external returns (uint256);
 
     function totalSupply() external returns (uint256);
