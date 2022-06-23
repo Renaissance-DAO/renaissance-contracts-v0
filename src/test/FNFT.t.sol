@@ -48,11 +48,11 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
             ,
             vaultManager,
             fnftFactory,
-        ) = setupContracts();        
-        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 100);        
-        token = new MockNFT();        
-        token.mint(address(this), 1);        
-        token.setApprovalForAll(address(fnftFactory), true);        
+        ) = setupContracts();
+        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 100);
+        token = new MockNFT();
+        token.mint(address(this), 1);
+        token.setApprovalForAll(address(fnftFactory), true);
         // FNFT minted on this test contract address.
         fnft = FNFT(fnftFactory.mint(
             "testName",
@@ -668,7 +668,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testExcludeSwapFeeForNormalTransfers() public {
-        fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);        
+        fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
 
         uint originalBalance = fnft.balanceOf(address(this));
         uint transferAmount = 1 ether;
