@@ -19,7 +19,6 @@ contract FNFTCollectionFactory is
 {
 
     address public override vaultManager;
-    address public override zapContract; // No longer needed, but keeping for compatibility.
     address public override eligibilityManager;
 
     // v1.0.2
@@ -144,11 +143,6 @@ contract FNFTCollectionFactory is
         }
         delete _vaultFees[vaultId];
         emit DisableVaultFees(vaultId);
-    }
-
-    function setZapContract(address _zapContract) public onlyOwner virtual override {
-        emit NewZapContract(zapContract, _zapContract);
-        zapContract = _zapContract;
     }
 
     function setEligibilityManager(address _eligibilityManager) external onlyOwner virtual override {
