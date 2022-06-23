@@ -65,7 +65,7 @@ contract SetupEnvironment {
         );
     }
 
-    function setupVaultManager(        
+    function setupVaultManager(
         address _ifoFactory,
         address _priceOracle
     ) public returns (VaultManager vaultManager) {
@@ -143,30 +143,30 @@ contract SetupEnvironment {
         setupWETH(_wethAmount);
     }
 
-    function setupContracts() 
+    function setupContracts()
         public
         returns (
             StakingTokenProvider stakingTokenProvider,
             LPStaking lpStaking,
-            IFOFactory ifoFactory,        
-            IUniswapV2Factory pairFactory,            
+            IFOFactory ifoFactory,
+            IUniswapV2Factory pairFactory,
             PriceOracle priceOracle,
             FeeDistributor feeDistributor,
-            VaultManager vaultManager,            
+            VaultManager vaultManager,
             FNFTFactory fnftFactory,
             FNFTCollectionFactory fnftCollectionFactory
         )
-    {        
+    {
         ifoFactory = setupIFOFactory();
-        pairFactory = setupPairFactory();   
+        pairFactory = setupPairFactory();
         priceOracle = setupPriceOracle(address(pairFactory));
         vaultManager = setupVaultManager(address(ifoFactory), address(priceOracle));
         stakingTokenProvider = setupStakingTokenProvider();
-        
+
         lpStaking = setupLPStaking(address(vaultManager), address(stakingTokenProvider));
         feeDistributor = setupFeeDistributor(address(vaultManager), address(lpStaking));
         fnftFactory = setupFNFTFactory(address(vaultManager));
-        fnftCollectionFactory = setupFNFTCollectionFactory(address(vaultManager));        
+        fnftCollectionFactory = setupFNFTCollectionFactory(address(vaultManager));
 
         vaultManager.setFNFTCollectionFactory(address(fnftCollectionFactory));
         vaultManager.setFNFTSingleFactory(address(fnftFactory));
