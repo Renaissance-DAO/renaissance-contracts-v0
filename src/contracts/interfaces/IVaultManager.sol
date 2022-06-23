@@ -12,7 +12,7 @@ interface IVaultManager {
     function zapContract() external view returns (address);
     function feeReceiver() external view returns (address payable);
     function togglePaused() external;
-    function setVault(address _fnft) external returns (uint256 vaultId);
+    function addVault(address _fnft) external returns (uint256 vaultId);
     function setPriceOracle(address _newOracle) external;
     function setFeeDistributor(address _feeDistributor) external;
     function setFeeExclusion(address _excludedAddr, bool excluded) external;

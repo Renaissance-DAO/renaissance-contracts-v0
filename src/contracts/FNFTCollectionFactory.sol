@@ -64,7 +64,7 @@ contract FNFTCollectionFactory is
         if (childImplementation() == address(0)) revert ZeroAddress();
         IVaultManager _vaultManager = IVaultManager(vaultManager);
         address vaultAddr = deployVault(name, symbol, _assetAddress, is1155, allowAllItems);
-        uint vaultId = _vaultManager.setVault(vaultAddr);
+        uint vaultId = _vaultManager.addVault(vaultAddr);
         _vaultManager.initializeVaultReceivers(vaultId);
         emit NewVault(vaultId, vaultAddr, _assetAddress);
         return vaultId;
