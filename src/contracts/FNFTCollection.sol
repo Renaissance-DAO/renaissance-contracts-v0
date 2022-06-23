@@ -576,10 +576,8 @@ contract FNFTCollection is
         address to,
         uint256 amount
     ) internal virtual override {
-        //Take fee here
-        IFNFTCollectionFactory _factory = IFNFTCollectionFactory(factory);
         if (to == pair) {
-            uint256 swapFee = _factory.swapFee();
+            uint256 swapFee = IFNFTCollectionFactory(factory).swapFee();
             if (swapFee > 0 && !vaultManager.excludedFromFees(msg.sender)) {
                 uint256 feeAmount = amount * swapFee / 10000;
                 _chargeAndDistributeFees(from, feeAmount);
