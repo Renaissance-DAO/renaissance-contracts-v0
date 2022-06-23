@@ -93,11 +93,12 @@ contract VaultManager is
 
     function addVault(address _fnft) external override returns (uint256 vaultId) {
         if (_fnft == address(0)) revert ZeroAddressDisallowed();
-        if (address(feeDistributor) == address(0)) revert ZeroAddressDisallowed();
+        address _feeDistributor = feeDistributor;
+        if (_feeDistributor == address(0)) revert ZeroAddressDisallowed();
         if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert OnlyFactory();
         vaultId = vaults.length;
         vaults.push(_fnft);
-        IFeeDistributor(feeDistributor).initializeVaultReceivers(vaultId);
+        IFeeDistributor(_feeDistributor).initializeVaultReceivers(vaultId);
         emit VaultSet(vaultId, _fnft);
     }
 
