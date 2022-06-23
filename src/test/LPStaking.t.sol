@@ -43,14 +43,14 @@ contract LPStakingTest is DSTest, SetupEnvironment {
         vaultManager,
         ,
         fnftCollectionFactory
-    ) = setupContracts();    
+    ) = setupContracts();
 
     uniswapV2Factory = setupPairFactory();
     uniswapV2Router = setupRouter();
 
     token = new MockNFT();
 
-    vaultId = uint256(0);
+    vaultId = 0;
   }
 
   function testStorageVariables() public {
