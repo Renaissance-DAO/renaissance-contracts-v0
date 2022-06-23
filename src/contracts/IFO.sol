@@ -12,6 +12,11 @@ contract IFO is Initializable {
         uint256 debt; // total fNFT claimed thus fNFT debt
     }
 
+    enum FNFTType {
+        FNFTCollection,
+        FNFTSingle
+    }
+
     enum FNFTState {
         Inactive,
         Live,
@@ -107,7 +112,9 @@ contract IFO is Initializable {
         || _duration > IIFOFactory(msg.sender).maximumDuration())) revert InvalidDuration();
         // reject if MC of IFO greater than reserve price set by curator. Protects the initial investors
         //if the requested price of the tokens here is greater than the implied value of each token from the initial reserve, revert
-        if (_price * totalSupply / (10 ** fnft.decimals()) > fnft.initialReserve()) revert InvalidReservePrice();
+        if (fnft.FNFT_TYPE() == uint256(FNFTType.FNFTSingle)) {
+            if (_price * totalSupply / (10 ** fnft.decimals()) > fnft.initialReserve()) revert InvalidReservePrice();
+        }
 
         factory = msg.sender;
         curator = _curator;
@@ -291,7 +298,8 @@ contract IFO is Initializable {
     /// @notice withdraws FNFT from sale only after IFO. Can only withdraw after NFT redemption if IFOLock enabled
     function adminWithdrawFNFT() external checkDeadline onlyCurator {
         if (!ended) revert SaleActive();
-        if (_fnftLocked() && fnft.auctionState() != uint256(FNFTState.Ended)) {
+        if (fnft.FNFT_TYPE() == uint256(FNFTType.FNFTSingle) &&             
+            fnft.auctionState() != uint256(FNFTState.Ended) && _fnftLocked()) {
             revert FNFTLocked();
         }
 
