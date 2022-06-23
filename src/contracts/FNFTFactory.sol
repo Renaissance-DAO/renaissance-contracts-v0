@@ -156,8 +156,7 @@ contract FNFTFactory is
 
         address fnft = address(new BeaconProxy(address(this), _initializationCalldata));
         IVaultManager _vaultManager = IVaultManager(vaultManager);
-        uint vaultId = _vaultManager.addVault(fnft);
-        _vaultManager.initializeVaultReceivers(vaultId);
+        _vaultManager.addVault(fnft);
         ///TODO: Fix stack too deep
         // emit FNFTCreated(_nft, fnft, msg.sender, _listPrice, _name, _symbol);
 
