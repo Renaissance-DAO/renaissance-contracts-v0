@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./IVaultManager.sol";
+
 interface IFNFT {
     enum State {
         Inactive,
@@ -11,7 +13,7 @@ interface IFNFT {
 
     function factory() external returns (address);
 
-    function vaultManager() external returns (address);
+    function vaultManager() external returns (IVaultManager);
 
     function decimals() external returns (uint8);
 
