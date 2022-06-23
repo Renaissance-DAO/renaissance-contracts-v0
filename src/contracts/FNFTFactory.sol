@@ -12,7 +12,6 @@ import "./proxy/BeaconProxy.sol";
 import "./interfaces/IFNFTFactory.sol";
 import "./interfaces/IVaultManager.sol";
 import "./interfaces/IFeeDistributor.sol";
-import {console} from "../test/utils/console.sol";
 
 contract FNFTFactory is
     OwnableUpgradeable,
