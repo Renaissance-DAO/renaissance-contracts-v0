@@ -4,6 +4,7 @@ pragma solidity 0.8.13;
 import "./interfaces/IFNFTFactory.sol";
 import "./interfaces/IVaultManager.sol";
 import "./interfaces/IWETH.sol";
+import "./interfaces/IFNFTSingle.sol";
 import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IIFO.sol";
 import "./interfaces/IUniswapV2Pair.sol";
@@ -12,138 +13,77 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IPriceOracle} from "./PriceOracle.sol";
 import "./token/ERC20FlashMintUpgradeable.sol";
 
-contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
+contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     using Address for address;
-
     /// -----------------------------------
     /// -------- TOKEN INFORMATION --------
     /// -----------------------------------
 
     /// @notice the ERC721 token address of the vault's token
-    address public token;
+    address public override token;
 
     /// @notice the current user winning the token auction
-    address payable public winning;
+    address payable public override winning;
 
-    uint256 public constant FNFT_TYPE = 1;
-
-    uint256 public vaultId;
+    uint256 public override vaultId;
 
     /// @notice the ERC721 token ID of the vault's token
-    uint256 public id;
+    uint256 public override id;
 
     /// -------------------------------------
     /// -------- AUCTION INFORMATION --------
     /// -------------------------------------
 
     /// @notice the unix timestamp end time of the token auction
-    uint256 public auctionEnd;
+    uint256 public override auctionEnd;
 
     /// @notice the length of auctions
-    uint256 public auctionLength;
+    uint256 public override auctionLength;
 
     /// @notice reservePrice * votingTokens
-    uint256 public reserveTotal;
+    uint256 public override reserveTotal;
 
     /// @notice the current price of the token during an auction
-    uint256 public livePrice;
+    uint256 public override livePrice;
 
-    IUniswapV2Pair public pair;
+    IUniswapV2Pair public override pair;
 
-    enum State {
-        Inactive,
-        Live,
-        Ended,
-        Redeemed
-    }
-
-    State public auctionState;
+    State public override auctionState;
 
     /// -----------------------------------
     /// -------- VAULT INFORMATION --------
     /// -----------------------------------
 
     /// @notice the governance contract which gets paid in ETH
-    address public factory;
+    address public override factory;
 
     /// @notice the governance contract for all FNFTs
-    IVaultManager public vaultManager;
+    IVaultManager public override vaultManager;
 
     /// @notice whether or not this FNFT has been verified by DAO
-    bool public verified;
+    bool public override verified;
 
     /// @notice the address who initially deposited the NFT
-    address public curator;
+    address public override curator;
 
     /// @notice the AUM fee paid to the curator yearly. 3 decimals. ie. 100 = 10%
-    uint256 public fee;
+    uint256 public override fee;
 
     /// @notice the last timestamp where fees were claimed
-    uint256 public lastClaimed;
+    uint256 public override lastClaimed;
 
     /// @notice the number of ownership tokens voting on the reserve price at any given time
-    uint256 public votingTokens;
+    uint256 public override votingTokens;
 
     /// @notice initial price of NFT set by curator on creation
-    uint256 public initialReserve;
+    uint256 public override initialReserve;
 
     /// @notice a mapping of users to their desired token price
-    mapping(address => uint256) public userReservePrice;
-
-    /// ------------------------
-    /// -------- EVENTS --------
-    /// ------------------------
-
-    /// @notice An event emitted when a user updates their price
-    event PriceUpdate(address indexed user, uint256 price);
-
-    /// @notice An event emitted when an auction starts
-    event Start(address indexed buyer, uint256 price);
-
-    /// @notice An event emitted when a bid is made
-    event Bid(address indexed buyer, uint256 price);
-
-    /// @notice An event emitted when an auction is won
-    event Won(address indexed buyer, uint256 price);
-
-    /// @notice An event emitted when someone redeems all tokens for the NFT
-    event Redeem(address indexed redeemer);
-
-    /// @notice An event emitted when someone cashes in ERC20 tokens for ETH from an ERC721 token sale
-    event Cash(address indexed owner, uint256 shares);
-
-    event UpdateAuctionLength(uint256 length);
-
-    event UpdateCuratorFee(uint256 fee);
-
-    event FeeClaimed(uint256 fee);
-
-    event Verified(bool verified);
-
-    event KickCurator(address indexed oldCurator, address indexed newCurator);
-    event UpdateCurator(address indexed oldCurator, address indexed newCurator);
-
-    error NotGov();
-    error NotCurator();
-    error SameCurator();
-    error AuctionLive();
-    error NotAnUpdate();
-    error InvalidAuctionLength();
-    error CanNotRaise();
-    error FeeTooHigh();
-    error AuctionEnded();
-    error AuctionNotEnded();
-    error NotEnoughETH();
-    error PriceTooLow();
-    error PriceTooHigh();
-    error BidTooLow();
-    error NotEnoughVoters();
-    error AuctionNotLive();
-    error NoTokens();
-    error WrongToken();
+    mapping(address => uint256) public override userReservePrice;
 
     function initialize(
         address _curator,
@@ -154,7 +94,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         uint256 _fee,
         string memory _name,
         string memory _symbol
-    ) external initializer {
+    ) external override initializer {
         // initialize inherited contracts
         __ERC20_init(_name, _symbol);
         __ERC721Holder_init();
@@ -180,6 +120,10 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         _mint(_curator, _supply);
     }
 
+    function supportsInterface(bytes4 interfaceId) public view override(IERC165) returns (bool) {
+        return interfaceId == type(IFNFTSingle).interfaceId;
+    }
+
     modifier onlyCurator() {
         if (msg.sender != curator) revert NotCurator();
         _;
@@ -194,7 +138,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     /// -------- VIEW FUNCTIONS --------
     /// --------------------------------
 
-    function reservePrice() public view returns (uint256) {
+    function reservePrice() public view override returns (uint256) {
         return votingTokens == 0 ? 0 : reserveTotal / votingTokens;
     }
 
@@ -204,14 +148,14 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
 
     /// @notice allow governance to boot a bad actor curator
     /// @param _curator the new curator
-    function kickCurator(address _curator) external onlyGov {
+    function kickCurator(address _curator) external override onlyGov {
         if (curator == _curator) revert SameCurator();
         emit KickCurator(curator, _curator);
         curator = _curator;
     }
 
     /// @notice allow governance to remove bad reserve prices
-    function removeReserve(address _user) external onlyGov {
+    function removeReserve(address _user) external override onlyGov {
         if (auctionState != State.Inactive) revert AuctionLive();
 
         uint256 old = userReservePrice[_user];
@@ -227,7 +171,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         emit PriceUpdate(_user, 0);
     }
 
-    function toggleVerified() external onlyGov {
+    function toggleVerified() external override onlyGov {
         bool _verified = !verified;
         verified = _verified;
         emit Verified(_verified);
@@ -239,7 +183,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
 
     /// @notice allow curator to update the curator address
     /// @param _curator the new curator
-    function updateCurator(address _curator) external onlyCurator {
+    function updateCurator(address _curator) external override onlyCurator {
         if (curator == _curator) revert SameCurator();
         emit UpdateCurator(curator, _curator);
         curator = _curator;
@@ -247,7 +191,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
 
     /// @notice allow curator to update the auction length
     /// @param _length the new base price
-    function updateAuctionLength(uint256 _length) external onlyCurator {
+    function updateAuctionLength(uint256 _length) external override onlyCurator {
         if (
             _length < IFNFTFactory(factory).minAuctionLength() || _length > IFNFTFactory(factory).maxAuctionLength()
         ) revert InvalidAuctionLength();
@@ -258,7 +202,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
 
     /// @notice allow the curator to change their fee
     /// @param _fee the new fee
-    function updateFee(uint256 _fee) external onlyCurator {
+    function updateFee(uint256 _fee) external override onlyCurator {
         if (_fee >= fee) revert CanNotRaise();
         if (_fee > IFNFTFactory(factory).maxCuratorFee()) revert FeeTooHigh();
 
@@ -269,7 +213,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     /// @notice external function to claim fees for the curator and governance
-    function claimFees() external {
+    function claimFees() external override {
         _claimFees();
     }
 
@@ -309,11 +253,11 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     /// -------- CORE FUNCTIONS --------
     /// --------------------------------
 
-    function getAuctionPrice() external view returns (uint256) {
+    function getAuctionPrice() external view override returns (uint256) {
         return _getAuctionPrice();
     }
 
-    function buyItNow() external payable {
+    function buyItNow() external payable override {
         if (auctionState != State.Inactive) revert AuctionLive();
         uint256 price = buyItNowPrice();
         if (price == 0) revert PriceTooLow();
@@ -332,13 +276,13 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         emit Won(msg.sender, price);
     }
 
-    function buyItNowPrice() public view returns (uint256) {
+    function buyItNowPrice() public view override returns (uint256) {
         return (_getAuctionPrice() * IFNFTFactory(factory).instantBuyMultiplier()) / 10;
     }
 
     /// @notice a function for an end user to update their desired sale price
     /// @param newUserReserve the desired price in ETH
-    function updateUserPrice(uint256 newUserReserve) external {
+    function updateUserPrice(uint256 newUserReserve) external override {
         if (auctionState != State.Inactive) revert AuctionLive();
         uint256 previousUserReserve = userReservePrice[msg.sender];
         if (newUserReserve == previousUserReserve) revert NotAnUpdate();
@@ -385,7 +329,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
         emit PriceUpdate(msg.sender, newUserReserve);
     }
 
-    function getQuorum() external view returns (uint256) {
+    function getQuorum() external view override returns (uint256) {
         return _getQuorum();
     }
 
@@ -522,7 +466,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     /// @notice kick off an auction. Must send reservePrice in ETH
-    function start() external payable {
+    function start() external payable override {
         if (auctionState != State.Inactive) revert AuctionLive();
         uint256 _auctionPrice = _getAuctionPrice();
         if (_auctionPrice == 0 || msg.value < _auctionPrice) revert BidTooLow();
@@ -537,7 +481,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     /// @notice an external function to bid on purchasing the vaults NFT. The msg.value is the bid amount
-    function bid() external payable {
+    function bid() external payable override {
         if (auctionState != State.Live) revert AuctionNotLive();
         uint256 increase = IFNFTFactory(factory).minBidIncrease() + 10000;
         if (msg.value * 10000 < livePrice * increase) revert BidTooLow();
@@ -557,7 +501,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     /// @notice an external function to end an auction after the timer has run out
-    function end() external {
+    function end() external override {
         if (auctionState != State.Live) revert AuctionNotLive();
         if (block.timestamp < auctionEnd) revert AuctionNotEnded();
 
@@ -572,7 +516,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     /// @notice an external function to burn all ERC20 tokens to receive the ERC721 token
-    function redeem() external {
+    function redeem() external override {
         if (auctionState != State.Inactive) revert AuctionLive();
         _burn(msg.sender, totalSupply());
 
@@ -585,7 +529,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     }
 
     /// @notice an external function to burn ERC20 tokens to receive ETH from ERC721 token purchase
-    function cash() external {
+    function cash() external override {
         if (auctionState != State.Ended) revert AuctionNotEnded();
         uint256 bal = balanceOf(msg.sender);
         if (bal == 0) revert NoTokens();
@@ -601,7 +545,7 @@ contract FNFT is ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     function setVaultMetadata(
         string calldata name_,
         string calldata symbol_
-    ) external onlyCurator {
+    ) external override onlyCurator {
         _setMetadata(name_, symbol_);
     }
 

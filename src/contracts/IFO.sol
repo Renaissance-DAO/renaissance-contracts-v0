@@ -3,25 +3,15 @@ pragma solidity 0.8.13;
 
 import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IFNFT.sol";
+import "./interfaces/IFNFTSingle.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 contract IFO is Initializable {
     struct UserInfo {
         uint256 amount; // Amount ETH deposited by user
         uint256 debt; // total fNFT claimed thus fNFT debt
-    }
-
-    enum FNFTType {
-        FNFTCollection,
-        FNFTSingle
-    }
-
-    enum FNFTState {
-        Inactive,
-        Live,
-        Ended,
-        Redeemed
     }
 
     IFNFT public fnft; // fNFT the ifo contract sells
@@ -112,8 +102,8 @@ contract IFO is Initializable {
         || _duration > IIFOFactory(msg.sender).maximumDuration())) revert InvalidDuration();
         // reject if MC of IFO greater than reserve price set by curator. Protects the initial investors
         //if the requested price of the tokens here is greater than the implied value of each token from the initial reserve, revert
-        if (fnft.FNFT_TYPE() == uint256(FNFTType.FNFTSingle)) {
-            if (_price * totalSupply / (10 ** fnft.decimals()) > fnft.initialReserve()) revert InvalidReservePrice();
+        if (IERC165(address(fnft)).supportsInterface(type(IFNFT).interfaceId)) {
+            if (_price * totalSupply / (10 ** fnft.decimals()) > IFNFTSingle(address(fnft)).initialReserve()) revert InvalidReservePrice();
         }
 
         factory = msg.sender;
@@ -298,8 +288,8 @@ contract IFO is Initializable {
     /// @notice withdraws FNFT from sale only after IFO. Can only withdraw after NFT redemption if IFOLock enabled
     function adminWithdrawFNFT() external checkDeadline onlyCurator {
         if (!ended) revert SaleActive();
-        if (fnft.FNFT_TYPE() == uint256(FNFTType.FNFTSingle) &&
-            fnft.auctionState() != uint256(FNFTState.Ended) && _fnftLocked()) {
+        if (IERC165(address(fnft)).supportsInterface(type(IFNFT).interfaceId) &&
+            IFNFTSingle(address(fnft)).auctionState() != IFNFTSingle.State.Ended && _fnftLocked()) {
             revert FNFTLocked();
         }
 

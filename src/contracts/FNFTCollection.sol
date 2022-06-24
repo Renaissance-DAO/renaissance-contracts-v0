@@ -10,7 +10,8 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/utils/ERC1155HolderUpgradeable.sol";
-
+import "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "./interfaces/IFNFTCollection.sol";
 import "./interfaces/IFNFTCollectionFactory.sol";
 import "./interfaces/IVaultManager.sol";
@@ -24,17 +25,17 @@ import {IPriceOracle} from "./PriceOracle.sol";
 
 contract FNFTCollection is
     OwnableUpgradeable,
+    IFNFTCollection,
+    IERC165,
     ERC20FlashMintUpgradeable,
     ReentrancyGuardUpgradeable,
     ERC721HolderUpgradeable,
-    ERC1155HolderUpgradeable,
-    IFNFTCollection
+    ERC1155HolderUpgradeable
 {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.UintSet;
 
     uint256 constant base = 10**18;
 
-    uint256 public constant FNFT_TYPE = 0;
     uint256 public override vaultId;
     address public override manager;
     address public override pair;
@@ -96,6 +97,10 @@ contract FNFTCollection is
         pair = IPriceOracle(vaultManager.priceOracle()).createFNFTPair(address(this));
         emit VaultInit(vaultId, _assetAddress, _is1155, _allowAllItems);
         setVaultFeatures(true /*enableMint*/, true /*enableRandomRedeem*/, true /*enableTargetRedeem*/, true /*enableRandomSwap*/, true /*enableTargetSwap*/);
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view override(ERC1155ReceiverUpgradeable, IERC165) returns (bool) {
+        return interfaceId == type(IFNFTCollection).interfaceId;
     }
 
     function finalizeVault() external override virtual {
