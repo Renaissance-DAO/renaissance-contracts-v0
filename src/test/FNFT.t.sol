@@ -14,6 +14,7 @@ import {PriceOracle, IPriceOracle} from "../contracts/PriceOracle.sol";
 import {FNFT} from "../contracts/FNFT.sol";
 import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
 import {IWETH} from "../contracts/interfaces/IWETH.sol";
+import {IFNFTSingle} from "../contracts/interfaces/IFNFTSingle.sol";
 import {MockNFT} from "../contracts/mocks/NFT.sol";
 import {WETH} from "../contracts/mocks/WETH.sol";
 import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH} from "./utils/utils.sol";
@@ -81,7 +82,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function test_InitializeFeeTooHigh() public {
         uint256 maxCuratorFee = fnftFactory.maxCuratorFee();
         token.mint(address(this), 2);
-        vm.expectRevert(FNFT.FeeTooHigh.selector);
+        vm.expectRevert(IFNFTSingle.FeeTooHigh.selector);
         fnft = FNFT(fnftFactory.mint(
             "TheFeeIsTooDamnHigh",
             "HIGH",
@@ -167,12 +168,12 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function testKickSameCurator() public {
         fnft.updateCurator(address(curator));
-        vm.expectRevert(FNFT.SameCurator.selector);
+        vm.expectRevert(IFNFTSingle.SameCurator.selector);
         fnft.kickCurator(address(curator));
     }
 
     function testKickCuratorNotGov() public {
-        vm.expectRevert(FNFT.NotGov.selector);
+        vm.expectRevert(IFNFTSingle.NotGov.selector);
         curator.call_kickCurator(address(curator));
     }
 
@@ -207,7 +208,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         user1.call_updatePrice(2 ether);
         assertEq(fnft.reservePrice(), 1.5 ether);
 
-        vm.expectRevert(FNFT.NotGov.selector);
+        vm.expectRevert(IFNFTSingle.NotGov.selector);
         // user1 is not gov so cannot do anything
         user1.call_remove(address(this));
     }
@@ -227,7 +228,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         fnft.transfer(address(user2), 50 ether);
         // reservePrice is now 0.2 eth because transfering canceled the vote of 1 eth
 
-        vm.expectRevert(FNFT.PriceTooLow.selector);
+        vm.expectRevert(IFNFTSingle.PriceTooLow.selector);
         // 0.04 is the minimum since 20% of 0.2 is 0.04. Fail
         user1.call_updatePrice(0.039 ether);
     }
@@ -247,7 +248,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         fnft.transfer(address(user2), 50 ether);
         // reservePrice is now 5 eth because transfering canceled the vote of 1 eth
 
-        vm.expectRevert(FNFT.PriceTooHigh.selector);
+        vm.expectRevert(IFNFTSingle.PriceTooHigh.selector);
         // 25 is the minimum since 500% of 5 is 25. Fail
         user2.call_updatePrice(26 ether);
     }
@@ -266,7 +267,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function testUpdateSameCurator() public {
         fnft.updateCurator(address(curator));
         vm.prank(address(curator));
-        vm.expectRevert(FNFT.SameCurator.selector);
+        vm.expectRevert(IFNFTSingle.SameCurator.selector);
         fnft.updateCurator(address(curator));
     }
 
@@ -276,12 +277,12 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testUpdateAuctionLengthTooShort() public {
-        vm.expectRevert(FNFT.InvalidAuctionLength.selector);
+        vm.expectRevert(IFNFTSingle.InvalidAuctionLength.selector);
         fnft.updateAuctionLength(0.1 days);
     }
 
     function testUpdateAuctionLengthTooLong() public {
-        vm.expectRevert(FNFT.InvalidAuctionLength.selector);
+        vm.expectRevert(IFNFTSingle.InvalidAuctionLength.selector);
         fnft.updateAuctionLength(100 weeks);
     }
 
@@ -291,7 +292,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testUpdateFeeCanNotRaise() public {
-        vm.expectRevert(FNFT.CanNotRaise.selector);
+        vm.expectRevert(IFNFTSingle.CanNotRaise.selector);
         fnft.updateFee(1001);
     }
 
@@ -388,7 +389,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
         user1.call_start(1.05 ether);
 
-        assertTrue(fnft.auctionState() == FNFT.State.Live);
+        assertTrue(fnft.auctionState() == IFNFTSingle.State.Live);
 
         uint256 bal = address(user1).balance;
         user2.call_bid(1.5 ether);
@@ -424,13 +425,13 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         wethBal = address(user3).balance;
         assertEq(user3Bal + 998850637622471404, wethBal);
 
-        assertTrue(fnft.auctionState() == FNFT.State.Ended);
+        assertTrue(fnft.auctionState() == IFNFTSingle.State.Ended);
     }
 
     function testRedeem() public {
         fnft.redeem();
 
-        assertTrue(fnft.auctionState() == FNFT.State.Redeemed);
+        assertTrue(fnft.auctionState() == IFNFTSingle.State.Redeemed);
 
         assertEq(token.balanceOf(address(this)), 1);
     }
@@ -445,7 +446,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
         user4.call_start(1.05 ether);
         user4.setCanReceive(false);
-        assertTrue(fnft.auctionState() == FNFT.State.Live);
+        assertTrue(fnft.auctionState() == IFNFTSingle.State.Live);
         user2.call_bid(1.5 ether);
 
         assertTrue(address(user4).balance != 1.05 ether);
@@ -487,7 +488,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
         user1.call_start(1.05 ether);
 
-        assertTrue(fnft.auctionState() == FNFT.State.Live);
+        assertTrue(fnft.auctionState() == IFNFTSingle.State.Live);
 
         uint256 bal = address(user1).balance;
         user2.call_bid(1.5 ether);
@@ -523,7 +524,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
         wethBal = address(user3).balance;
         assertEq(user3Bal + 1 ether, wethBal);
 
-        assertTrue(fnft.auctionState() == FNFT.State.Ended);
+        assertTrue(fnft.auctionState() == IFNFTSingle.State.Ended);
     }
 
     function testGetQuorum() public {
@@ -593,7 +594,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testSetVaultMetadataNotCurator() public {
-        vm.expectRevert(FNFT.NotCurator.selector);
+        vm.expectRevert(IFNFTSingle.NotCurator.selector);
         vm.prank(address(user1));
         fnft.setVaultMetadata("Bored Ape", "BAYC");
     }

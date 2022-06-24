@@ -7,6 +7,7 @@ import "ds-test/test.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {IFOFactory} from "../contracts/IFOFactory.sol";
 import {IPriceOracle} from "../contracts/interfaces/IPriceOracle.sol";
+import {IFNFTSingle} from "../contracts/interfaces/IFNFTSingle.sol";
 import {PriceOracle} from "../contracts/PriceOracle.sol";
 import {FNFTFactory} from "../contracts/FNFTFactory.sol";
 import {FNFT} from "../contracts/FNFT.sol";
@@ -40,7 +41,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             priceOracle,
             ,
             ,
-            fnftFactory,    
+            fnftFactory,
         ) = setupContracts();
 
         fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 0);
@@ -909,11 +910,11 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
 
         //start and end the bidding process
         user1.call_start(10 ether);
-        assertTrue(fractionalizedNFT.auctionState() == FNFT.State.Live);
+        assertTrue(fractionalizedNFT.auctionState() == IFNFTSingle.State.Live);
         vm.warp(block.timestamp + 7 days);
 
         fractionalizedNFT.end();
-        assertTrue(fractionalizedNFT.auctionState() == FNFT.State.Ended);
+        assertTrue(fractionalizedNFT.auctionState() == IFNFTSingle.State.Ended);
 
         fNFTIfo.adminWithdrawFNFT();
 
