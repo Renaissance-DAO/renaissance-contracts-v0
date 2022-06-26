@@ -4,302 +4,205 @@ pragma solidity 0.8.13;
 import "ds-test/test.sol";
 import {MockNFT} from "../contracts/mocks/NFT.sol";
 import {console, SetupEnvironment} from "./utils/utils.sol";
-import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
-import {LPStaking} from "../contracts/LPStaking.sol";
+import {InventoryStaking} from "../contracts/InventoryStaking.sol";
 import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
-import {VaultManager} from "../contracts/VaultManager.sol";
 import {FNFTCollection} from "../contracts/FNFTCollection.sol";
-import {FeeDistributor} from "../contracts/FeeDistributor.sol";
-import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
-import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
-import {IUniswapV2Pair} from "../contracts/interfaces/IUniswapV2Pair.sol";
-import {IUniswapV2Router} from "../contracts/interfaces/IUniswapV2Router.sol";
-import {TimelockRewardDistributionTokenImpl} from "../contracts/token/TimelockRewardDistributionTokenImpl.sol";
+import {XTokenUpgradeable} from "../contracts/token/XTokenUpgradeable.sol";
+import {VaultManager} from "../contracts/VaultManager.sol";
 
 /// @author 0xkowloon
-/// @title Tests for LP staking
-contract LPStakingTest is DSTest, SetupEnvironment {
-  StakingTokenProvider private stakingTokenProvider;
-  LPStaking private lpStaking;
-  FeeDistributor private feeDistributor;  
-  FNFTCollectionFactory private fnftCollectionFactory;
-  VaultManager private vaultManager;
+/// @title Tests for inventory staking
+contract InventoryStakingTest is DSTest, SetupEnvironment {
   FNFTCollection private vault;
-  IUniswapV2Factory private uniswapV2Factory;
-  IUniswapV2Pair private uniswapV2Pair;
-  IUniswapV2Router private uniswapV2Router;
-
-  MockNFT public token;
-
-  uint256 public vaultId;
+  uint256 private vaultId = 0;
+  VaultManager private vaultManager;
+  FNFTCollectionFactory private factory;
+  InventoryStaking private inventoryStaking;
+  MockNFT private token;
 
   function setUp() public {
     setupEnvironment(10 ether);
-    (   stakingTokenProvider,
-        lpStaking,
+    (   ,
         ,
         ,
         ,
-        feeDistributor,
+        ,
+        ,
         vaultManager,
         ,
-        fnftCollectionFactory
+        factory,
+        inventoryStaking
     ) = setupContracts();
 
-    uniswapV2Factory = setupPairFactory();
-    uniswapV2Router = setupRouter();
-
     token = new MockNFT();
-
-    vaultId = 0;
   }
 
-  function testVariables() public {
-    assertEq(address(lpStaking.vaultManager()), address(vaultManager));
-    assertEq(address(lpStaking.stakingTokenProvider()), address(stakingTokenProvider));
+  function testStorageVariables() public {
+    assertEq(address(inventoryStaking.vaultManager()), address(vaultManager));
+    assertEq(address(inventoryStaking.timelockExcludeList()), address(0));
+    assertEq(inventoryStaking.inventoryLockTimeErc20(), 0);
   }
 
-  function testSetVaultManagerAlreadySet() public {
-    vm.expectRevert(LPStaking.VaultManagerAlreadySet.selector);
-    lpStaking.setVaultManager(address(1));
+  function testSetInventoryLockTimeErc20() public {
+    inventoryStaking.setInventoryLockTimeErc20(14 days);
+    assertEq(inventoryStaking.inventoryLockTimeErc20(), 14 days);
   }
 
-  function testSetStakingTokenProvider() public {
-    lpStaking.setStakingTokenProvider(address(1));
-    assertEq(address(lpStaking.stakingTokenProvider()), address(1));
+  function testSetInventoryLockTimeErc20LockTooLong() public {
+    vm.expectRevert(InventoryStaking.LockTooLong.selector);
+    inventoryStaking.setInventoryLockTimeErc20(14 days + 1 seconds);
+    assertEq(inventoryStaking.inventoryLockTimeErc20(), 0);
   }
 
-  function testSetStakingTokenProviderZeroAddress() public {
-    vm.expectRevert(LPStaking.ZeroAddress.selector);
-    lpStaking.setStakingTokenProvider(address(0));
-  }
-
-  function testAddPoolForVaultPoolAlreadyExists() public {    
-    mintVaultTokens(1);
-    vm.expectRevert(LPStaking.PoolAlreadyExists.selector);
-    lpStaking.addPoolForVault(vaultId);
-  }
-
-  function testVaultStakingInfo() public {    
+  function testDeployXTokenForVault() public {
     mintVaultTokens(1);
 
-    createUniswapV2Pair();
-
-    // actually, even if the uniswapV2 pair is not created, the address is still pre-computed.
-    (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(vaultId);
-    assertEq(stakingToken, address(uniswapV2Pair));
-    assertEq(rewardToken, address(vault));
+    vm.expectRevert(InventoryStaking.XTokenNotDeployed.selector);
+    inventoryStaking.vaultXToken(vaultId);
+    inventoryStaking.deployXTokenForVault(vaultId);
+    // contract deployed, does not throw an error
+    inventoryStaking.vaultXToken(vaultId);
   }
 
   function testDeposit() public {
     mintVaultTokens(2);
 
-    createUniswapV2Pair();
-    addLiquidity();
-    depositLPTokens();
+    inventoryStaking.deployXTokenForVault(vaultId);
+    inventoryStaking.setInventoryLockTimeErc20(10 seconds);
+    vault.approve(address(inventoryStaking), 1 ether);
+    inventoryStaking.deposit(vaultId, 1 ether);
 
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-    assertEq(rewardDistToken.balanceOf(address(this)), 999999999999999000);
-    assertEq(rewardDistToken.timelockUntil(address(this)), block.timestamp + 2);
+    assertEq(vault.balanceOf(address(this)), 0.8 ether);
+
+    address xTokenAddress = inventoryStaking.vaultXToken(vaultId);
+    XTokenUpgradeable xToken = XTokenUpgradeable(xTokenAddress);
+    assertEq(xToken.balanceOf(address(this)), 1 ether);
+    assertEq(xToken.timelockUntil(address(this)), block.timestamp + 10 seconds);
+
+    vault.transfer(address(1), 0.5 ether);
+    vm.startPrank(address(1));
+    vault.approve(address(inventoryStaking), 0.5 ether);
+    inventoryStaking.deposit(vaultId, 0.5 ether);
+    vm.stopPrank();
+    assertEq(xToken.balanceOf(address(1)), 0.5 ether);
+    assertEq(xToken.timelockUntil(address(1)), block.timestamp + 10 seconds);
   }
 
-  function testTimelockDepositFor() public {    
+  function testTimelockMintFor() public {
+    mintVaultTokens(1);
+
+    inventoryStaking.deployXTokenForVault(vaultId);
+    vaultManager.setZapContract(address(123));
+    vaultManager.setFeeExclusion(address(123), true);
+    vm.prank(address(123));
+    inventoryStaking.timelockMintFor(vaultId, 123 ether, address(this), 3 seconds);
+
+    // Nothing is taken from the account
+    assertEq(vault.balanceOf(address(this)), 0.9 ether);
+
+    address xTokenAddress = inventoryStaking.vaultXToken(vaultId);
+    XTokenUpgradeable xToken = XTokenUpgradeable(xTokenAddress);
+    assertEq(xToken.balanceOf(address(this)), 123 ether);
+    assertEq(xToken.timelockUntil(address(this)), block.timestamp + 3 seconds);
+  }
+
+  function testTimelockMintForNotZapContract() public {
+    mintVaultTokens(1);
+
+    inventoryStaking.deployXTokenForVault(vaultId);
+    vm.expectRevert(InventoryStaking.NotZapContract.selector);
+    inventoryStaking.timelockMintFor(vaultId, 123 ether, address(this), 3 seconds);
+  }
+
+  function testTimelockMintForNotExcludedFromFees() public {
+    mintVaultTokens(1);
+
+    inventoryStaking.deployXTokenForVault(vaultId);
+    vaultManager.setZapContract(address(123));
+    vm.prank(address(123));
+    vm.expectRevert(InventoryStaking.NotExcludedFromFees.selector);
+    inventoryStaking.timelockMintFor(vaultId, 123 ether, address(this), 3 seconds);
+  }
+
+  function testReceiveRewardsAndWithdraw() public {
     mintVaultTokens(2);
 
-    createUniswapV2Pair();
-    addLiquidity();
+    inventoryStaking.deployXTokenForVault(vaultId);
 
-    vaultManager.setFeeExclusion(address(this), true);
+    vault.transfer(address(1), 1 ether);
+    vm.startPrank(address(1));
+    vault.approve(address(inventoryStaking), 1 ether);
+    inventoryStaking.deposit(vaultId, 1 ether);
+    vm.stopPrank();
 
-    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
-    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
-    lpStaking.timelockDepositFor(vaultId, address(1), lpTokenBalance, 123);
+    vault.transfer(address(2), 0.5 ether);
+    vm.startPrank(address(2));
+    vault.approve(address(inventoryStaking), 0.5 ether);
+    inventoryStaking.deposit(vaultId, 0.5 ether);
+    vm.stopPrank();
 
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
-    assertEq(rewardDistToken.timelockUntil(address(1)), block.timestamp + 123);
-  }
+    address xTokenAddress = inventoryStaking.vaultXToken(vaultId);
+    XTokenUpgradeable xToken = XTokenUpgradeable(xTokenAddress);
 
-  function testTimelockDepositForNotExcludedFromFees() public {    
-    mintVaultTokens(2);
+    assertEq(inventoryStaking.xTokenShareValue(vaultId), 1 ether);
 
-    createUniswapV2Pair();
-    addLiquidity();
+    vault.approve(address(inventoryStaking), 0.3 ether);
+    inventoryStaking.receiveRewards(vaultId, 0.3 ether);
 
-    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
-    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
-    vm.expectRevert(LPStaking.NotExcludedFromFees.selector);
-    lpStaking.timelockDepositFor(vaultId, address(1), lpTokenBalance, 123);
-  }
+    assertEq(inventoryStaking.xTokenShareValue(vaultId), 1.2 ether);
 
-  function testTimelockDepositForTimelockTooLong() public {    
-    mintVaultTokens(2);
+    vm.warp(block.timestamp + 1 seconds);
 
-    createUniswapV2Pair();
-    addLiquidity();
-
-    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
-    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
-    vm.expectRevert(LPStaking.TimelockTooLong.selector);
-    lpStaking.timelockDepositFor(vaultId, address(1), lpTokenBalance, 2592000);
-  }
-
-  function testDepositTwice() public {    
-    mintVaultTokens(2);
-
-    createUniswapV2Pair();
-    addLiquidity();
-
-    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
-    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
-    lpStaking.deposit(vaultId, lpTokenBalance / 2);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-    assertEq(rewardDistToken.balanceOf(address(this)), 499999999999999500);
-    assertEq(rewardDistToken.timelockUntil(address(this)), block.timestamp + 2);
-
-    lpStaking.deposit(vaultId, lpTokenBalance / 2);
-
-    assertEq(rewardDistToken.balanceOf(address(this)), 999999999999999000);
-    // timelock value does not change
-    assertEq(rewardDistToken.timelockUntil(address(this)), block.timestamp + 2);
-  }
-
-  function testReceiveRewards() public {    
-    mintVaultTokens(2);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-
-    createUniswapV2Pair();
-    addLiquidity();
-    depositLPTokens();
-
-    assertEq(vault.balanceOf(address(rewardDistToken)), 0);
-    assertEq(rewardDistToken.accumulativeRewardOf(address(this)), 0);
-
-    vault.approve(address(lpStaking), 0.5 ether);
-    lpStaking.receiveRewards(vaultId, 0.5 ether);
-
-    assertEq(vault.balanceOf(address(rewardDistToken)), 0.5 ether);
-    // TODO: fix the precision issue
-    // assertEq(rewardDistToken.accumulativeRewardOf(address(this)), 0.5 ether);
-    assertEq(rewardDistToken.accumulativeRewardOf(address(this)), 499999999999999999);
-  }
-
-  function testTimelockedTokensCannotBeTransferred() public {
-    mintVaultTokens(2);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-
-    createUniswapV2Pair();
-    addLiquidity();
-    depositLPTokens();
-
-    vm.expectRevert(TimelockRewardDistributionTokenImpl.UserIsLocked.selector);
-    rewardDistToken.transfer(address(1), 0.01 ether);
-
-    // passed timelock, transfer goes through
-    vm.warp(block.timestamp + 3);
-    rewardDistToken.transfer(address(1), 0.01 ether);
-    assertEq(rewardDistToken.balanceOf(address(1)), 0.01 ether);
-  }
-
-  function testExit() public {
-    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
-
-    vm.warp(block.timestamp + 3);    
     vm.prank(address(1));
-    lpStaking.exit(vaultId);
+    inventoryStaking.withdraw(vaultId, 1 ether);
+    assertEq(xToken.balanceOf(address(1)), 0);
+    assertEq(vault.balanceOf(address(1)), 1.2 ether);
 
-    assertEq(uniswapV2Pair.balanceOf(address(1)), lpTokenBalance);
-    assertEq(vault.balanceOf(address(1)), 499999999999999999);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-    assertEq(rewardDistToken.balanceOf(address(1)), 0);
-    assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
-    assertEq(rewardDistToken.dividendOf(address(1)), 0);
-    assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
+    vm.prank(address(2));
+    inventoryStaking.withdraw(vaultId, 0.5 ether);
+    assertEq(xToken.balanceOf(address(2)), 0);
+    assertEq(vault.balanceOf(address(2)), 0.6 ether);
   }
 
-  function testEmergencyExitAndClaim() public {
-    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
-
-    vm.warp(block.timestamp + 3);
-    (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(vaultId);
-    vm.prank(address(1));
-    lpStaking.emergencyExitAndClaim(stakingToken, rewardToken);
-
-    assertEq(uniswapV2Pair.balanceOf(address(1)), lpTokenBalance);
-    assertEq(vault.balanceOf(address(1)), 499999999999999999);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-    assertEq(rewardDistToken.balanceOf(address(1)), 0);
-    assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
-    assertEq(rewardDistToken.dividendOf(address(1)), 0);
-    assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
+  function testVaultXTokenNotDeployed() public {
+    mintVaultTokens(1);
+    vm.expectRevert(InventoryStaking.XTokenNotDeployed.selector);
+    inventoryStaking.vaultXToken(vaultId);
   }
 
-  function testEmergencyExit() public {
-    uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
-
-    vm.warp(block.timestamp + 3);
-    (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(vaultId);
-    vm.prank(address(1));
-    lpStaking.emergencyExit(stakingToken, rewardToken);
-
-    assertEq(uniswapV2Pair.balanceOf(address(1)), lpTokenBalance);
-    assertEq(vault.balanceOf(address(1)), 0);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-    assertEq(rewardDistToken.balanceOf(address(1)), 0);
-    assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 0);
-    assertEq(rewardDistToken.dividendOf(address(1)), 499999999999999999);
-    assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
+  function testXTokenShareValueXTokenNotDeployed() public {
+    mintVaultTokens(1);
+    vm.expectRevert(InventoryStaking.XTokenNotDeployed.selector);
+    inventoryStaking.xTokenShareValue(vaultId);
   }
 
-  function testWithdraw() public {    
-    exitRelatedFunctionsSetUp();
-
-    vm.warp(block.timestamp + 3);
-    vm.prank(address(1));
-
-    lpStaking.withdraw(vaultId, 100000000000000000);
-
-    assertEq(uniswapV2Pair.balanceOf(address(1)), 100000000000000000);
-    assertEq(vault.balanceOf(address(1)), 499999999999999999);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-    assertEq(rewardDistToken.balanceOf(address(1)), 899999999999999000);
-    assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
-    assertEq(rewardDistToken.dividendOf(address(1)), 0);
-    assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
+  // NOTE: xTokenShareValue totalSupply > 0 scenarios tested above.
+  function testXTokenShareValueZeroTotalSupply() public {
+    mintVaultTokens(1);
+    inventoryStaking.deployXTokenForVault(vaultId);
+    assertEq(inventoryStaking.xTokenShareValue(vaultId), 1e18);
   }
 
-  function testClaimRewards() public {
-    exitRelatedFunctionsSetUp();
-
-    vm.warp(block.timestamp + 3);
-    vm.prank(address(1));
-
-    lpStaking.claimRewards(vaultId);
-
-    assertEq(uniswapV2Pair.balanceOf(address(1)), 0);
-    assertEq(vault.balanceOf(address(1)), 499999999999999999);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
-    assertEq(rewardDistToken.withdrawnRewardOf(address(1)), 499999999999999999);
-    assertEq(rewardDistToken.dividendOf(address(1)), 0);
-    assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
+  function testXTokenAddr() public {
+    mintVaultTokens(1);
+    // the address before and after deploy are the same
+    address xTokenAddress = inventoryStaking.xTokenAddr(address(vault));
+    inventoryStaking.deployXTokenForVault(vaultId);
+    assertEq(inventoryStaking.xTokenAddr(address(vault)), xTokenAddress);
   }
 
-  function createUniswapV2Pair() private {
-    uniswapV2Pair = IUniswapV2Pair(uniswapV2Factory.createPair(address(vault), stakingTokenProvider.defaultPairedToken()));
+  function testXTokenStorageVariables() public {
+    mintVaultTokens(1);
+    inventoryStaking.deployXTokenForVault(vaultId);
+    XTokenUpgradeable xToken = XTokenUpgradeable(inventoryStaking.vaultXToken(vaultId));
+    assertEq(address(xToken.baseToken()), address(vault));
+    assertEq(xToken.name(), "xDOODLE");
+    assertEq(xToken.symbol(), "xDOODLE");
   }
 
   // TODO: merge with FNFTCollectionTest.t.sol
-  function createVault() private {    
-    fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
+  function createVault() private {
+    factory.createVault("Doodles", "DOODLE", address(token), false, true);
     vault = FNFTCollection(vaultManager.vault(vaultId));
   }
 
@@ -318,53 +221,5 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     uint256[] memory amounts = new uint256[](0);
 
     vault.mint(tokenIds, amounts);
-  }
-
-  function addLiquidity() private {
-    vault.approve(address(uniswapV2Router), 1 ether);
-    uniswapV2Router.addLiquidityETH{value: 1 ether}(
-      address(vault),
-      1 ether,
-      0,
-      0,
-      address(this),
-      block.timestamp
-    );
-  }
-
-  function depositLPTokens() private {    
-    uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
-    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
-    lpStaking.deposit(vaultId, lpTokenBalance);
-  }
-
-  function getRewardDistToken() private view returns (TimelockRewardDistributionTokenImpl rewardDistToken) {    
-    (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(vaultId);
-    address rewardDistTokenAddress = lpStaking.rewardDistributionTokenAddr(stakingToken, rewardToken);
-    rewardDistToken = TimelockRewardDistributionTokenImpl(rewardDistTokenAddress);
-  }
-
-  function exitRelatedFunctionsSetUp() private returns (uint256 lpTokenBalance) {    
-    mintVaultTokens(2);
-
-    TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
-
-    createUniswapV2Pair();
-    addLiquidity();
-
-    lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
-    uniswapV2Pair.transfer(address(1), lpTokenBalance);
-
-    vm.startPrank(address(1));
-    uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
-    lpStaking.deposit(vaultId, lpTokenBalance);
-    vm.stopPrank();
-
-    assertEq(uniswapV2Pair.balanceOf(address(1)), 0);
-    assertEq(rewardDistToken.balanceOf(address(1)), 999999999999999000);
-    assertEq(vault.balanceOf(address(1)), 0);
-
-    vault.approve(address(lpStaking), 0.5 ether);
-    lpStaking.receiveRewards(vaultId, 0.5 ether);
   }
 }

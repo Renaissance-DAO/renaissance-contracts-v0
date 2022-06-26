@@ -24,7 +24,8 @@ contract FNFTFactoryTest is DSTest, SetupEnvironment {
             ,
             ,
             ,
-            fnftFactory,         
+            fnftFactory,
+            ,
         ) = setupContracts();
 
         token = new MockNFT();

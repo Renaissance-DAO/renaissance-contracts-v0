@@ -24,8 +24,9 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
             ,
             ,
             ,
-            ,       
-        ) = setupContracts();        
+            ,
+            ,
+        ) = setupContracts();
     }
 
     function test_setCreatorIFOLock() public {

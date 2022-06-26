@@ -40,7 +40,8 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             priceOracle,
             ,
             ,
-            fnftFactory,    
+            fnftFactory,
+            ,
         ) = setupContracts();
 
         fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 0);

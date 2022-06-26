@@ -20,7 +20,7 @@ import {TimelockRewardDistributionTokenImpl} from "../contracts/token/TimelockRe
 contract LPStakingTest is DSTest, SetupEnvironment {
   StakingTokenProvider private stakingTokenProvider;
   LPStaking private lpStaking;
-  FeeDistributor private feeDistributor;  
+  FeeDistributor private feeDistributor;
   FNFTCollectionFactory private fnftCollectionFactory;
   VaultManager private vaultManager;
   FNFTCollection private vault;
@@ -42,7 +42,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
         feeDistributor,
         vaultManager,
         ,
-        fnftCollectionFactory
+        fnftCollectionFactory,
     ) = setupContracts();
 
     uniswapV2Factory = setupPairFactory();
@@ -73,13 +73,13 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     lpStaking.setStakingTokenProvider(address(0));
   }
 
-  function testAddPoolForVaultPoolAlreadyExists() public {    
+  function testAddPoolForVaultPoolAlreadyExists() public {
     mintVaultTokens(1);
     vm.expectRevert(LPStaking.PoolAlreadyExists.selector);
     lpStaking.addPoolForVault(vaultId);
   }
 
-  function testVaultStakingInfo() public {    
+  function testVaultStakingInfo() public {
     mintVaultTokens(1);
 
     createUniswapV2Pair();
@@ -102,7 +102,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.timelockUntil(address(this)), block.timestamp + 2);
   }
 
-  function testTimelockDepositFor() public {    
+  function testTimelockDepositFor() public {
     mintVaultTokens(2);
 
     createUniswapV2Pair();
@@ -119,7 +119,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.timelockUntil(address(1)), block.timestamp + 123);
   }
 
-  function testTimelockDepositForNotExcludedFromFees() public {    
+  function testTimelockDepositForNotExcludedFromFees() public {
     mintVaultTokens(2);
 
     createUniswapV2Pair();
@@ -131,7 +131,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     lpStaking.timelockDepositFor(vaultId, address(1), lpTokenBalance, 123);
   }
 
-  function testTimelockDepositForTimelockTooLong() public {    
+  function testTimelockDepositForTimelockTooLong() public {
     mintVaultTokens(2);
 
     createUniswapV2Pair();
@@ -143,7 +143,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     lpStaking.timelockDepositFor(vaultId, address(1), lpTokenBalance, 2592000);
   }
 
-  function testDepositTwice() public {    
+  function testDepositTwice() public {
     mintVaultTokens(2);
 
     createUniswapV2Pair();
@@ -164,7 +164,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.timelockUntil(address(this)), block.timestamp + 2);
   }
 
-  function testReceiveRewards() public {    
+  function testReceiveRewards() public {
     mintVaultTokens(2);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();
@@ -206,7 +206,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   function testExit() public {
     uint256 lpTokenBalance = exitRelatedFunctionsSetUp();
 
-    vm.warp(block.timestamp + 3);    
+    vm.warp(block.timestamp + 3);
     vm.prank(address(1));
     lpStaking.exit(vaultId);
 
@@ -256,7 +256,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(rewardDistToken.accumulativeRewardOf(address(1)), 499999999999999999);
   }
 
-  function testWithdraw() public {    
+  function testWithdraw() public {
     exitRelatedFunctionsSetUp();
 
     vm.warp(block.timestamp + 3);
@@ -297,7 +297,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   }
 
   // TODO: merge with FNFTCollectionTest.t.sol
-  function createVault() private {    
+  function createVault() private {
     fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
     vault = FNFTCollection(vaultManager.vault(vaultId));
   }
@@ -331,19 +331,19 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     );
   }
 
-  function depositLPTokens() private {    
+  function depositLPTokens() private {
     uint256 lpTokenBalance = uniswapV2Pair.balanceOf(address(this));
     uniswapV2Pair.approve(address(lpStaking), lpTokenBalance);
     lpStaking.deposit(vaultId, lpTokenBalance);
   }
 
-  function getRewardDistToken() private view returns (TimelockRewardDistributionTokenImpl rewardDistToken) {    
+  function getRewardDistToken() private view returns (TimelockRewardDistributionTokenImpl rewardDistToken) {
     (address stakingToken, address rewardToken) = lpStaking.vaultStakingInfo(vaultId);
     address rewardDistTokenAddress = lpStaking.rewardDistributionTokenAddr(stakingToken, rewardToken);
     rewardDistToken = TimelockRewardDistributionTokenImpl(rewardDistTokenAddress);
   }
 
-  function exitRelatedFunctionsSetUp() private returns (uint256 lpTokenBalance) {    
+  function exitRelatedFunctionsSetUp() private returns (uint256 lpTokenBalance) {
     mintVaultTokens(2);
 
     TimelockRewardDistributionTokenImpl rewardDistToken = getRewardDistToken();

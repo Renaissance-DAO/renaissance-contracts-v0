@@ -44,7 +44,8 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
             priceOracle,
             ,
             ,
-            fnftFactory,      
+            fnftFactory,
+            ,
         ) = setupContracts();
         fnft = setupFNFTSingle(address(fnftFactory), 100 ether);
 
@@ -228,8 +229,9 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
             ,
             ,
             fnftFactory,
+            ,
         ) = setupContracts();
-        fnft = setupFNFTSingle(address(fnftFactory), FNFTAmount);        
+        fnft = setupFNFTSingle(address(fnftFactory), FNFTAmount);
 
         // Transfer ETH to user to pay for NFT.
         weth.transfer(address(user1), weth.totalSupply());

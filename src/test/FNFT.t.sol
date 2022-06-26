@@ -48,6 +48,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
             ,
             vaultManager,
             fnftFactory,
+            ,
         ) = setupContracts();
         fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 100);
         token = new MockNFT();
