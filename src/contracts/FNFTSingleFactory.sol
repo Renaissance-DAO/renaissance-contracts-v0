@@ -9,15 +9,15 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./FNFT.sol";
 import "./proxy/BeaconUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
-import "./interfaces/IFNFTFactory.sol";
+import "./interfaces/IFNFTSingleFactory.sol";
 import "./interfaces/IVaultManager.sol";
 import "./interfaces/IFeeDistributor.sol";
 
-contract FNFTFactory is
+contract FNFTSingleFactory is
     OwnableUpgradeable,
     PausableUpgradeable,
     BeaconUpgradeable,
-    IFNFTFactory
+    IFNFTSingleFactory
 {
     enum FeeType { GovernanceFee, MaxCuratorFee, SwapFee }
     enum Boundary { Min, Max }

@@ -3,7 +3,7 @@ pragma solidity ^0.8.11;
 
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
-import {FNFTFactory} from "../../contracts/FNFTFactory.sol";
+import {FNFTSingleFactory} from "../../contracts/FNFTSingleFactory.sol";
 import {FNFT} from "../../contracts/FNFT.sol";
 import {MockNFT} from "../../contracts/mocks/NFT.sol";
 import {WETH} from "../../contracts/mocks/WETH.sol";

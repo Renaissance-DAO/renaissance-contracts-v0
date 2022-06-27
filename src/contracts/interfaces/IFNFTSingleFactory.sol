@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 import {IPriceOracle} from "./IPriceOracle.sol";
 import {IWETH} from "./IWETH.sol";
 
-interface IFNFTFactory {    
+interface IFNFTSingleFactory {
     function vaultManager() external view returns (address);
 
     function swapFee() external view returns (uint256);

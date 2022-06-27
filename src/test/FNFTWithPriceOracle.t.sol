@@ -6,7 +6,7 @@ import "ds-test/test.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {PriceOracle, IPriceOracle, PairInfo} from "../contracts/PriceOracle.sol";
-import {FNFTFactory} from "../contracts/FNFTFactory.sol";
+import {FNFTSingleFactory} from "../contracts/FNFTSingleFactory.sol";
 import {FNFT} from "../contracts/FNFT.sol";
 import {IUniswapV2Pair} from "../contracts/interfaces/IUniswapV2Pair.sol";
 import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
@@ -21,7 +21,7 @@ import {CheatCodes, SetupEnvironment, User, Curator, UserNoETH, PairWithFNFTAndW
 contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
     IPriceOracle public priceOracle;
     IUniswapV2Factory public pairFactory;
-    FNFTFactory public fnftFactory;
+    FNFTSingleFactory public fnftSingleFactory;
     MockNFT public token;
     FNFT public fnft;
 
@@ -45,10 +45,10 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
             priceOracle,
             ,
             ,
-            fnftFactory,
+            fnftSingleFactory,
             ,
         ) = setupContracts();
-        fnft = setupFNFTSingle(address(fnftFactory), 100 ether);
+        fnft = setupFNFTSingle(address(fnftSingleFactory), 100 ether);
 
         // Initialize mock fnft-WETH pair with empty reserves.
         pair = new PairWithFNFTAndWETH(address(pairFactory), address(fnft), address(weth), vm);
@@ -72,7 +72,7 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
          */
         // Transfer fnft to user to reduce the voting tokens and move below quorum.
         // Transfer is required since voting quroum is set at 100% during mint.
-        uint256 tokenAmount = fnft.totalSupply() - ((fnftFactory.minVotePercentage() + 1000) * fnft.totalSupply() / 10000);
+        uint256 tokenAmount = fnft.totalSupply() - ((fnftSingleFactory.minVotePercentage() + 1000) * fnft.totalSupply() / 10000);
         fnft.transfer(address(user1), tokenAmount);
 
         // Transfer remaining of minted fnft to other user to seting the voting tokens to 0.
@@ -87,11 +87,11 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         VERIFY
          */
         // verify that the fnft votes are below quorum.
-        assertTrue(fnft.votingTokens() * 10000 <= fnftFactory.minVotePercentage() * fnft.totalSupply());
+        assertTrue(fnft.votingTokens() * 10000 <= fnftSingleFactory.minVotePercentage() * fnft.totalSupply());
 
         // verify that the WETH reserves * 2 is lower than the liquidity threshold.
         (, uint256 wethReserve) = pair.getReserves();
-        assertTrue(wethReserve * 2 <= fnftFactory.liquidityThreshold());
+        assertTrue(wethReserve * 2 <= fnftSingleFactory.liquidityThreshold());
 
         // verify that the auction price is equal to initial reserve of fnft.
         assertEq(auctionPrice, fnft.initialReserve());
@@ -102,13 +102,13 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         SETUP
          */
         // Transfer fnft to user so that the user holds more than the minium voting percentage.
-        fnft.transfer(address(user1), (fnftFactory.minVotePercentage() + 1000) * fnft.totalSupply() / 10000);
+        fnft.transfer(address(user1), (fnftSingleFactory.minVotePercentage() + 1000) * fnft.totalSupply() / 10000);
 
         // Transfer remaining of minted fnft to other user to seting the voting tokens to 0.
         fnft.transfer(address(user2), fnft.balanceOf(address(this)));
 
         // Mock the next call as user and update reserve(user) price.
-        uint userPrice = _deriveOptimumReservePrice(fnft.userReservePrice(address(user1)), fnftFactory.minReserveFactor(), fnftFactory.maxReserveFactor());
+        uint userPrice = _deriveOptimumReservePrice(fnft.userReservePrice(address(user1)), fnftSingleFactory.minReserveFactor(), fnftSingleFactory.maxReserveFactor());
         vm.prank(address(user1));
         fnft.updateUserPrice(userPrice);
 
@@ -121,11 +121,11 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         VERIFY
          */
         // verify that the fnft votes are above quorum.
-        assertTrue(fnft.votingTokens() * 10000 > fnftFactory.minVotePercentage() * fnft.totalSupply());
+        assertTrue(fnft.votingTokens() * 10000 > fnftSingleFactory.minVotePercentage() * fnft.totalSupply());
 
         // verify that the WETH reserves * 2 is lower than the liquidity threshold.
         (, uint256 wethReserve) = pair.getReserves();
-        assertTrue(wethReserve * 2 <= fnftFactory.liquidityThreshold());
+        assertTrue(wethReserve * 2 <= fnftSingleFactory.liquidityThreshold());
 
         // verify that the auction price is equal to user price of fnft.
         assertEq(auctionPrice, userPrice);
@@ -142,15 +142,15 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         _updatePriceOracleMinimumTimes(address(priceOracle), address(pair.uPair()));
 
         // Transfer fnft to user so that the user holds less than the minimum voting percentage.
-        fnft.transfer(address(user1), fnftFactory.minVotePercentage() * fnft.totalSupply() / 10000 - 1 ether);
+        fnft.transfer(address(user1), fnftSingleFactory.minVotePercentage() * fnft.totalSupply() / 10000 - 1 ether);
 
         // Transfer the remaining fnft to other user to reduce the initial quorum set to 100%.
         fnft.transfer(address(user2), fnft.balanceOf(address(this)));
 
         // Mock the next call as user and update user reserve price.
         uint userPrice = _deriveOptimumReservePrice(fnft.userReservePrice(address(user1)),
-                                                    fnftFactory.minReserveFactor(),
-                                                    fnftFactory.maxReserveFactor());
+                                                    fnftSingleFactory.minReserveFactor(),
+                                                    fnftSingleFactory.maxReserveFactor());
         vm.prank(address(user1));
         fnft.updateUserPrice(userPrice);
 
@@ -163,11 +163,11 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         VERIFY
          */
         // Verify that the quorum has not been reached.
-        assertTrue(fnft.votingTokens() * 10000 < fnftFactory.minVotePercentage() * fnft.totalSupply());
+        assertTrue(fnft.votingTokens() * 10000 < fnftSingleFactory.minVotePercentage() * fnft.totalSupply());
 
         // Verify that the WETH reserves * 2 is higher than the liquidity threshold.
         (, uint256 wethReserve) = pair.getReserves();
-        assertTrue(wethReserve * 2 > fnftFactory.liquidityThreshold());
+        assertTrue(wethReserve * 2 > fnftSingleFactory.liquidityThreshold());
 
         // Verify that the auction price returns the compared price between TWAP and initial reserve.
         uint256 twapPrice = priceOracle.getFNFTPriceETH(address(fnft), fnft.totalSupply());
@@ -183,14 +183,14 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         uint256 pairFNFTAmount = fnft.totalSupply() / 2;
         uint256 userFNFTAmount = fnft.totalSupply() / 2;
 
-        pair.receiveToken(pairFNFTAmount, fnftFactory.liquidityThreshold() + 1 ether);
+        pair.receiveToken(pairFNFTAmount, fnftSingleFactory.liquidityThreshold() + 1 ether);
         fnft.transfer(address(user1), userFNFTAmount);
 
         // // Update TWAP for fnft in WETH minimum required number of times to retrieve TWAP from price oracle.
         _updatePriceOracleMinimumTimes(address(priceOracle), address(pair.uPair()));
 
         // Update user reserve price that is greater than twap price.
-        uint256 userPrice = _deriveOptimumReservePrice(fnft.userReservePrice(address(user1)), fnftFactory.minReserveFactor(), fnftFactory.maxReserveFactor());
+        uint256 userPrice = _deriveOptimumReservePrice(fnft.userReservePrice(address(user1)), fnftSingleFactory.minReserveFactor(), fnftSingleFactory.maxReserveFactor());
         vm.prank(address(user1));
         fnft.updateUserPrice(userPrice);
 
@@ -203,9 +203,9 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
         VERIFY
         */
         // verify that voting is above quorum and liquidity is above threshold.
-        assertTrue(fnft.votingTokens() * 10000 > fnftFactory.minVotePercentage() * fnft.totalSupply());
+        assertTrue(fnft.votingTokens() * 10000 > fnftSingleFactory.minVotePercentage() * fnft.totalSupply());
         (, uint256 wethReserve) = pair.getReserves();
-        assertTrue(wethReserve * 2 > fnftFactory.liquidityThreshold());
+        assertTrue(wethReserve * 2 > fnftSingleFactory.liquidityThreshold());
 
         // verify that the auction price selects the maximum price between twap and user reserve price.
         uint256 reservePrice = fnft.reservePrice();
@@ -229,10 +229,10 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
             priceOracle,
             ,
             ,
-            fnftFactory,
+            fnftSingleFactory,
             ,
         ) = setupContracts();
-        fnft = setupFNFTSingle(address(fnftFactory), FNFTAmount);
+        fnft = setupFNFTSingle(address(fnftSingleFactory), FNFTAmount);
 
         // Transfer ETH to user to pay for NFT.
         weth.transfer(address(user1), weth.totalSupply());
@@ -266,7 +266,7 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
          */
         // Mock the next call as the user and update the user price which is set higher than the maxium reserve price relative to intial reserve price,
         // since the total voting token is set to 0.
-        uint256 userPrice = (fnft.initialReserve() * fnftFactory.maxReserveFactor() + 1 ether) / 10000;
+        uint256 userPrice = (fnft.initialReserve() * fnftSingleFactory.maxReserveFactor() + 1 ether) / 10000;
         vm.startPrank(address(user1));
         vm.expectRevert(IFNFTSingle.PriceTooHigh.selector);
         fnft.updateUserPrice(userPrice);
@@ -284,7 +284,7 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
          */
         // Mock the next call as the user and update the user price which is set lower than the minimum reserve price relative to intial reserve price,
         // since the total voting token is set to 0.
-        uint256 userPrice = (fnft.initialReserve() * fnftFactory.minReserveFactor() - 1 ether) / 10000;
+        uint256 userPrice = (fnft.initialReserve() * fnftSingleFactory.minReserveFactor() - 1 ether) / 10000;
         vm.startPrank(address(user1));
         vm.expectRevert(IFNFTSingle.PriceTooLow.selector);
         fnft.updateUserPrice(userPrice);

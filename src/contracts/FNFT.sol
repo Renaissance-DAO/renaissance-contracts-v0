@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
-import "./interfaces/IFNFTFactory.sol";
+import "./interfaces/IFNFTSingleFactory.sol";
 import "./interfaces/IVaultManager.sol";
 import "./interfaces/IWETH.sol";
 import "./interfaces/IFNFTSingle.sol";
@@ -99,7 +99,7 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
         __ERC20_init(_name, _symbol);
         __ERC721Holder_init();
 
-        IFNFTFactory _factory = IFNFTFactory(msg.sender);
+        IFNFTSingleFactory _factory = IFNFTSingleFactory(msg.sender);
         IVaultManager _vaultManager = IVaultManager(_factory.vaultManager());
 
         if (_fee > _factory.maxCuratorFee()) revert FeeTooHigh();
@@ -194,7 +194,7 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
     /// @param _length the new base price
     function updateAuctionLength(uint256 _length) external override onlyCurator {
         if (
-            _length < IFNFTFactory(factory).minAuctionLength() || _length > IFNFTFactory(factory).maxAuctionLength()
+            _length < IFNFTSingleFactory(factory).minAuctionLength() || _length > IFNFTSingleFactory(factory).maxAuctionLength()
         ) revert InvalidAuctionLength();
 
         auctionLength = _length;
@@ -205,7 +205,7 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
     /// @param _fee the new fee
     function updateFee(uint256 _fee) external override onlyCurator {
         if (_fee >= fee) revert CanNotRaise();
-        if (_fee > IFNFTFactory(factory).maxCuratorFee()) revert FeeTooHigh();
+        if (_fee > IFNFTSingleFactory(factory).maxCuratorFee()) revert FeeTooHigh();
 
         _claimFees();
 
@@ -233,7 +233,7 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
 
         // now lets do the same for governance
         address govAddress = vaultManager.feeReceiver();
-        uint256 govFee = IFNFTFactory(factory).governanceFee();
+        uint256 govFee = IFNFTSingleFactory(factory).governanceFee();
         currentAnnualFee = (govFee * totalSupply()) / 10000;
         feePerSecond = currentAnnualFee / 31536000;
         uint256 govMint = sinceLastClaim * feePerSecond;
@@ -278,7 +278,7 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
     }
 
     function buyItNowPrice() public view override returns (uint256) {
-        return (_getAuctionPrice() * IFNFTFactory(factory).instantBuyMultiplier()) / 10;
+        return (_getAuctionPrice() * IFNFTSingleFactory(factory).instantBuyMultiplier()) / 10;
     }
 
     /// @notice a function for an end user to update their desired sale price
@@ -345,13 +345,13 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
 
     function _getAuctionPrice() internal view returns (uint256) {
         address priceOracle = vaultManager.priceOracle();
-        bool aboveQuorum = _getQuorum() > IFNFTFactory(factory).minVotePercentage();
+        bool aboveQuorum = _getQuorum() > IFNFTSingleFactory(factory).minVotePercentage();
         uint256 _reservePrice = reservePrice();
 
         if (address(priceOracle) != address(0)) {
             (, uint256 reserve1,) = pair.getReserves();
 
-            bool aboveLiquidityThreshold = reserve1 * 2 > IFNFTFactory(factory).liquidityThreshold();
+            bool aboveLiquidityThreshold = reserve1 * 2 > IFNFTSingleFactory(factory).liquidityThreshold();
 
             if (aboveLiquidityThreshold) {
                 uint256 twapPrice = _getTWAP();
@@ -388,9 +388,9 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
 
     /// @notice makes sure that the new price does not impact the reserve drastically
     function _validateUserPrice(uint256 prevUserReserve, uint256 newUserReserve) private view {
-        uint256 reservePriceMin = (prevUserReserve * IFNFTFactory(factory).minReserveFactor()) / 10000;
+        uint256 reservePriceMin = (prevUserReserve * IFNFTSingleFactory(factory).minReserveFactor()) / 10000;
         if (newUserReserve < reservePriceMin) revert PriceTooLow();
-        uint256 reservePriceMax = (prevUserReserve * IFNFTFactory(factory).maxReserveFactor()) / 10000;
+        uint256 reservePriceMax = (prevUserReserve * IFNFTSingleFactory(factory).maxReserveFactor()) / 10000;
         if (newUserReserve > reservePriceMax) revert PriceTooHigh();
     }
 
@@ -444,7 +444,7 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
         uint256 amount
     ) internal virtual override {
         if (to == address(pair)) {
-            uint256 swapFee = IFNFTFactory(factory).swapFee();
+            uint256 swapFee = IFNFTSingleFactory(factory).swapFee();
             if (swapFee > 0 && !vaultManager.excludedFromFees(address(msg.sender))) {
                 uint256 feeAmount = amount * swapFee / 10000;
                 _chargeAndDistributeFees(from, feeAmount);
@@ -484,7 +484,7 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
     /// @notice an external function to bid on purchasing the vaults NFT. The msg.value is the bid amount
     function bid() external payable override {
         if (auctionState != State.Live) revert AuctionNotLive();
-        uint256 increase = IFNFTFactory(factory).minBidIncrease() + 10000;
+        uint256 increase = IFNFTSingleFactory(factory).minBidIncrease() + 10000;
         if (msg.value * 10000 < livePrice * increase) revert BidTooLow();
         if (block.timestamp >= auctionEnd) revert AuctionEnded();
 
@@ -578,7 +578,7 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
 
     function flashFee(address loanToken, uint256 amount) public view returns (uint256) {
         if (loanToken != address(this)) revert WrongToken();
-        return IFNFTFactory(factory).flashLoanFee() * amount / 10000;
+        return IFNFTSingleFactory(factory).flashLoanFee() * amount / 10000;
     }
 
     function flashLoan(

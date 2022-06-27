@@ -17,7 +17,7 @@ import {InventoryStaking} from "../../contracts/InventoryStaking.sol";
 import {FeeDistributor} from "../../contracts/FeeDistributor.sol";
 import {IUniswapV2Factory} from "../../contracts/interfaces/IUniswapV2Factory.sol";
 import {IUniswapV2Router} from "../../contracts/interfaces/IUniswapV2Router.sol";
-import {FNFTFactory} from "../../contracts/FNFTFactory.sol";
+import {FNFTSingleFactory} from "../../contracts/FNFTSingleFactory.sol";
 import {VaultManager} from "../../contracts/VaultManager.sol";
 import {FNFT} from "../../contracts/FNFT.sol";
 import {MockNFT} from "../../contracts/mocks/NFT.sol";
@@ -75,20 +75,20 @@ contract SetupEnvironment {
         );
     }
 
-    function setupFNFTFactory(address _vaultManager) public returns (FNFTFactory fnftFactory) {
-        fnftFactory = FNFTFactory(
-            deployer.deployFNFTFactory(address(new FNFTFactory()), _vaultManager)
+    function setupFNFTSingleFactory(address _vaultManager) public returns (FNFTSingleFactory fnftSingleFactory) {
+        fnftSingleFactory = FNFTSingleFactory(
+            deployer.deployFNFTSingleFactory(address(new FNFTSingleFactory()), _vaultManager)
         );
     }
 
-    function setupFNFTSingle(address _fnftFactory, uint256 _amountToMint) public returns (FNFT fnft) {
-        FNFTFactory factory = FNFTFactory(_fnftFactory);
+    function setupFNFTSingle(address _fnftSingleFactory, uint256 _amountToMint) public returns (FNFT fnft) {
+        FNFTSingleFactory factory = FNFTSingleFactory(_fnftSingleFactory);
 
         MockNFT token = new MockNFT();
 
         token.mint(address(this), 1);
 
-        token.setApprovalForAll(_fnftFactory, true);
+        token.setApprovalForAll(_fnftSingleFactory, true);
 
         // FNFT minted on this test contract address.
         fnft = FNFT(factory.mint("testName", "TEST", address(token), 1, _amountToMint, 1 ether, 50));
@@ -177,7 +177,7 @@ contract SetupEnvironment {
             PriceOracle priceOracle,
             FeeDistributor feeDistributor,
             VaultManager vaultManager,
-            FNFTFactory fnftFactory,
+            FNFTSingleFactory fnftSingleFactory,
             FNFTCollectionFactory fnftCollectionFactory,
             InventoryStaking inventoryStaking
         )
@@ -190,11 +190,11 @@ contract SetupEnvironment {
 
         lpStaking = setupLPStaking(address(vaultManager), address(stakingTokenProvider));
         feeDistributor = setupFeeDistributor(address(vaultManager), address(lpStaking));
-        fnftFactory = setupFNFTFactory(address(vaultManager));
+        fnftSingleFactory = setupFNFTSingleFactory(address(vaultManager));
         fnftCollectionFactory = setupFNFTCollectionFactory(address(vaultManager));
 
         vaultManager.setFNFTCollectionFactory(address(fnftCollectionFactory));
-        vaultManager.setFNFTSingleFactory(address(fnftFactory));
+        vaultManager.setFNFTSingleFactory(address(fnftSingleFactory));
         vaultManager.setFeeDistributor(address(feeDistributor));
 
         inventoryStaking = setupInventoryStaking(address(vaultManager));

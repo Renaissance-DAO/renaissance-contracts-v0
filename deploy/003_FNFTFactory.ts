@@ -4,7 +4,7 @@ import {testnets} from '../utils/constants';
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployments, getNamedAccounts, ethers} = hre;
-  
+
   const {deploy, get} = deployments;
   const {deployer} = await getNamedAccounts();
   const chainId = await hre.getChainId();
@@ -30,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   ))[1];
 
   // deploy implementation contract
-  const fnftFactoryImpl = await deploy('FNFTFactory', {
+  const fnftSingleFactoryImpl = await deploy('FNFTSingleFactory', {
     from: deployer,
     log: true,
   });
@@ -42,8 +42,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deployerInfo.abi,
     signer
   );
-  await deployerContract.deployFNFTFactory(
-    fnftFactoryImpl.address, 
+  await deployerContract.deployFNFTSingleFactory(
+    fnftSingleFactoryImpl.address,
     WETH,
     ifoFactoryAddress
   );

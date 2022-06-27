@@ -8,7 +8,7 @@ import {Deployer} from "../contracts/proxy/Deployer.sol";
 import {MultiProxyController} from "../contracts/proxy/MultiProxyController.sol";
 import {IFOFactory} from "../contracts/IFOFactory.sol";
 import {IFO} from "../contracts/IFO.sol";
-import {FNFTFactory} from "../contracts/FNFTFactory.sol";
+import {FNFTSingleFactory} from "../contracts/FNFTSingleFactory.sol";
 import {VaultManager} from "../contracts/VaultManager.sol";
 import {PriceOracle, IPriceOracle} from "../contracts/PriceOracle.sol";
 import {FNFT} from "../contracts/FNFT.sol";
@@ -27,7 +27,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     IFOFactory public ifoFactory;
     IPriceOracle public priceOracle;
     IUniswapV2Factory public pairFactory;
-    FNFTFactory public fnftFactory;
+    FNFTSingleFactory public fnftSingleFactory;
     VaultManager public vaultManager;
     MockNFT public token;
     FNFT public fnft;
@@ -48,15 +48,15 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
             priceOracle,
             ,
             vaultManager,
-            fnftFactory,
+            fnftSingleFactory,
             ,
         ) = setupContracts();
-        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 100);
+        fnftSingleFactory.setFee(FNFTSingleFactory.FeeType.GovernanceFee, 100);
         token = new MockNFT();
         token.mint(address(this), 1);
-        token.setApprovalForAll(address(fnftFactory), true);
+        token.setApprovalForAll(address(fnftSingleFactory), true);
         // FNFT minted on this test contract address.
-        fnft = FNFT(fnftFactory.mint(
+        fnft = FNFT(fnftSingleFactory.mint(
             "testName",
             "TEST",
             address(token),
@@ -81,10 +81,10 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function test_InitializeFeeTooHigh() public {
-        uint256 maxCuratorFee = fnftFactory.maxCuratorFee();
+        uint256 maxCuratorFee = fnftSingleFactory.maxCuratorFee();
         token.mint(address(this), 2);
         vm.expectRevert(IFNFTSingle.FeeTooHigh.selector);
-        fnft = FNFT(fnftFactory.mint(
+        fnft = FNFT(fnftSingleFactory.mint(
             "TheFeeIsTooDamnHigh",
             "HIGH",
             address(token),
@@ -120,25 +120,25 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testPause() public {
-        fnftFactory.togglePaused();
-        fnftFactory.togglePaused();
+        fnftSingleFactory.togglePaused();
+        fnftSingleFactory.togglePaused();
         MockNFT temp = new MockNFT();
 
         temp.mint(address(this), 1);
 
-        temp.setApprovalForAll(address(fnftFactory), true);
-        fnftFactory.mint("testName2", "TEST2", address(temp), 1, 100e18, 1 ether, 500);
+        temp.setApprovalForAll(address(fnftSingleFactory), true);
+        fnftSingleFactory.mint("testName2", "TEST2", address(temp), 1, 100e18, 1 ether, 500);
     }
 
-    function testFnftFactoryPausedCannotMint() public {
-        fnftFactory.togglePaused();
+    function testFNFTSingleFactoryPausedCannotMint() public {
+        fnftSingleFactory.togglePaused();
         MockNFT temp = new MockNFT();
 
         temp.mint(address(this), 1);
 
-        temp.setApprovalForAll(address(fnftFactory), true);
+        temp.setApprovalForAll(address(fnftSingleFactory), true);
         vm.expectRevert("Pausable: paused");
-        fnftFactory.mint("testName2", "TEST2", address(temp), 1, 100e18, 1 ether, 500);
+        fnftSingleFactory.mint("testName2", "TEST2", address(temp), 1, 100e18, 1 ether, 500);
     }
 
     /// -------------------------------
@@ -215,7 +215,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testChangeReserveBelowMinReserveFactor() public {
-        assertEq(fnftFactory.minReserveFactor(), 2000);
+        assertEq(fnftSingleFactory.minReserveFactor(), 2000);
 
         //initial reserve is 1,
         //minReserveFactor is 20%
@@ -235,7 +235,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testChangeReserveAboveMaxReserveFactor() public {
-        assertEq(fnftFactory.maxReserveFactor(), 50000);
+        assertEq(fnftSingleFactory.maxReserveFactor(), 50000);
 
         //initial reserve is 1,
         //maxReserveFactor is 500%
@@ -317,9 +317,9 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function testAuctionPrice() public {
         vaultManager.setPriceOracle(address(0));
-        console.log("Quorum requirement: ", fnftFactory.minVotePercentage()); // 25%
-        console.log("Min reserve factor: ", fnftFactory.minReserveFactor()); // 20%
-        console.log("Max reserve factor: ", fnftFactory.maxReserveFactor()); // 500%
+        console.log("Quorum requirement: ", fnftSingleFactory.minVotePercentage()); // 25%
+        console.log("Min reserve factor: ", fnftSingleFactory.minReserveFactor()); // 20%
+        console.log("Max reserve factor: ", fnftSingleFactory.maxReserveFactor()); // 500%
 
         assertEq(fnft.getQuorum(), 10000, "Quorum 1");
         assertEq(fnft.reservePrice(), 1 ether, "Reserve price 1");
@@ -457,7 +457,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function testListPriceZero() public {
         token.mint(address(this), 2);
 
-        fnft = FNFT(fnftFactory.mint("testName", "TEST", address(token), 2, 100e18, 0, 500));
+        fnft = FNFT(fnftSingleFactory.mint("testName", "TEST", address(token), 2, 100e18, 0, 500));
 
         assertEq(fnft.votingTokens(), 0);
     }
@@ -465,7 +465,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function testFail_listPriceZeroNoAuction() public {
         token.mint(address(this), 2);
 
-        fnft = FNFT(fnftFactory.mint("testName", "TEST", address(token), 2, 100e18, 0, 500));
+        fnft = FNFT(fnftSingleFactory.mint("testName", "TEST", address(token), 2, 100e18, 0, 500));
 
         User userTemp = new User(address(fnft));
 
@@ -479,7 +479,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     function testAuctionEndCurator0() public {
         fnft.updateFee(0);
         fnft.updateCurator(address(0));
-        fnftFactory.setFee(FNFTFactory.FeeType.GovernanceFee, 0);
+        fnftSingleFactory.setFee(FNFTSingleFactory.FeeType.GovernanceFee, 0);
         fnft.transfer(address(user1), 25e18);
         user1.call_updatePrice(1 ether);
         fnft.transfer(address(user2), 25e18);
@@ -637,7 +637,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testSwapFee() public {
-        fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
+        fnftSingleFactory.setFee(FNFTSingleFactory.FeeType.SwapFee, 100);
 
         uint originalBalance = fnft.balanceOf(address(this));
         uint transferAmount = 1 ether;
@@ -653,7 +653,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testExcludeSwapFeeFromFeeExclusion() public {
-        fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
+        fnftSingleFactory.setFee(FNFTSingleFactory.FeeType.SwapFee, 100);
         vaultManager.setFeeExclusion(address(this), true);
         assertTrue(vaultManager.excludedFromFees(address(this)));
 
@@ -670,7 +670,7 @@ contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testExcludeSwapFeeForNormalTransfers() public {
-        fnftFactory.setFee(FNFTFactory.FeeType.SwapFee, 100);
+        fnftSingleFactory.setFee(FNFTSingleFactory.FeeType.SwapFee, 100);
 
         uint originalBalance = fnft.balanceOf(address(this));
         uint transferAmount = 1 ether;
