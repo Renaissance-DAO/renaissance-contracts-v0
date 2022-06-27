@@ -19,7 +19,7 @@ import {IUniswapV2Factory} from "../../contracts/interfaces/IUniswapV2Factory.so
 import {IUniswapV2Router} from "../../contracts/interfaces/IUniswapV2Router.sol";
 import {FNFTSingleFactory} from "../../contracts/FNFTSingleFactory.sol";
 import {VaultManager} from "../../contracts/VaultManager.sol";
-import {FNFT} from "../../contracts/FNFT.sol";
+import {FNFTSingle} from "../../contracts/FNFTSingle.sol";
 import {MockNFT} from "../../contracts/mocks/NFT.sol";
 
 contract SetupEnvironment {
@@ -81,7 +81,7 @@ contract SetupEnvironment {
         );
     }
 
-    function setupFNFTSingle(address _fnftSingleFactory, uint256 _amountToMint) public returns (FNFT fnft) {
+    function setupFNFTSingle(address _fnftSingleFactory, uint256 _amountToMint) public returns (FNFTSingle fnftSingle) {
         FNFTSingleFactory factory = FNFTSingleFactory(_fnftSingleFactory);
 
         MockNFT token = new MockNFT();
@@ -90,8 +90,8 @@ contract SetupEnvironment {
 
         token.setApprovalForAll(_fnftSingleFactory, true);
 
-        // FNFT minted on this test contract address.
-        fnft = FNFT(factory.mint("testName", "TEST", address(token), 1, _amountToMint, 1 ether, 50));
+        // FNFTSingle minted on this test contract address.
+        fnftSingle = FNFTSingle(factory.mint("testName", "TEST", address(token), 1, _amountToMint, 1 ether, 50));
     }
 
     function setupFNFTCollectionFactory(address vaultManager) public returns (FNFTCollectionFactory fnftCollectionFactory) {

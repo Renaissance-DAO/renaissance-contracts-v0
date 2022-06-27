@@ -15,7 +15,7 @@ import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
 import {ERC20FlashMintUpgradeable} from "../contracts/token/ERC20FlashMintUpgradeable.sol";
 
 /// @author 0xkowloon
-/// @title Tests for FNFT collection vaults
+/// @title Tests for FNFTCollection vaults
 contract FNFTCollectionTest is DSTest, SetupEnvironment {
   StakingTokenProvider private stakingTokenProvider;
   LPStaking private lpStaking;

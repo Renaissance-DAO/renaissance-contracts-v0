@@ -180,15 +180,15 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
     }
 
     /**
-    Test retrieving token(fnft) price in ETH.
+    Test retrieving token(fnftSingle) price in ETH.
      */
     function testfNFTPriceETH() public {
         // ACTION
         // Add pair info to price oracle.
         address pairAddress = address(pairWithWeth.uPair());
-        address fnft = address(pairWithWeth.token());
+        address fnftSingle = address(pairWithWeth.token());
         address wethToken = address(weth);
-        priceOracle.updatePairInfo(fnft, wethToken);
+        priceOracle.updatePairInfo(fnftSingle, wethToken);
         IUniswapV2Pair(pairAddress).sync();
         (, , uint256 blockTimeStampLast) = IUniswapV2Pair(pairAddress).getReserves();
 
@@ -199,27 +199,27 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
             blockTimeStampLast += jump;
             vm.warp(blockTimeStampLast);
             IUniswapV2Pair(pairAddress).sync();
-            priceOracle.updatePairInfo(fnft, wethToken);
+            priceOracle.updatePairInfo(fnftSingle, wethToken);
         }
 
         // Get Price of FNFT in ETH.
         uint fNFTAmount = 50 ether;
-        uint ethPrice = priceOracle.getFNFTPriceETH(fnft, fNFTAmount);
+        uint ethPrice = priceOracle.getFNFTPriceETH(fnftSingle, fNFTAmount);
 
         // VERIFY
-        assertEq(ethPrice, fNFTAmount * weth.balanceOf(pairAddress)/IERC20Upgradeable(fnft).balanceOf(pairAddress));
+        assertEq(ethPrice, fNFTAmount * weth.balanceOf(pairAddress)/IERC20Upgradeable(fnftSingle).balanceOf(pairAddress));
     }
 
     /**
-    Test failure in retrieving token(fnft) price in ETH when not enough updates to pair's twap.
+    Test failure in retrieving token(fnftSingle) price in ETH when not enough updates to pair's twap.
      */
     function testFNFTPriceETHNotEnoughUpdates() public {
         // ACTION
         // Add pair info to price oracle.
         address pairAddress = address(pairWithWeth.uPair());
-        address fnft = address(pairWithWeth.token());
+        address fnftSingle = address(pairWithWeth.token());
         address wethToken = address(weth);
-        priceOracle.updatePairInfo(fnft, wethToken);
+        priceOracle.updatePairInfo(fnftSingle, wethToken);
         IUniswapV2Pair(pairAddress).sync();
         (, , uint256 blockTimeStampLast) = IUniswapV2Pair(pairAddress).getReserves();
 
@@ -230,16 +230,16 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
             blockTimeStampLast += jump;
             vm.warp(blockTimeStampLast);
             IUniswapV2Pair(pairAddress).sync();
-            priceOracle.updatePairInfo(fnft, wethToken);
+            priceOracle.updatePairInfo(fnftSingle, wethToken);
         }
 
         vm.expectRevert(PriceOracle.NotEnoughUpdates.selector);
         // Get Price of FNFT in ETH.
-        priceOracle.getFNFTPriceETH(fnft, 50 ether);
+        priceOracle.getFNFTPriceETH(fnftSingle, 50 ether);
     }
 
     /**
-    Test failure in retrieving token(fnft) price in ETH when twap does not exist.
+    Test failure in retrieving token(fnftSingle) price in ETH when twap does not exist.
      */
     function testFNFTPriceETHPairInfoDoesNotExist() public {
         address fakeToken = address(new MockERC20Upgradeable());

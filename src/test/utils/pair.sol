@@ -6,7 +6,6 @@ import {IUniswapV2Factory} from "../../contracts/interfaces/IUniswapV2Factory.so
 import {UniswapV2Library} from "../../contracts/libraries/UniswapV2Library.sol";
 import {IFNFTSingle} from "../../contracts/interfaces/IFNFTSingle.sol";
 import {IWETH} from "../../contracts/interfaces/IWETH.sol";
-import {FNFT} from "../../contracts/FNFT.sol";
 import {MockERC20Upgradeable} from "../../contracts/mocks/ERC20.sol";
 import {WETH} from "../../contracts/mocks/WETH.sol";
 import {CheatCodes} from "./cheatcodes.sol";
@@ -96,7 +95,7 @@ contract PairWithWETH {
 contract PairWithFNFTAndWETH{
     IUniswapV2Pair public uPair;
     IUniswapV2Factory public uFactory;
-    IFNFTSingle public fnft;
+    IFNFTSingle public fnftSingle;
     IWETH public weth;
     CheatCodes public vm;
 
@@ -104,17 +103,17 @@ contract PairWithFNFTAndWETH{
         address pairAddress = IUniswapV2Factory(_uniswapFactory).getPair(_fnft, _weth);
         uFactory = IUniswapV2Factory(_uniswapFactory);
         uPair = IUniswapV2Pair(pairAddress);
-        fnft = IFNFTSingle(_fnft);
+        fnftSingle = IFNFTSingle(_fnft);
         weth = IWETH(_weth);
         vm = _vm;
     }
 
     // Transfer fNFT and weth tokens to pair and sync reserves.
     function receiveToken(uint256 _fnftAmount, uint256 _wethAmount) public {
-        // Prank next fnft calls as the fnft owner.
+        // Prank next fnftSingle calls as the fnftSingle owner.
         vm.startPrank(msg.sender);
-        IERC20Upgradeable(address(fnft)).approve(address(msg.sender), _fnftAmount);
-        IERC20Upgradeable(address(fnft)).transfer(address(uPair), _fnftAmount);
+        IERC20Upgradeable(address(fnftSingle)).approve(address(msg.sender), _fnftAmount);
+        IERC20Upgradeable(address(fnftSingle)).transfer(address(uPair), _fnftAmount);
 
         weth.approve(address(msg.sender), _wethAmount);
         weth.transfer(address(uPair), _wethAmount);
@@ -130,6 +129,6 @@ contract PairWithFNFTAndWETH{
 
     // Get token reserves from uniswap.
     function getReserves() public view returns (uint256 reserve0, uint256 reserve1) {
-        (reserve0, reserve1) = UniswapV2Library.getReserves(address(uFactory), address(fnft), address(weth));
+        (reserve0, reserve1) = UniswapV2Library.getReserves(address(uFactory), address(fnftSingle), address(weth));
     }
 }

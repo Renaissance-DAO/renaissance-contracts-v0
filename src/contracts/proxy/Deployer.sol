@@ -27,7 +27,7 @@ contract Deployer is Ownable {
 
     IMultiProxyController public proxyController;
 
-    bytes32 constant public FNFT_FACTORY = bytes32(0x464e4654466163746f7279000000000000000000000000000000000000000000);
+    bytes32 constant public FNFT_SINGLE_FACTORY = bytes32(0x464e4654466163746f7279000000000000000000000000000000000000000000);
     bytes32 constant public IFO_FACTORY = bytes32(0x49464f466163746f727900000000000000000000000000000000000000000000);
     bytes32 constant public PRICE_ORACLE = bytes32(0x50726963654f7261636c65000000000000000000000000000000000000000000);
     bytes32 constant public FNFT_COLLECTION_FACTORY = bytes32(0x464e4654436f6c6c656374696f6e466163746f72790000000000000000000000);
@@ -140,9 +140,9 @@ contract Deployer is Ownable {
         fnftSingleFactory = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));
         IOwnable(fnftSingleFactory).transferOwnership(msg.sender);
 
-        proxyController.deployerUpdateProxy(FNFT_FACTORY, fnftSingleFactory);
+        proxyController.deployerUpdateProxy(FNFT_SINGLE_FACTORY, fnftSingleFactory);
 
-        emit ProxyDeployed(FNFT_FACTORY, fnftSingleFactory, msg.sender);
+        emit ProxyDeployed(FNFT_SINGLE_FACTORY, fnftSingleFactory, msg.sender);
     }
 
     /// @notice the function to deploy FNFTCollectionFactory

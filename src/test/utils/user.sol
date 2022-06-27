@@ -4,41 +4,41 @@ pragma solidity ^0.8.11;
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
 import {FNFTSingleFactory} from "../../contracts/FNFTSingleFactory.sol";
-import {FNFT} from "../../contracts/FNFT.sol";
+import {FNFTSingle} from "../../contracts/FNFTSingle.sol";
 import {MockNFT} from "../../contracts/mocks/NFT.sol";
 import {WETH} from "../../contracts/mocks/WETH.sol";
 import {console} from "../utils/console.sol";
 import {CheatCodes} from "../utils/cheatcodes.sol";
 
 contract User is ERC721Holder {
-    FNFT public fnft;
+    FNFTSingle public fnftSingle;
 
     constructor(address _fnft) {
-        fnft = FNFT(_fnft);
+        fnftSingle = FNFTSingle(_fnft);
     }
 
     function call_transfer(address _guy, uint256 _amount) public {
-        fnft.transfer(_guy, _amount);
+        fnftSingle.transfer(_guy, _amount);
     }
 
     function call_updatePrice(uint256 _price) public {
-        fnft.updateUserPrice(_price);
+        fnftSingle.updateUserPrice(_price);
     }
 
     function call_bid(uint256 _amount) public {
-        fnft.bid{value: _amount}();
+        fnftSingle.bid{value: _amount}();
     }
 
     function call_start(uint256 _amount) public {
-        fnft.start{value: _amount}();
+        fnftSingle.start{value: _amount}();
     }
 
     function call_cash() public {
-        fnft.cash();
+        fnftSingle.cash();
     }
 
     function call_remove(address _user) public {
-        fnft.removeReserve(_user);
+        fnftSingle.removeReserve(_user);
     }
 
     // to be able to receive funds
@@ -48,30 +48,30 @@ contract User is ERC721Holder {
 contract UserNoETH is ERC721Holder {
     bool public canReceive = true;
 
-    FNFT public fnft;
+    FNFTSingle public fnftSingle;
 
     constructor(address _fnft) {
-        fnft = FNFT(_fnft);
+        fnftSingle = FNFTSingle(_fnft);
     }
 
     function call_transfer(address _guy, uint256 _amount) public {
-        fnft.transfer(_guy, _amount);
+        fnftSingle.transfer(_guy, _amount);
     }
 
     function call_updatePrice(uint256 _price) public {
-        fnft.updateUserPrice(_price);
+        fnftSingle.updateUserPrice(_price);
     }
 
     function call_bid(uint256 _amount) public {
-        fnft.bid{value: _amount}();
+        fnftSingle.bid{value: _amount}();
     }
 
     function call_start(uint256 _amount) public {
-        fnft.start{value: _amount}();
+        fnftSingle.start{value: _amount}();
     }
 
     function call_cash() public {
-        fnft.cash();
+        fnftSingle.cash();
     }
 
     function setCanReceive(bool _can) public {
@@ -85,18 +85,18 @@ contract UserNoETH is ERC721Holder {
 }
 
 contract Curator {
-    FNFT public fnft;
+    FNFTSingle public fnftSingle;
 
     constructor(address _fnft) {
-        fnft = FNFT(_fnft);
+        fnftSingle = FNFTSingle(_fnft);
     }
 
     function call_updateCurator(address _who) public {
-        fnft.updateCurator(_who);
+        fnftSingle.updateCurator(_who);
     }
 
     function call_kickCurator(address _who) public {
-        fnft.kickCurator(_who);
+        fnftSingle.kickCurator(_who);
     }
 
     // to be able to receive funds

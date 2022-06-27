@@ -376,18 +376,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // IFOFactory
   const IFOFactory = await getContract(hre, 'IFOFactory');
 
-  const fnftSingle2 = await ethers.getContractAt('FNFT', fnftSingle2Address);
-  const fnftSingle3 = await ethers.getContractAt('FNFT', fnftSingle3Address);
-  const fnftSingle4 = await ethers.getContractAt('FNFT', fnftSingle4Address);
-  const fnftSingle5 = await ethers.getContractAt('FNFT', fnftSingle5Address);
-  const fnftSingle6 = await ethers.getContractAt('FNFT', fnftSingle6Address);
-  const fnftSingle7 = await ethers.getContractAt('FNFT', fnftSingle7Address);
-  const fnftSingle8 = await ethers.getContractAt('FNFT', fnftSingle8Address);
-  const fnftSingle9 = await ethers.getContractAt('FNFT', fnftSingle9Address);
-  const fnftSingle10 = await ethers.getContractAt('FNFT', fnftSingle10Address);
-  const fnftSingle11 = await ethers.getContractAt('FNFT', fnftSingle11Address);
-  const fnftSingle12 = await ethers.getContractAt('FNFT', fnftSingle12Address);
-  const fnftSingle13 = await ethers.getContractAt('FNFT', fnftSingle13Address);
+  const fnftSingle2 = await ethers.getContractAt('FNFTSingle', fnftSingle2Address);
+  const fnftSingle3 = await ethers.getContractAt('FNFTSingle', fnftSingle3Address);
+  const fnftSingle4 = await ethers.getContractAt('FNFTSingle', fnftSingle4Address);
+  const fnftSingle5 = await ethers.getContractAt('FNFTSingle', fnftSingle5Address);
+  const fnftSingle6 = await ethers.getContractAt('FNFTSingle', fnftSingle6Address);
+  const fnftSingle7 = await ethers.getContractAt('FNFTSingle', fnftSingle7Address);
+  const fnftSingle8 = await ethers.getContractAt('FNFTSingle', fnftSingle8Address);
+  const fnftSingle9 = await ethers.getContractAt('FNFTSingle', fnftSingle9Address);
+  const fnftSingle10 = await ethers.getContractAt('FNFTSingle', fnftSingle10Address);
+  const fnftSingle11 = await ethers.getContractAt('FNFTSingle', fnftSingle11Address);
+  const fnftSingle12 = await ethers.getContractAt('FNFTSingle', fnftSingle12Address);
+  const fnftSingle13 = await ethers.getContractAt('FNFTSingle', fnftSingle13Address);
 
 
   await fnftSingle2.approve(IFOFactory.address, await fnftSingle2.balanceOf(deployer));

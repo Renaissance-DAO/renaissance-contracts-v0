@@ -11,7 +11,7 @@ import {IFNFTSingle} from "../contracts/interfaces/IFNFTSingle.sol";
 import {PriceOracle} from "../contracts/PriceOracle.sol";
 import {FNFTSingleFactory} from "../contracts/FNFTSingleFactory.sol";
 import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
-import {FNFT} from "../contracts/FNFT.sol";
+import {FNFTSingle} from "../contracts/FNFTSingle.sol";
 import {FNFTCollection} from "../contracts/FNFTCollection.sol";
 import {IFO} from "../contracts/IFO.sol";
 import {MockNFT} from "../contracts/mocks/NFT.sol";
@@ -27,7 +27,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     IFOFactory public ifoFactory;
     IPriceOracle public priceOracle;
     MockNFT public nft;
-    FNFT public fractionalizedNFT;
+    FNFTSingle public fractionalizedNFT;
     FNFTCollection public fractionalizedNFTCollection;
 
     User public user1;
@@ -56,7 +56,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         nft.mint(address(this), 1);
 
         nft.setApprovalForAll(address(fnftSingleFactory), true);
-        fractionalizedNFT = FNFT(
+        fractionalizedNFT = FNFTSingle(
             fnftSingleFactory.mint(
                 "testName",
                 "TEST",
