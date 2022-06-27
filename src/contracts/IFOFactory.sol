@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./proxy/BeaconUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
 
-contract IFOFactory is OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeable, IIFOFactory {
+contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeable {
     /// @notice the mapping of fNFT to IFO address
     mapping(address => address) public getIFO;
 

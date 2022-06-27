@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.13;
 
+import "./interfaces/IIFO.sol";
 import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IFNFTSingle.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -8,67 +9,29 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
-contract IFO is Initializable {
-    struct UserInfo {
-        uint256 amount; // Amount ETH deposited by user
-        uint256 debt; // total fNFT claimed thus fNFT debt
-    }
-
-    IFNFTSingle public fnft; // fNFT the ifo contract sells
-    uint256 public amountForSale; // amount of fNFT for sale
-    uint256 public price; // initial price per fNFT
-    uint256 public cap; // cap per user
-    uint256 public totalRaised; // total ETH raised by sale
-    uint256 public profitRaised;
-    uint256 public totalSold; // total fNFT sold by sale
-    uint256 public lockedSupply;
-
-    uint256 public duration; // ifo duration
-    uint256 public startBlock; // block started
-    uint256 public pauseBlock; // block paused
-
-    bool public allowWhitelisting; // whether the ifo operates through WL
-    bool public started; // true when sale is started
-    bool public ended; // true when sale is ended
-    bool public paused; // circuit breaker
-
+contract IFO is IIFO, Initializable {
     address public curator;
     IIFOFactory public factory;
+    IFNFTSingle public override fnft; // fNFT the ifo contract sells
 
-    mapping(address => UserInfo) public userInfo;
-    mapping(address => bool) public whitelisted; // True if user is whitelisted
+    uint256 public override amountForSale; // amount of fNFT for sale
+    uint256 public override price; // initial price per fNFT
+    uint256 public override cap; // cap per user
+    uint256 public override totalRaised; // total ETH raised by sale
+    uint256 public override profitRaised;
+    uint256 public override totalSold; // total fNFT sold by sale
+    uint256 public override lockedSupply;
+    uint256 public override duration; // ifo duration
+    uint256 public override startBlock; // block started
+    uint256 public override pauseBlock; // block paused
 
-    event Deposit(address indexed buyer, uint256 amount, uint256 payout);
-    event Start();
-    event End();
-    event Pause(bool paused);
-    event AdminProfitWithdrawal(address FNFT, uint256 amount);
-    event AdminFNFTWithdrawal(address FNFT, uint256 amount);
-    event EmergencyFNFTWithdrawal(address FNFT, uint256 amount);
+    bool public override allowWhitelisting; // whether the ifo operates through WL
+    bool public override started; // true when sale is started
+    bool public override ended; // true when sale is ended
+    bool public override paused; // circuit breaker
 
-    error NotGov();
-    error NotCurator();
-    error InvalidAddress();
-    error NotEnoughSupply();
-    error InvalidAmountForSale();
-    error InvalidPrice();
-    error InvalidCap();
-    error InvalidDuration();
-    error InvalidReservePrice();
-    error WhitelistingDisallowed();
-    error ContractPaused();
-    error TooManyWhitelists();
-    error SaleAlreadyStarted();
-    error SaleUnstarted();
-    error SaleAlreadyEnded();
-    error DeadlineActive();
-    error SaleActive();
-    error TxFailed();
-    error NotWhitelisted();
-    error NoProfit();
-    error OverLimit();
-    error NoLiquidityProvided();
-    error FNFTLocked();
+    mapping(address => UserInfo) public override userInfo;
+    mapping(address => bool) public override whitelisted; // True if user is whitelisted
 
     /// @param _curator original owner
     /// @param _fnftAddress FNFT address
@@ -85,7 +48,7 @@ contract IFO is Initializable {
         uint256 _cap,
         uint256 _duration,
         bool _allowWhitelisting
-    ) external initializer {
+    ) external override initializer {
         // set storage variables
         if (_fnftAddress == address(0)) revert InvalidAddress();
         IFNFTSingle _fnft = IFNFTSingle(_fnftAddress);
@@ -162,7 +125,7 @@ contract IFO is Initializable {
      *  @notice adds a single whitelist to the sale
      *  @param _address: address to whitelist
      */
-    function addWhitelist(address _address) external onlyCurator whitelistingAllowed {
+    function addWhitelist(address _address) external override onlyCurator whitelistingAllowed {
         whitelisted[_address] = true;
     }
 
@@ -170,7 +133,7 @@ contract IFO is Initializable {
      *  @notice adds multiple whitelist to the sale
      *  @param _addresses: dynamic array of addresses to whitelist
      */
-    function addMultipleWhitelists(address[] calldata _addresses) external onlyCurator whitelistingAllowed {
+    function addMultipleWhitelists(address[] calldata _addresses) external override onlyCurator whitelistingAllowed {
         if (_addresses.length > 333) revert TooManyWhitelists();
         for (uint256 i; i < _addresses.length;) {
             whitelisted[_addresses[i]] = true;
@@ -184,12 +147,12 @@ contract IFO is Initializable {
      *  @notice removes a single whitelist from the sale
      *  @param _address: address to remove from whitelist
      */
-    function removeWhitelist(address _address) external onlyCurator whitelistingAllowed {
+    function removeWhitelist(address _address) external override onlyCurator whitelistingAllowed {
         whitelisted[_address] = false;
     }
 
     /// @notice Starts the sale and checks if all FNFT is in IFO
-    function start() external onlyCurator {
+    function start() external override onlyCurator {
         if (started) revert SaleAlreadyStarted();
         if (ended) revert SaleAlreadyEnded();
         IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(address(fnft));
@@ -204,7 +167,7 @@ contract IFO is Initializable {
     //TODO: Add a circute breaker controlled by the DAO
 
     /// @notice lets owner pause contract. Pushes back the IFO end date
-    function togglePause() external onlyCurator checkDeadline returns (bool) {
+    function togglePause() external override onlyCurator checkDeadline returns (bool) {
         if (!started) revert SaleUnstarted();
         if (ended) revert SaleAlreadyEnded();
 
@@ -220,7 +183,7 @@ contract IFO is Initializable {
     }
 
     /// @notice Ends the sale
-    function end() public onlyCurator checkPaused {
+    function end() public override onlyCurator checkPaused {
         if (!started) revert SaleUnstarted();
         if (
             block.number <= startBlock + duration || // If not past duration
@@ -234,7 +197,7 @@ contract IFO is Initializable {
     }
 
     ///@notice it deposits ETH for the sale
-    function deposit() external payable checkPaused checkDeadline {
+    function deposit() external payable override checkPaused checkDeadline {
         if (!started) revert SaleUnstarted();
         if (ended) revert SaleAlreadyEnded();
         if (allowWhitelisting) {
@@ -272,7 +235,7 @@ contract IFO is Initializable {
     /** @notice it checks a users ETH allocation remaining
     *   @param _user: user's remaining allocation based on cap
     */
-    function getUserRemainingAllocation(address _user) external view returns (uint256) {
+    function getUserRemainingAllocation(address _user) external view override returns (uint256) {
         UserInfo memory user = userInfo[_user];
         return cap - user.amount;
     }
@@ -280,13 +243,13 @@ contract IFO is Initializable {
     /** @notice If wrong FNFT
     *   @param _address: address of FNFT
     */
-    function updateFNFTAddress(address _address) external onlyGov {
+    function updateFNFTAddress(address _address) external override onlyGov {
         if (_address == address(0)) revert InvalidAddress();
         fnft = IFNFTSingle(_address);
     }
 
     /// @notice withdraws ETH from sale only after IFO over
-    function adminWithdrawProfit() external checkDeadline onlyCurator {
+    function adminWithdrawProfit() external override checkDeadline onlyCurator {
         if (!ended) revert SaleActive();
         if (profitRaised == 0) revert NoProfit();
         uint256 profit = profitRaised;
@@ -298,7 +261,7 @@ contract IFO is Initializable {
     }
 
     /// @notice withdraws FNFT from sale only after IFO. Can only withdraw after NFT redemption if IFOLock enabled
-    function adminWithdrawFNFT() external checkDeadline onlyCurator {
+    function adminWithdrawFNFT() external override checkDeadline onlyCurator {
         if (!ended) revert SaleActive();
         address fnftAddress = address(fnft);
         if (IERC165(fnftAddress).supportsInterface(type(IFNFTSingle).interfaceId) &&
@@ -315,14 +278,14 @@ contract IFO is Initializable {
     }
 
     /// @notice approve fNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
-    function approve() external onlyCurator {
+    function approve() external override onlyCurator {
         address creatorUtilityContract = factory.creatorUtilityContract();
         if (creatorUtilityContract == address(0)) revert InvalidAddress();
         IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(address(fnft));
         _fnft.approve(creatorUtilityContract, _fnft.totalSupply());
     }
 
-    function emergencyWithdrawFNFT() external onlyGov {
+    function emergencyWithdrawFNFT() external override onlyGov {
         IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(address(fnft));
         uint256 fNFTBalance = _fnft.balanceOf(address(this));
         lockedSupply = 0;
@@ -342,7 +305,7 @@ contract IFO is Initializable {
         if (!success) revert TxFailed();
     }
 
-    function fnftLocked() external view returns(bool) {
+    function fnftLocked() external view override returns(bool) {
         return _fnftLocked();
     }
 
