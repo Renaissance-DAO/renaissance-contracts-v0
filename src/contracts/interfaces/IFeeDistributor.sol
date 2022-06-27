@@ -3,6 +3,7 @@
 pragma solidity 0.8.13;
 
 import "./IVaultManager.sol";
+import "./ILPStaking.sol";
 
 interface IFeeDistributor {
 
@@ -13,7 +14,7 @@ interface IFeeDistributor {
   }
 
   function vaultManager() external returns (IVaultManager);
-  function lpStaking() external returns (address);
+  function lpStaking() external returns (ILPStaking);
   function inventoryStaking() external returns (address);
   function treasury() external returns (address);
   function allocTotal() external returns (uint256);

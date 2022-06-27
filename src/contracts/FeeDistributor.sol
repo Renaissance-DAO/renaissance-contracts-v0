@@ -18,7 +18,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   bool public distributionPaused;
 
   IVaultManager public override vaultManager;
-  address public override lpStaking;
+  ILPStaking public override lpStaking;
   address public override treasury;
 
   // Total allocation points per vault.
@@ -49,7 +49,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     setLPStakingAddress(_lpStaking);
     setVaultManager(_vaultManager);
 
-    _addReceiver(0.8 ether, lpStaking, true);
+    _addReceiver(0.8 ether, _lpStaking, true);
   }
 
   function distribute(uint256 vaultId) external override virtual nonReentrant {
@@ -92,7 +92,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   function initializeVaultReceivers(uint256 _vaultId) external override {
     if (msg.sender != address(vaultManager)) revert CallerIsNotVaultManager();
-    ILPStaking(lpStaking).addPoolForVault(_vaultId);
+    lpStaking.addPoolForVault(_vaultId);
     if (inventoryStaking != address(0))
       IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
   }
@@ -132,7 +132,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   function setLPStakingAddress(address _lpStaking) public override onlyOwner {
     if (_lpStaking == address(0)) revert ZeroAddress();
-    lpStaking = _lpStaking;
+    lpStaking = ILPStaking(_lpStaking);
     emit UpdateLPStakingAddress(_lpStaking);
   }
 
