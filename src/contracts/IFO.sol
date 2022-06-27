@@ -252,8 +252,9 @@ contract IFO is Initializable {
 
         totalSold += payout;
 
-        address govAddress = factory.feeReceiver();
-        uint256 govFee = factory.governanceFee();
+        IIFOFactory _factory = factory;
+        address govAddress = _factory.feeReceiver();
+        uint256 govFee = _factory.governanceFee();
 
         uint256 fee = (govFee * msg.value) / 10000;
         uint256 profit = msg.value - fee;
