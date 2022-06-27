@@ -23,7 +23,7 @@ import {FlashBorrower} from "./utils/FlashBorrower.sol";
 
 /// @author Nibble Market
 /// @title Tests for the vaults
-contract FNFTTest is DSTest, ERC721Holder, SetupEnvironment {
+contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     IFOFactory public ifoFactory;
     IPriceOracle public priceOracle;
     IUniswapV2Factory public pairFactory;
