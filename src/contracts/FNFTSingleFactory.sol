@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-import "./FNFT.sol";
+import "./FNFTSingle.sol";
 import "./proxy/BeaconUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
 import "./interfaces/IFNFTSingleFactory.sol";
@@ -88,9 +88,9 @@ contract FNFTSingleFactory is
 
     event FeeExclusion(address target, bool excluded);
 
-    event FNFTCreated(
+    event FNFTSingleCreated(
         address indexed token,
-        address FNFT,
+        address fnftSingle,
         address creator,
 
         uint256 price,
@@ -111,7 +111,7 @@ contract FNFTSingleFactory is
     function initialize(address _vaultManager) external initializer {
         __Ownable_init();
         __Pausable_init();
-        __BeaconUpgradeable__init(address(new FNFT()));
+        __BeaconUpgradeable__init(address(new FNFTSingle()));
         setVaultManager(_vaultManager);
 
         maxAuctionLength = 2 weeks;
@@ -125,7 +125,7 @@ contract FNFTSingleFactory is
         instantBuyMultiplier = 15; // instant buy allowed if 1.5x MC
     }
 
-    /// @notice the function to mint a fNFT
+    /// @notice the function to mint a fnftSingle
     /// @param _name the desired name of the vault
     /// @param _symbol the desired symbol of the vault
     /// @param _nft the ERC721 token address
@@ -142,7 +142,7 @@ contract FNFTSingleFactory is
         uint256 _fee
     ) external whenNotPaused returns (address) {
         bytes memory _initializationCalldata = abi.encodeWithSelector(
-            FNFT.initialize.selector,
+            FNFTSingle.initialize.selector,
             msg.sender,
             _nft,
             _tokenId,
@@ -153,13 +153,13 @@ contract FNFTSingleFactory is
             _symbol
         );
 
-        address fnft = address(new BeaconProxy(address(this), _initializationCalldata));
+        address fnftSingle = address(new BeaconProxy(address(this), _initializationCalldata));
         IVaultManager _vaultManager = IVaultManager(vaultManager);
-        _vaultManager.addVault(fnft);
-        emit FNFTCreated(_nft, fnft, msg.sender, _listPrice, _name, _symbol);
+        _vaultManager.addVault(fnftSingle);
+        emit FNFTSingleCreated(_nft, fnftSingle, msg.sender, _listPrice, _name, _symbol);
 
-        IERC721(_nft).safeTransferFrom(msg.sender, fnft, _tokenId);
-        return fnft;
+        IERC721(_nft).safeTransferFrom(msg.sender, fnftSingle, _tokenId);
+        return fnftSingle;
     }
 
     function togglePaused() external onlyOwner {

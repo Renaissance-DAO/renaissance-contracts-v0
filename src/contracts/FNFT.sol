@@ -17,7 +17,7 @@ import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IPriceOracle} from "./PriceOracle.sol";
 import "./token/ERC20FlashMintUpgradeable.sol";
 
-contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
+contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
     using Address for address;
     /// -----------------------------------
     /// -------- TOKEN INFORMATION --------
@@ -61,10 +61,10 @@ contract FNFT is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUp
     /// @notice the governance contract which gets paid in ETH
     address public override factory;
 
-    /// @notice the governance contract for all FNFTs
+    /// @notice the governance contract for all FNFTSingles
     IVaultManager public override vaultManager;
 
-    /// @notice whether or not this FNFT has been verified by DAO
+    /// @notice whether or not this FNFTSingle has been verified by DAO
     bool public override verified;
 
     /// @notice the address who initially deposited the NFT
