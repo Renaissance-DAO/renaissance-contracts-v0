@@ -52,8 +52,9 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   }
 
   function distribute(uint256 vaultId) external override virtual nonReentrant {
-    if (address(vaultManager) == address(0)) revert ZeroAddress();
-    address _vault = vaultManager.vault(vaultId);
+    IVaultManager _vaultManager = vaultManager;
+    if (address(_vaultManager) == address(0)) revert ZeroAddress();
+    address _vault = _vaultManager.vault(vaultId);
 
     uint256 tokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
 
