@@ -22,7 +22,7 @@ contract PriceOracle is OwnableUpgradeable, IPriceOracle {
     mapping(address => PairInfo) private _getTwap;
 
     address public immutable WETH;
-    address public immutable FACTORY;
+    IUniswapV2Factory public immutable FACTORY;
 
     /**
         EVENTS
@@ -41,7 +41,7 @@ contract PriceOracle is OwnableUpgradeable, IPriceOracle {
 
     constructor(address _factory, address _weth) {
         WETH = _weth;
-        FACTORY = _factory;
+        FACTORY = IUniswapV2Factory(_factory);
     }
 
     function initialize() external initializer {
@@ -187,11 +187,11 @@ contract PriceOracle is OwnableUpgradeable, IPriceOracle {
 
     // Get pair address from uniswap pair factory.
     function _getPairAddress(address _token0, address _token1) internal view returns (address) {
-        return IUniswapV2Factory(FACTORY).getPair(_token0, _token1);
+        return FACTORY.getPair(_token0, _token1);
     }
 
     // Create pair address from uniswap pair factory.
     function _createPairAddress(address _token0, address _token1) internal returns (address) {
-        return IUniswapV2Factory(FACTORY).createPair(_token0, _token1);
+        return FACTORY.createPair(_token0, _token1);
     }
 }

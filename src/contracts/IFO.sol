@@ -34,7 +34,7 @@ contract IFO is Initializable {
     bool public paused; // circuit breaker
 
     address public curator;
-    address public factory;
+    IIFOFactory public factory;
 
     mapping(address => UserInfo) public userInfo;
     mapping(address => bool) public whitelisted; // True if user is whitelisted
@@ -93,6 +93,7 @@ contract IFO is Initializable {
         uint256 curatorSupply = IERC20Upgradeable(_fnftAddress).balanceOf(_curator);
         uint256 totalSupply = IERC20Upgradeable(_fnftAddress).totalSupply();
         bool isSingle = IERC165(_fnftAddress).supportsInterface(type(IFNFTSingle).interfaceId);
+        IIFOFactory _factory = IIFOFactory(msg.sender);
         // make sure curator holds 100% of the FNFT before IFO (May change if DAO takes fee on fractionalize)
         if (isSingle) {
             // reject if MC of IFO greater than reserve price set by curator. Protects the initial investors
@@ -108,10 +109,10 @@ contract IFO is Initializable {
         if (_cap == 0 || _cap > totalSupply) revert InvalidCap();
         // expect ifo duration to be between minimum and maximum durations set by the DAO
         if (_duration != 0 &&
-        (_duration < IIFOFactory(msg.sender).minimumDuration()
-        || _duration > IIFOFactory(msg.sender).maximumDuration())) revert InvalidDuration();
+        (_duration < _factory.minimumDuration()
+        || _duration > _factory.maximumDuration())) revert InvalidDuration();
 
-        factory = msg.sender;
+        factory = _factory;
         curator = _curator;
         amountForSale = _amountForSale;
         price = _price;
@@ -133,7 +134,7 @@ contract IFO is Initializable {
     }
 
     modifier onlyGov() {
-        if (msg.sender != OwnableUpgradeable(factory).owner()) revert NotGov();
+        if (msg.sender != OwnableUpgradeable(address(factory)).owner()) revert NotGov();
         _;
     }
 
@@ -223,7 +224,7 @@ contract IFO is Initializable {
         if (!started) revert SaleUnstarted();
         if (
             block.number <= startBlock + duration || // If not past duration
-            block.number - startBlock < IIFOFactory(factory).minimumDuration() // If tries to end before minimum duration
+            block.number - startBlock < factory.minimumDuration() // If tries to end before minimum duration
         ) revert DeadlineActive();
         if (ended) revert SaleAlreadyEnded();
 
@@ -251,8 +252,8 @@ contract IFO is Initializable {
 
         totalSold += payout;
 
-        address govAddress = IIFOFactory(factory).feeReceiver();
-        uint256 govFee = IIFOFactory(factory).governanceFee();
+        address govAddress = factory.feeReceiver();
+        uint256 govFee = factory.governanceFee();
 
         uint256 fee = (govFee * msg.value) / 10000;
         uint256 profit = msg.value - fee;
@@ -314,7 +315,7 @@ contract IFO is Initializable {
 
     /// @notice approve fNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
     function approve() external onlyCurator {
-        address creatorUtilityContract = IIFOFactory(factory).creatorUtilityContract();
+        address creatorUtilityContract = factory.creatorUtilityContract();
         if (creatorUtilityContract == address(0)) revert InvalidAddress();
         IERC20Upgradeable _fnft = IERC20Upgradeable(address(fnft));
         _fnft.approve(creatorUtilityContract, _fnft.totalSupply());
@@ -345,6 +346,6 @@ contract IFO is Initializable {
     }
 
     function _fnftLocked() internal view returns(bool) {
-        return IIFOFactory(factory).creatorIFOLock();
+        return factory.creatorIFOLock();
     }
 }
