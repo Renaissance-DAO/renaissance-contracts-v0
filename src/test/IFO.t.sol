@@ -6,12 +6,10 @@ import "ds-test/test.sol";
 
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import {IFOFactory} from "../contracts/IFOFactory.sol";
-import {IPriceOracle} from "../contracts/interfaces/IPriceOracle.sol";
-import {IFNFTSingle} from "../contracts/interfaces/IFNFTSingle.sol";
-import {PriceOracle} from "../contracts/PriceOracle.sol";
-import {FNFTSingleFactory} from "../contracts/FNFTSingleFactory.sol";
+import {PriceOracle, IPriceOracle} from "../contracts/PriceOracle.sol";
+import {FNFTSingleFactory, IFNFTSingleFactory} from "../contracts/FNFTSingleFactory.sol";
 import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
-import {FNFTSingle} from "../contracts/FNFTSingle.sol";
+import {FNFTSingle, IFNFTSingle} from "../contracts/FNFTSingle.sol";
 import {FNFTCollection} from "../contracts/FNFTCollection.sol";
 import {IFO} from "../contracts/IFO.sol";
 import {MockNFT} from "../contracts/mocks/NFT.sol";
@@ -49,7 +47,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             fnftCollectionFactory,
         ) = setupContracts();
 
-        fnftSingleFactory.setFee(FNFTSingleFactory.FeeType.GovernanceFee, 0);
+        fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.GovernanceFee, 0);
 
         nft = new MockNFT();
 

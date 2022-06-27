@@ -14,14 +14,11 @@ import "./interfaces/IVaultManager.sol";
 import "./interfaces/IFeeDistributor.sol";
 
 contract FNFTSingleFactory is
+    IFNFTSingleFactory,
     OwnableUpgradeable,
     PausableUpgradeable,
-    BeaconUpgradeable,
-    IFNFTSingleFactory
+    BeaconUpgradeable
 {
-    enum FeeType { GovernanceFee, MaxCuratorFee, SwapFee }
-    enum Boundary { Min, Max }
-
     IVaultManager public override vaultManager;
 
     /// @notice fee exclusion for swaps
@@ -60,55 +57,7 @@ contract FNFTSingleFactory is
     /// @notice instant buy allowed if bid > MC * instantBuyMultiplier
     uint256 public override instantBuyMultiplier;
 
-    event UpdateMaxAuctionLength(uint256 _old, uint256 _new);
-
-    event UpdateMinAuctionLength(uint256 _old, uint256 _new);
-
-    event UpdateGovernanceFee(uint256 _old, uint256 _new);
-
-    event UpdateCuratorFee(uint256 _old, uint256 _new);
-
-    event UpdateSwapFee(uint256 _old, uint256 _new);
-
-    event UpdateMinBidIncrease(uint256 _old, uint256 _new);
-
-    event UpdateMinVotePercentage(uint256 _old, uint256 _new);
-
-    event UpdateMaxReserveFactor(uint256 _old, uint256 _new);
-
-    event UpdateMinReserveFactor(uint256 _old, uint256 _new);
-
-    event UpdateLiquidityThreshold(uint256 _old, uint256 _new);
-
-    event UpdateInstantBuyMultiplier(uint256 _old, uint256 _new);
-
-    event UpdateFlashLoanFee(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
-
-    event UpdateVaultManager(address _old, address _new);
-
-    event FeeExclusion(address target, bool excluded);
-
-    event FNFTSingleCreated(
-        address indexed token,
-        address fnftSingle,
-        address creator,
-
-        uint256 price,
-        string name,
-        string symbol
-    );
-
-    error MaxAuctionLengthOutOfBounds();
-    error MinAuctionLengthOutOfBounds();
-    error FeeTooHigh();
-    error MinBidIncreaseOutOfBounds();
-    error MinVotePercentageTooHigh();
-    error MaxReserveFactorTooLow();
-    error MinReserveFactorTooHigh();
-    error ZeroAddressDisallowed();
-    error MultiplierTooLow();
-
-    function __FNFTSingleFactory_init(address _vaultManager) external initializer {
+    function __FNFTSingleFactory_init(address _vaultManager) external override initializer {
         __Ownable_init();
         __Pausable_init();
         __BeaconUpgradeable__init(address(new FNFTSingle()));
@@ -140,7 +89,7 @@ contract FNFTSingleFactory is
         uint256 _supply,
         uint256 _listPrice,
         uint256 _fee
-    ) external whenNotPaused returns (address) {
+    ) external override whenNotPaused returns (address) {
         bytes memory _initializationCalldata = abi.encodeWithSelector(
             FNFTSingle.__FNFTSingle_init.selector,
             msg.sender,
@@ -162,7 +111,7 @@ contract FNFTSingleFactory is
         return fnftSingle;
     }
 
-    function togglePaused() external onlyOwner {
+    function togglePaused() external override onlyOwner {
         paused() ? _unpause() : _pause();
     }
 
@@ -171,7 +120,7 @@ contract FNFTSingleFactory is
         vaultManager = IVaultManager(_vaultManager);
     }
 
-    function setAuctionLength(Boundary boundary, uint256 _length) external onlyOwner {
+    function setAuctionLength(Boundary boundary, uint256 _length) external override onlyOwner {
         if (boundary == Boundary.Min) {
             if (_length < 1 days || _length >= maxAuctionLength) revert MinAuctionLengthOutOfBounds();
             emit UpdateMinAuctionLength(minAuctionLength, _length);
@@ -183,7 +132,7 @@ contract FNFTSingleFactory is
         }
     }
 
-    function setFee(FeeType feeType, uint256 _fee) external onlyOwner {
+    function setFee(FeeType feeType, uint256 _fee) external override onlyOwner {
         if (feeType == FeeType.GovernanceFee) {
             if (_fee > 1000) revert FeeTooHigh();
             emit UpdateGovernanceFee(governanceFee, _fee);
@@ -198,7 +147,7 @@ contract FNFTSingleFactory is
         }
     }
 
-    function setMinBidIncrease(uint256 _min) external onlyOwner {
+    function setMinBidIncrease(uint256 _min) external override onlyOwner {
         if (_min > 1000 || _min < 100) revert MinBidIncreaseOutOfBounds();
 
         emit UpdateMinBidIncrease(minBidIncrease, _min);
@@ -206,7 +155,7 @@ contract FNFTSingleFactory is
         minBidIncrease = _min;
     }
 
-    function setMinVotePercentage(uint256 _min) external onlyOwner {
+    function setMinVotePercentage(uint256 _min) external override onlyOwner {
         // 10000 is 100%
         if (_min > 10000) revert MinVotePercentageTooHigh();
 
@@ -215,7 +164,7 @@ contract FNFTSingleFactory is
         minVotePercentage = _min;
     }
 
-    function setReserveFactor(Boundary boundary, uint256 _factor) external onlyOwner {
+    function setReserveFactor(Boundary boundary, uint256 _factor) external override onlyOwner {
         if (boundary == Boundary.Min) {
             if (_factor >= maxReserveFactor) revert MinReserveFactorTooHigh();
             emit UpdateMinReserveFactor(minReserveFactor, _factor);
@@ -227,13 +176,13 @@ contract FNFTSingleFactory is
         }
     }
 
-    function setLiquidityThreshold(uint256 _threshold) external onlyOwner {
+    function setLiquidityThreshold(uint256 _threshold) external override onlyOwner {
         emit UpdateLiquidityThreshold(liquidityThreshold, _threshold);
 
         liquidityThreshold = _threshold;
     }
 
-    function setInstantBuyMultiplier(uint256 _multiplier) external onlyOwner {
+    function setInstantBuyMultiplier(uint256 _multiplier) external override onlyOwner {
         if (_multiplier < 10) revert MultiplierTooLow();
 
         emit UpdateInstantBuyMultiplier(instantBuyMultiplier, _multiplier);
