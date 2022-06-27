@@ -13,9 +13,9 @@ import "./proxy/BeaconUpgradeable.sol";
 // Authors: @0xKiwi_ and @alexgausman.
 
 contract FNFTCollectionFactory is
+    IFNFTCollectionFactory,
     Pausable,
-    BeaconUpgradeable,
-    IFNFTCollectionFactory
+    BeaconUpgradeable
 {
 
     // v1.0.2
@@ -41,11 +41,6 @@ contract FNFTCollectionFactory is
     uint64 public override flashLoanFee;
 
     uint256 public override swapFee;
-
-
-    error FeeTooHigh();
-    error CallerIsNotVault();
-    error ZeroAddress();
 
     function __FNFTCollectionFactory_init(address _vaultManager) public override initializer {
         if (_vaultManager == address(0)) revert ZeroAddress();

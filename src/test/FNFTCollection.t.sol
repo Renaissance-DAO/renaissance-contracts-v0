@@ -7,7 +7,7 @@ import {console, SetupEnvironment} from "./utils/utils.sol";
 import {FlashBorrower} from "./utils/FlashBorrower.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
 import {LPStaking} from "../contracts/LPStaking.sol";
-import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
+import {FNFTCollectionFactory, IFNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
 import {VaultManager} from "../contracts/VaultManager.sol";
 import {FNFTCollection, IFNFTCollection} from "../contracts/FNFTCollection.sol";
 import {FeeDistributor} from "../contracts/FeeDistributor.sol";
@@ -23,7 +23,6 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   VaultManager private vaultManager;
   FNFTCollectionFactory private fnftCollectionFactory;
   FNFTCollection private vault;
-
   MockNFT public token;
 
   function setUp() public {
@@ -145,7 +144,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
   function testSetVaultFeesTooHigh() public {
     createVault();
-    vm.expectRevert(FNFTCollectionFactory.FeeTooHigh.selector);
+    vm.expectRevert(IFNFTCollectionFactory.FeeTooHigh.selector);
     fnftCollectionFactory.setVaultFees(
       0,
       0.6 ether,
@@ -512,7 +511,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
   // TODO: we need an FNFTCollectionFactoryTest contract
   function testSetFlashLoanFeeTooHigh() public {
-    vm.expectRevert(FNFTCollectionFactory.FeeTooHigh.selector);
+    vm.expectRevert(IFNFTCollectionFactory.FeeTooHigh.selector);
     fnftCollectionFactory.setFlashLoanFee(501);
   }
 
