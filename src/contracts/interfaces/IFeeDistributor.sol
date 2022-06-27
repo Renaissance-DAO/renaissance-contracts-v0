@@ -2,6 +2,8 @@
 
 pragma solidity 0.8.13;
 
+import "./IVaultManager.sol";
+
 interface IFeeDistributor {
 
   struct FeeReceiver {
@@ -10,7 +12,7 @@ interface IFeeDistributor {
     bool isContract;
   }
 
-  function vaultManager() external returns (address);
+  function vaultManager() external returns (IVaultManager);
   function lpStaking() external returns (address);
   function inventoryStaking() external returns (address);
   function treasury() external returns (address);

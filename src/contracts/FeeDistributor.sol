@@ -17,7 +17,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   bool public distributionPaused;
 
-  address public override vaultManager;
+  IVaultManager public override vaultManager;
   address public override lpStaking;
   address public override treasury;
 
@@ -30,7 +30,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   event UpdateTreasuryAddress(address newTreasury);
   event UpdateLPStakingAddress(address newLPStaking);
   event UpdateInventoryStakingAddress(address newInventoryStaking);
-  event UpdateVaultManager(address vaultManager);
+  event UpdateVaultManager(address newVaultManager);
   event PauseDistribution(bool paused);
 
   event AddFeeReceiver(address receiver, uint256 allocPoint);
@@ -53,8 +53,8 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   }
 
   function distribute(uint256 vaultId) external override virtual nonReentrant {
-    if (vaultManager == address(0)) revert ZeroAddress();
-    address _vault = IVaultManager(vaultManager).vault(vaultId);
+    if (address(vaultManager) == address(0)) revert ZeroAddress();
+    address _vault = vaultManager.vault(vaultId);
 
     uint256 tokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
 
@@ -91,7 +91,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   }
 
   function initializeVaultReceivers(uint256 _vaultId) external override {
-    if (msg.sender != vaultManager) revert CallerIsNotVaultManager();
+    if (msg.sender != address(vaultManager)) revert CallerIsNotVaultManager();
     ILPStaking(lpStaking).addPoolForVault(_vaultId);
     if (inventoryStaking != address(0))
       IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
@@ -143,7 +143,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   function setVaultManager(address _vaultManager) public override onlyOwner {
     if (address(vaultManager) != address(0)) revert VaultManagerIsImmutable();
-    vaultManager = _vaultManager;
+    vaultManager = IVaultManager(_vaultManager);
     emit UpdateVaultManager(_vaultManager);
   }
 
