@@ -6,19 +6,19 @@ import {ethers} from 'hardhat';
 /**
  *
  * SCENARIOS
- * 1.  NFT1 => FNFT1 that is just created
- * 2.  NFT2 => FNFT2 that is undergoing IFO but not started
- * 3.  NFT3 => FNFT3 that is undergoing IFO and has started with a few sales here and there
- * 4.  NFT4 => FNFT4 that is undergoing IFO and is paused with a few sales here and there
- * 5.  NFT5 => FNFT5 that has finished IFO with a few sales here and there
- * 6.  NFT6 => FNFT6 that has averageReserve voted that doesn’t meet quorum
- * 7.  NFT7 => FNFT7 that has averageReserve that meets quorum
- * 8.  NFT8 => FNFT9 that has completed an auction w/ a few bids
- * 9.  NFT9 => FNFT9 that has a triggered start bid
- * 10. NFT10 => FNFT10 that is undergoing a bid war
- * 11. NFT11 => FNFT11 that is redeemed
- * 12: NFT12 => FNFT13 that is cashed out by a few people
- * 13. NFT13 => FNFT14 that has a liquidity pool above threshold
+ * 1.  NFT1 => FNFTSingle1 that is just created
+ * 2.  NFT2 => FNFTSingle2 that is undergoing IFO but not started
+ * 3.  NFT3 => FNFTSingle3 that is undergoing IFO and has started with a few sales here and there
+ * 4.  NFT4 => FNFTSingle4 that is undergoing IFO and is paused with a few sales here and there
+ * 5.  NFT5 => FNFTSingle5 that has finished IFO with a few sales here and there
+ * 6.  NFT6 => FNFTSingle6 that has averageReserve voted that doesn’t meet quorum
+ * 7.  NFT7 => FNFTSingle7 that has averageReserve that meets quorum
+ * 8.  NFT8 => FNFTSingle9 that has completed an auction w/ a few bids
+ * 9.  NFT9 => FNFTSingle9 that has a triggered start bid
+ * 10. NFT10 => FNFTSingle10 that is undergoing a bid war
+ * 11. NFT11 => FNFTSingle11 that is redeemed
+ * 12: NFT12 => FNFTSingle13 that is cashed out by a few people
+ * 13. NFT13 => FNFTSingle14 that has a liquidity pool above threshold
  */
 
 const PERCENTAGE_SCALE = 10000; // for converting percentages to fixed point
@@ -220,8 +220,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT1 - scenario is done here
   await FNFTSingleFactory.mint(
-    "fNFT1", // name
-    "fNFT1",  // symbol
+    "FNFTSingle1", // name
+    "FNFTSingle1",  // symbol
     nft1CollectionInfo.address, // collection address
     1, // tokenId
     parseFixed('10000', 18), // supply
@@ -231,301 +231,301 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT2
   await FNFTSingleFactory.mint(
-    "fNFT2", // name
-    "fNFT2",  // symbol
+    "FNFTSingle2", // name
+    "FNFTSingle2",  // symbol
     nft2CollectionInfo.address, // collection address
     2, // tokenId
     parseFixed('1000', 18), // supply
     parseFixed('10000', 18), // initialPrice === 2e18
     .1 * PERCENTAGE_SCALE, // fee (10%)
   );
-  const fNFT2Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft2CollectionInfo.address, 2));
+  const fnftSingle2Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft2CollectionInfo.address, 2));
 
   // NFT3
   await FNFTSingleFactory.mint(
-    "fNFT3", // name
-    "fNFT3",  // symbol
+    "FNFTSingle3", // name
+    "FNFTSingle3",  // symbol
     nft3CollectionInfo.address, // collection address
     3, // tokenId
     parseFixed('100', 18), // supply
     parseFixed('1000', 18), // initialPrice == 2e18
     .03 * PERCENTAGE_SCALE, // fee (3%)
   );
-  const fNFT3Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft3CollectionInfo.address, 3));
+  const fnftSingle3Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft3CollectionInfo.address, 3));
 
   // NFT4
   await FNFTSingleFactory.mint(
-    "fNFT4", // name
-    "fNFT4",  // symbol
+    "FNFTSingle4", // name
+    "FNFTSingle4",  // symbol
     nft4CollectionInfo.address, // collection address
     4, // tokenId
     parseFixed('100000', 18), // supply
     parseFixed('1000000', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fNFT4Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft4CollectionInfo.address, 4));
+  const fnftSingle4Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft4CollectionInfo.address, 4));
 
   // NFT5
   await FNFTSingleFactory.mint(
-    "fNFT5", // name
-    "fNFT5",  // symbol
+    "FNFTSingle5", // name
+    "FNFTSingle5",  // symbol
     nft5CollectionInfo.address, // collection address
     5, // tokenId
     parseFixed('100', 18), // supply
     parseFixed('100', 18), // initialPrice
     .01 * PERCENTAGE_SCALE, // fee (1%)
   );
-  const fNFT5Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft5CollectionInfo.address, 5));
+  const fnftSingle5Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft5CollectionInfo.address, 5));
 
   // NFT6
   await FNFTSingleFactory.mint(
-    "fNFT6", // name
-    "fNFT6",  // symbol
+    "FNFTSingle6", // name
+    "FNFTSingle6",  // symbol
     nft6CollectionInfo.address, // collection address
     6, // tokenId
     parseFixed('10', 18), // supply // low supply to make quorum easy
     parseFixed('10', 18),
     .1 * PERCENTAGE_SCALE, // fee (10%)
   );
-  const fNFT6Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft6CollectionInfo.address, 6));
+  const fnftSingle6Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft6CollectionInfo.address, 6));
 
   // NFT7
   await FNFTSingleFactory.mint(
-    "fNFT7", // name
-    "fNFT7",  // symbol
+    "FNFTSingle7", // name
+    "FNFTSingle7",  // symbol
     nft7CollectionInfo.address, // collection address
     7, // tokenId
     parseFixed('10', 18), // supply  // low supply to make quorum easy
     parseFixed('10', 18), // initialPrice == 1e18
     .03 * PERCENTAGE_SCALE, // fee (3%)
   );
-  const fNFT7Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft7CollectionInfo.address, 7));
+  const fnftSingle7Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft7CollectionInfo.address, 7));
 
   // NFT8
   await FNFTSingleFactory.mint(
-    "fNFT8", // name
-    "fNFT8",  // symbol
+    "FNFTSingle8", // name
+    "FNFTSingle8",  // symbol
     nft8CollectionInfo.address, // collection address
     8, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fNFT8Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft8CollectionInfo.address, 8));
+  const fnftSingle8Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft8CollectionInfo.address, 8));
 
   // NFT9
   await FNFTSingleFactory.mint(
-    "fNFT9", // name
-    "fNFT9",  // symbol
+    "FNFTSingle9", // name
+    "FNFTSingle9",  // symbol
     nft9CollectionInfo.address, // collection address
     9, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fNFT9Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft9CollectionInfo.address, 9));
+  const fnftSingle9Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft9CollectionInfo.address, 9));
 
   // NFT10
   await FNFTSingleFactory.mint(
-    "fNFT10", // name
-    "fNFT10",  // symbol
+    "FNFTSingle10", // name
+    "FNFTSingle10",  // symbol
     nft10CollectionInfo.address, // collection address
     10, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fNFT10Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft10CollectionInfo.address, 10));
+  const fnftSingle10Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft10CollectionInfo.address, 10));
 
   // NFT11
   await FNFTSingleFactory.mint(
-    "fNFT11", // name
-    "fNFT11",  // symbol
+    "FNFTSingle11", // name
+    "FNFTSingle11",  // symbol
     nft11CollectionInfo.address, // collection address
     11, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fNFT11Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft11CollectionInfo.address, 11));
+  const fnftSingle11Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft11CollectionInfo.address, 11));
 
   // NFT12
   await FNFTSingleFactory.mint(
-    "fNFT12", // name
-    "fNFT12",  // symbol
+    "FNFTSingle12", // name
+    "FNFTSingle12",  // symbol
     nft12CollectionInfo.address, // collection address
     12, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fNFT12Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft12CollectionInfo.address, 12));
+  const fnftSingle12Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft12CollectionInfo.address, 12));
 
   // NFT13
   await FNFTSingleFactory.mint(
-    "fNFT13", // name
-    "fNFT13",  // symbol
+    "FNFTSingle13", // name
+    "FNFTSingle13",  // symbol
     nft13CollectionInfo.address, // collection address
     13, // tokenId
     parseFixed('100', 18), // supply
     parseFixed('100000', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fNFT13Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft13CollectionInfo.address, 13));
+  const fnftSingle13Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft13CollectionInfo.address, 13));
 
   // IFOFactory
   const IFOFactory = await getContract(hre, 'IFOFactory');
 
-  const fNft2 = await ethers.getContractAt('FNFT', fNFT2Address);
-  const fNft3 = await ethers.getContractAt('FNFT', fNFT3Address);
-  const fNft4 = await ethers.getContractAt('FNFT', fNFT4Address);
-  const fNft5 = await ethers.getContractAt('FNFT', fNFT5Address);
-  const fNft6 = await ethers.getContractAt('FNFT', fNFT6Address);
-  const fNft7 = await ethers.getContractAt('FNFT', fNFT7Address);
-  const fNft8 = await ethers.getContractAt('FNFT', fNFT8Address);
-  const fNft9 = await ethers.getContractAt('FNFT', fNFT9Address);
-  const fNft10 = await ethers.getContractAt('FNFT', fNFT10Address);
-  const fNft11 = await ethers.getContractAt('FNFT', fNFT11Address);
-  const fNft12 = await ethers.getContractAt('FNFT', fNFT12Address);
-  const fNft13 = await ethers.getContractAt('FNFT', fNFT13Address);
+  const fnftSingle2 = await ethers.getContractAt('FNFT', fnftSingle2Address);
+  const fnftSingle3 = await ethers.getContractAt('FNFT', fnftSingle3Address);
+  const fnftSingle4 = await ethers.getContractAt('FNFT', fnftSingle4Address);
+  const fnftSingle5 = await ethers.getContractAt('FNFT', fnftSingle5Address);
+  const fnftSingle6 = await ethers.getContractAt('FNFT', fnftSingle6Address);
+  const fnftSingle7 = await ethers.getContractAt('FNFT', fnftSingle7Address);
+  const fnftSingle8 = await ethers.getContractAt('FNFT', fnftSingle8Address);
+  const fnftSingle9 = await ethers.getContractAt('FNFT', fnftSingle9Address);
+  const fnftSingle10 = await ethers.getContractAt('FNFT', fnftSingle10Address);
+  const fnftSingle11 = await ethers.getContractAt('FNFT', fnftSingle11Address);
+  const fnftSingle12 = await ethers.getContractAt('FNFT', fnftSingle12Address);
+  const fnftSingle13 = await ethers.getContractAt('FNFT', fnftSingle13Address);
 
 
-  await fNft2.approve(IFOFactory.address, await fNft2.balanceOf(deployer));
-  await fNft3.approve(IFOFactory.address, await fNft3.balanceOf(deployer));
-  await fNft4.approve(IFOFactory.address, await fNft4.balanceOf(deployer));
-  await fNft5.approve(IFOFactory.address, await fNft5.balanceOf(deployer));
-  await fNft6.approve(IFOFactory.address, await fNft6.balanceOf(deployer));
-  await fNft7.approve(IFOFactory.address, await fNft7.balanceOf(deployer));
-  await fNft8.approve(IFOFactory.address, await fNft8.balanceOf(deployer));
-  await fNft9.approve(IFOFactory.address, await fNft9.balanceOf(deployer));
-  await fNft10.approve(IFOFactory.address, await fNft10.balanceOf(deployer));
-  await fNft11.approve(IFOFactory.address, await fNft11.balanceOf(deployer));
-  await fNft12.approve(IFOFactory.address, await fNft12.balanceOf(deployer));
-  await fNft13.approve(IFOFactory.address, await fNft13.balanceOf(deployer));
+  await fnftSingle2.approve(IFOFactory.address, await fnftSingle2.balanceOf(deployer));
+  await fnftSingle3.approve(IFOFactory.address, await fnftSingle3.balanceOf(deployer));
+  await fnftSingle4.approve(IFOFactory.address, await fnftSingle4.balanceOf(deployer));
+  await fnftSingle5.approve(IFOFactory.address, await fnftSingle5.balanceOf(deployer));
+  await fnftSingle6.approve(IFOFactory.address, await fnftSingle6.balanceOf(deployer));
+  await fnftSingle7.approve(IFOFactory.address, await fnftSingle7.balanceOf(deployer));
+  await fnftSingle8.approve(IFOFactory.address, await fnftSingle8.balanceOf(deployer));
+  await fnftSingle9.approve(IFOFactory.address, await fnftSingle9.balanceOf(deployer));
+  await fnftSingle10.approve(IFOFactory.address, await fnftSingle10.balanceOf(deployer));
+  await fnftSingle11.approve(IFOFactory.address, await fnftSingle11.balanceOf(deployer));
+  await fnftSingle12.approve(IFOFactory.address, await fnftSingle12.balanceOf(deployer));
+  await fnftSingle13.approve(IFOFactory.address, await fnftSingle13.balanceOf(deployer));
 
 
 
   // NFT2 IFO - NFT2 scenario is done here.
   await IFOFactory.create(
-    fNFT2Address, // fNft
-    await fNft2.totalSupply(), // amount for sale
+    fnftSingle2Address, // fNft
+    await fnftSingle2.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft2.totalSupply(), // cap
+    await fnftSingle2.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
   );
 
   // NFT3 IFO
   await IFOFactory.create(
-    fNFT3Address, // fNft
-    await fNft3.totalSupply(), // amount for sale
+    fnftSingle3Address, // fNft
+    await fnftSingle3.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft3.totalSupply(), // cap
+    await fnftSingle3.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO3Address = await IFOFactory.getIFO(fNFT3Address)
+  const IFO3Address = await IFOFactory.getIFO(fnftSingle3Address)
 
   // NFT4 IFO
   await IFOFactory.create(
-    fNFT4Address, // fNft
-    await fNft4.totalSupply(), // amount for sale
+    fnftSingle4Address, // fNft
+    await fnftSingle4.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft4.totalSupply(), // cap
+    await fnftSingle4.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO4Address = await IFOFactory.getIFO(fNFT4Address);
+  const IFO4Address = await IFOFactory.getIFO(fnftSingle4Address);
 
   // NFT5 IFO
   await IFOFactory.create(
-    fNFT5Address, // fNft
-    await fNft5.totalSupply(), // amount for sale
+    fnftSingle5Address, // fNft
+    await fnftSingle5.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft5.totalSupply(), // cap
+    await fnftSingle5.totalSupply(), // cap
     86400, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO5Address = await IFOFactory.getIFO(fNFT5Address);
+  const IFO5Address = await IFOFactory.getIFO(fnftSingle5Address);
 
   // NFT6 IFO
   await IFOFactory.create(
-    fNFT6Address, // fNft
-    await fNft6.totalSupply(), // amount for sale
+    fnftSingle6Address, // fNft
+    await fnftSingle6.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft6.totalSupply(), // cap
+    await fnftSingle6.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO6Address = await IFOFactory.getIFO(fNFT6Address)
+  const IFO6Address = await IFOFactory.getIFO(fnftSingle6Address)
 
   // NFT7 IFO
   await IFOFactory.create(
-    fNFT7Address, // fNft
-    await fNft7.totalSupply(), // amount for sale
+    fnftSingle7Address, // fNft
+    await fnftSingle7.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft7.totalSupply(), // cap
+    await fnftSingle7.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO7Address = await IFOFactory.getIFO(fNFT7Address)
+  const IFO7Address = await IFOFactory.getIFO(fnftSingle7Address)
 
   // NFT8 IFO
   await IFOFactory.create(
-    fNFT8Address, // fNft
-    await fNft8.totalSupply(), // amount for sale
+    fnftSingle8Address, // fNft
+    await fnftSingle8.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft8.totalSupply(), // cap
+    await fnftSingle8.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO8Address = await IFOFactory.getIFO(fNFT8Address);
+  const IFO8Address = await IFOFactory.getIFO(fnftSingle8Address);
 
   // NFT9 IFO
   await IFOFactory.create(
-    fNFT9Address, // fNft
-    await fNft9.totalSupply(), // amount for sale
+    fnftSingle9Address, // fNft
+    await fnftSingle9.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft9.totalSupply(), // cap
+    await fnftSingle9.totalSupply(), // cap
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO9Address = await IFOFactory.getIFO(fNFT9Address);
+  const IFO9Address = await IFOFactory.getIFO(fnftSingle9Address);
 
   // NFT10 IFO
   await IFOFactory.create(
-    fNFT10Address, // fNft
-    await fNft10.totalSupply(), // amount for sale
+    fnftSingle10Address, // fNft
+    await fnftSingle10.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft10.totalSupply(), // cap
+    await fnftSingle10.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO10Address = await IFOFactory.getIFO(fNFT10Address);
+  const IFO10Address = await IFOFactory.getIFO(fnftSingle10Address);
 
   // NFT11 No IFO
 
   // NFT12 IFO
   await IFOFactory.create(
-    fNFT12Address, // fNft
-    await fNft12.totalSupply(), // amount for sale
+    fnftSingle12Address, // fNft
+    await fnftSingle12.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft12.totalSupply(), // cap
+    await fnftSingle12.totalSupply(), // cap
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO12Address = await IFOFactory.getIFO(fNFT12Address);
+  const IFO12Address = await IFOFactory.getIFO(fnftSingle12Address);
 
   // NFT13 IFO
   await IFOFactory.create(
-    fNFT13Address, // fNft
-    await fNft13.totalSupply(), // amount for sale
+    fnftSingle13Address, // fNft
+    await fnftSingle13.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
-    await fNft13.totalSupply(), // cap
+    await fnftSingle13.totalSupply(), // cap
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO13Address = await IFOFactory.getIFO(fNFT13Address);
+  const IFO13Address = await IFOFactory.getIFO(fnftSingle13Address);
 
 
   // start IFOs
@@ -636,16 +636,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Scenario 6 ends here. fNft has votes but no quorum
   // callStatic is ok because cause this is basically a view w/o TWAP
-  const fNft6Price: BigNumber = await fNft6.callStatic.getAuctionPrice();
+  const fNft6Price: BigNumber = await fnftSingle6.callStatic.getAuctionPrice();
 
   // cast one vote. wont reach quorum.
-  await fNft6.connect(signers[0]).updateUserPrice(fNft6Price.add(parseFixed('1', 18)));
+  await fnftSingle6.connect(signers[0]).updateUserPrice(fNft6Price.add(parseFixed('1', 18)));
 
 
   // Scenario 7 ends here. fNft has votes and reaches quorum.
-  const fNft7Price: BigNumber = await fNft7.callStatic.getAuctionPrice();
+  const fNft7Price: BigNumber = await fnftSingle7.callStatic.getAuctionPrice();
   signers.slice(9, 19).forEach(async (signer) => {
-    await fNft7.connect(signer).updateUserPrice(fNft7Price.add(parseFixed('1', 18)));
+    await fnftSingle7.connect(signer).updateUserPrice(fNft7Price.add(parseFixed('1', 18)));
   }); // all holders vote in favor of new price. vote reaches quorum.
 
   // get global min percentage increase for auction bids
@@ -657,67 +657,67 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // SCENARIO 8
   // start auction on NFT8. deployer will win.
-  let auctionPrice8 = await fNft8.getAuctionPrice();
-  await fNft8.start({value: auctionPrice8});
+  let auctionPrice8 = await fnftSingle8.getAuctionPrice();
+  await fnftSingle8.start({value: auctionPrice8});
 
   // signer 1 bids
-  let livePrice = await fNft8.livePrice();
+  let livePrice = await fnftSingle8.livePrice();
   auctionPrice8 = livePrice * minPercentIncrease;
-  await fNft8.connect(signers[1]).bid({value: BigNumber.from(auctionPrice8.toString())})
+  await fnftSingle8.connect(signers[1]).bid({value: BigNumber.from(auctionPrice8.toString())})
 
   // deployer out bids signer 1
-  livePrice = await fNft8.livePrice();
+  livePrice = await fnftSingle8.livePrice();
   auctionPrice8 = livePrice * minPercentIncrease;
-  await fNft8.bid({value: BigNumber.from(auctionPrice8.toString())})
+  await fnftSingle8.bid({value: BigNumber.from(auctionPrice8.toString())})
 
   // move time forward so we can end the auction
-  const auctionLength = (await fNft8.auctionLength()).toNumber();
+  const auctionLength = (await fnftSingle8.auctionLength()).toNumber();
   await increaseBlockTimestamp(auctionLength);
 
   // SCENARIO 8 FINISHED
-  await fNft8.end();
+  await fnftSingle8.end();
 
 
   // SCENARIO 9 FINISHED, auction that has started
-  let auctionPrice9 = await fNft9.getAuctionPrice();
-  await fNft9.start({value: auctionPrice9});
+  let auctionPrice9 = await fnftSingle9.getAuctionPrice();
+  await fnftSingle9.start({value: auctionPrice9});
 
 
   // SCENARIO 10 FINISHED, ongoing bid war
-  let auctionPrice10 = await fNft10.getAuctionPrice();
-  await fNft10.start({value: auctionPrice10});
+  let auctionPrice10 = await fnftSingle10.getAuctionPrice();
+  await fnftSingle10.start({value: auctionPrice10});
   signers.slice(9,14).forEach(async (signer) => {
     auctionPrice10 *= minPercentIncrease;
-    await fNft10.connect(signer).bid({value: BigNumber.from(auctionPrice10.toString())})
+    await fnftSingle10.connect(signer).bid({value: BigNumber.from(auctionPrice10.toString())})
   });
 
 
   // SCENARIO 11, curator redeems
-  console.log(`fnft11.totalSupply() === ${await fNft11.totalSupply()}`)
-  console.log(`fnft11.balanceOf(deployer) === ${await fNft11.balanceOf(deployer)}`)
-  await fNft11.redeem()
+  console.log(`fnft11.totalSupply() === ${await fnftSingle11.totalSupply()}`)
+  console.log(`fnft11.balanceOf(deployer) === ${await fnftSingle11.balanceOf(deployer)}`)
+  await fnftSingle11.redeem()
 
 
   // SCENARIO 12, half of the buyers cashout
-  let auctionPrice12 = await fNft12.getAuctionPrice();
-  await fNft12.start({value: auctionPrice12});
+  let auctionPrice12 = await fnftSingle12.getAuctionPrice();
+  await fnftSingle12.start({value: auctionPrice12});
   signers.slice(0,3).forEach(async (signer) => {
     auctionPrice12 *= minPercentIncrease;
-    await fNft12.connect(signer).bid({value: BigNumber.from(auctionPrice12.toString())});
+    await fnftSingle12.connect(signer).bid({value: BigNumber.from(auctionPrice12.toString())});
   });
   // deployer out bids and wins nft
-  livePrice = await fNft12.livePrice();
+  livePrice = await fnftSingle12.livePrice();
   auctionPrice12 *= minPercentIncrease;
-  await fNft12.bid({value: BigNumber.from(auctionPrice12.toString())});
+  await fnftSingle12.bid({value: BigNumber.from(auctionPrice12.toString())});
 
   // move time forward so we can end the auction
-  const auctionLength12 = (await fNft12.auctionLength()).toNumber();
+  const auctionLength12 = (await fnftSingle12.auctionLength()).toNumber();
   await increaseBlockTimestamp(auctionLength12);
-  await fNft12.end();
+  await fnftSingle12.end();
 
   // SCENARIO 12 ends here, everyone cashes out
   signers.slice(0,9).forEach(async (signer) => {
-    await fNft12.connect(signer).cash();
+    await fnftSingle12.connect(signer).cash();
   });
 
   //TODO scenario 13 not done yet.
