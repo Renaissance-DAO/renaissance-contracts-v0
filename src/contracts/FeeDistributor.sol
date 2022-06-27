@@ -17,20 +17,19 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   bool public distributionPaused;
 
-  address public override vaultManager;
-  address public override lpStaking;
+  IVaultManager public override vaultManager;
+  ILPStaking public override lpStaking;
+  IInventoryStaking public override inventoryStaking;
   address public override treasury;
 
   // Total allocation points per vault.
   uint256 public override allocTotal;
   FeeReceiver[] public feeReceivers;
 
-  address public override inventoryStaking;
-
   event UpdateTreasuryAddress(address newTreasury);
   event UpdateLPStakingAddress(address newLPStaking);
   event UpdateInventoryStakingAddress(address newInventoryStaking);
-  event UpdateVaultManager(address vaultManager);
+  event UpdateVaultManager(address newVaultManager);
   event PauseDistribution(bool paused);
 
   event AddFeeReceiver(address receiver, uint256 allocPoint);
@@ -49,12 +48,13 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     setLPStakingAddress(_lpStaking);
     setVaultManager(_vaultManager);
 
-    _addReceiver(0.8 ether, lpStaking, true);
+    _addReceiver(0.8 ether, _lpStaking, true);
   }
 
   function distribute(uint256 vaultId) external override virtual nonReentrant {
-    if (vaultManager == address(0)) revert ZeroAddress();
-    address _vault = IVaultManager(vaultManager).vault(vaultId);
+    IVaultManager _vaultManager = vaultManager;
+    if (address(_vaultManager) == address(0)) revert ZeroAddress();
+    address _vault = _vaultManager.vault(vaultId);
 
     uint256 tokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
 
@@ -91,10 +91,11 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   }
 
   function initializeVaultReceivers(uint256 _vaultId) external override {
-    if (msg.sender != vaultManager) revert CallerIsNotVaultManager();
-    ILPStaking(lpStaking).addPoolForVault(_vaultId);
-    if (inventoryStaking != address(0))
-      IInventoryStaking(inventoryStaking).deployXTokenForVault(_vaultId);
+    if (msg.sender != address(vaultManager)) revert CallerIsNotVaultManager();
+    lpStaking.addPoolForVault(_vaultId);
+    IInventoryStaking _inventoryStaking = inventoryStaking;
+    if (address(_inventoryStaking) != address(0))
+      _inventoryStaking.deployXTokenForVault(_vaultId);
   }
 
   function changeReceiverAlloc(uint256 _receiverIdx, uint256 _allocPoint) public override virtual onlyOwner {
@@ -132,18 +133,18 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   function setLPStakingAddress(address _lpStaking) public override onlyOwner {
     if (_lpStaking == address(0)) revert ZeroAddress();
-    lpStaking = _lpStaking;
+    lpStaking = ILPStaking(_lpStaking);
     emit UpdateLPStakingAddress(_lpStaking);
   }
 
   function setInventoryStakingAddress(address _inventoryStaking) public override onlyOwner {
-    inventoryStaking = _inventoryStaking;
+    inventoryStaking = IInventoryStaking(_inventoryStaking);
     emit UpdateInventoryStakingAddress(_inventoryStaking);
   }
 
   function setVaultManager(address _vaultManager) public override onlyOwner {
     if (address(vaultManager) != address(0)) revert VaultManagerIsImmutable();
-    vaultManager = _vaultManager;
+    vaultManager = IVaultManager(_vaultManager);
     emit UpdateVaultManager(_vaultManager);
   }
 

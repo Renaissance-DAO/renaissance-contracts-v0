@@ -34,7 +34,7 @@ contract FNFTCollectionFactory is
     uint64 public override factoryTargetRedeemFee;
     uint64 public override factoryRandomSwapFee;
 
-    address public override vaultManager;
+    IVaultManager public override vaultManager;
     uint64 public override factoryTargetSwapFee;
 
     address public override eligibilityManager;
@@ -65,7 +65,7 @@ contract FNFTCollectionFactory is
     ) external virtual override returns (address) {
         onlyOwnerIfPaused(0);
         if (childImplementation() == address(0)) revert ZeroAddress();
-        IVaultManager _vaultManager = IVaultManager(vaultManager);
+        IVaultManager _vaultManager = vaultManager;
         address vaultAddr = deployVault(name, symbol, _assetAddress, is1155, allowAllItems);
         uint vaultId = _vaultManager.addVault(vaultAddr);
         emit NewVault(vaultId, vaultAddr, _assetAddress);
@@ -73,8 +73,8 @@ contract FNFTCollectionFactory is
     }
 
     function setVaultManager(address _vaultManager) public virtual override onlyOwner {
-        emit UpdateVaultManager(vaultManager, _vaultManager);
-        vaultManager = _vaultManager;
+        emit UpdateVaultManager(address(vaultManager), _vaultManager);
+        vaultManager = IVaultManager(_vaultManager);
     }
 
     function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {
@@ -120,7 +120,7 @@ contract FNFTCollectionFactory is
         uint256 targetSwapFee
     ) public virtual override {
         if (msg.sender != owner()) {
-            address vaultAddr = IVaultManager(vaultManager).vault(vaultId);
+            address vaultAddr = vaultManager.vault(vaultId);
             if (msg.sender != vaultAddr) revert CallerIsNotVault();
         }
         if (mintFee > 0.5 ether) revert FeeTooHigh();
@@ -142,7 +142,7 @@ contract FNFTCollectionFactory is
 
     function disableVaultFees(uint256 vaultId) public virtual override {
         if (msg.sender != owner()) {
-            address vaultAddr = IVaultManager(vaultManager).vault(vaultId);
+            address vaultAddr = vaultManager.vault(vaultId);
             if (msg.sender != vaultAddr) revert CallerIsNotVault();
         }
         delete _vaultFees[vaultId];

@@ -22,7 +22,7 @@ contract FNFTSingleFactory is
     enum FeeType { GovernanceFee, MaxCuratorFee, SwapFee }
     enum Boundary { Min, Max }
 
-    address public override vaultManager;
+    IVaultManager public override vaultManager;
 
     /// @notice fee exclusion for swaps
     uint256 public override swapFee;
@@ -154,7 +154,7 @@ contract FNFTSingleFactory is
         );
 
         address fnftSingle = address(new BeaconProxy(address(this), _initializationCalldata));
-        IVaultManager _vaultManager = IVaultManager(vaultManager);
+        IVaultManager _vaultManager = vaultManager;
         _vaultManager.addVault(fnftSingle);
         emit FNFTSingleCreated(_nft, fnftSingle, msg.sender, _listPrice, _name, _symbol);
 
@@ -167,8 +167,8 @@ contract FNFTSingleFactory is
     }
 
     function setVaultManager(address _vaultManager) public virtual override onlyOwner {
-        emit UpdateVaultManager(vaultManager, _vaultManager);
-        vaultManager = _vaultManager;
+        emit UpdateVaultManager(address(vaultManager), _vaultManager);
+        vaultManager = IVaultManager(_vaultManager);
     }
 
     function setAuctionLength(Boundary boundary, uint256 _length) external onlyOwner {
