@@ -24,23 +24,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   // Total allocation points per vault.
   uint256 public override allocTotal;
-  FeeReceiver[] public feeReceivers;
-
-  event UpdateTreasuryAddress(address newTreasury);
-  event UpdateLPStakingAddress(address newLPStaking);
-  event UpdateInventoryStakingAddress(address newInventoryStaking);
-  event UpdateVaultManager(address newVaultManager);
-  event PauseDistribution(bool paused);
-
-  event AddFeeReceiver(address receiver, uint256 allocPoint);
-  event UpdateFeeReceiverAlloc(address receiver, uint256 allocPoint);
-  event UpdateFeeReceiverAddress(address oldReceiver, address newReceiver);
-  event RemoveFeeReceiver(address receiver);
-
-  error CallerIsNotVaultManager();
-  error VaultManagerIsImmutable();
-  error OutOfBounds();
-  error ZeroAddress();
+  FeeReceiver[] public override feeReceivers;
 
   function __FeeDistributor_init(address _vaultManager, address _lpStaking, address _treasury) public override initializer {
     __Pausable_init();
@@ -148,7 +132,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     emit UpdateVaultManager(_vaultManager);
   }
 
-  function pauseFeeDistribution(bool _pause) external onlyOwner {
+  function pauseFeeDistribution(bool _pause) external override onlyOwner {
     distributionPaused = _pause;
     emit PauseDistribution(_pause);
   }

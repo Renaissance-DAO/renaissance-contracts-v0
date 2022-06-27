@@ -19,6 +19,7 @@ interface IFeeDistributor {
   function inventoryStaking() external returns (IInventoryStaking);
   function treasury() external returns (address);
   function allocTotal() external returns (uint256);
+  function feeReceivers(uint256) external returns (uint256, address, bool);
 
   // Write functions.
   function __FeeDistributor_init(address _vaultManager, address _lpStaking, address _treasury) external;
@@ -36,4 +37,20 @@ interface IFeeDistributor {
   function setLPStakingAddress(address _lpStaking) external;
   function setInventoryStakingAddress(address _inventoryStaking) external;
   function setVaultManager(address _vaultManager) external;
+  function pauseFeeDistribution(bool _pause) external;
+
+  event UpdateTreasuryAddress(address newTreasury);
+  event UpdateLPStakingAddress(address newLPStaking);
+  event UpdateInventoryStakingAddress(address newInventoryStaking);
+  event UpdateVaultManager(address newVaultManager);
+  event PauseDistribution(bool paused);
+  event AddFeeReceiver(address receiver, uint256 allocPoint);
+  event UpdateFeeReceiverAlloc(address receiver, uint256 allocPoint);
+  event UpdateFeeReceiverAddress(address oldReceiver, address newReceiver);
+  event RemoveFeeReceiver(address receiver);
+
+  error CallerIsNotVaultManager();
+  error VaultManagerIsImmutable();
+  error OutOfBounds();
+  error ZeroAddress();
 }
