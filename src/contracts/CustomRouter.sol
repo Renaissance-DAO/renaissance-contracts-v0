@@ -13,11 +13,6 @@ contract CustomRouter is ICustomRouter {
     address public immutable override factory;
     address public immutable override WETH;
 
-    error Expired();
-    error InsufficientA();
-    error InsufficientB();
-    error TxFailed();
-
     modifier ensure(uint deadline) {
         if (deadline < block.timestamp) revert Expired();
         _;

@@ -33,4 +33,9 @@ interface ICustomRouter {
         address to,
         uint deadline
     ) external returns (uint amountToken, uint amountETH);
+
+    error Expired();
+    error InsufficientA();
+    error InsufficientB();
+    error TxFailed();
 }
