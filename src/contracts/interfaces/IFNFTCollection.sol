@@ -34,23 +34,22 @@ interface IFNFTCollection is IERC20Upgradeable {
     function targetSwapFee() external view returns (uint256);
     function vaultFees() external view returns (uint256, uint256, uint256, uint256, uint256);
 
+    event VaultShutdown(address assetAddress, uint256 numItems, address recipient);
+
     event VaultInit(
         uint256 indexed vaultId,
         address assetAddress,
         bool is1155,
         bool allowAllItems
     );
-
     event ManagerSet(address manager);
     event EligibilityDeployed(uint256 moduleIndex, address eligibilityAddr);
     // event CustomEligibilityDeployed(address eligibilityAddr);
-
     event EnableMintUpdated(bool enabled);
     event EnableRandomRedeemUpdated(bool enabled);
     event EnableTargetRedeemUpdated(bool enabled);
     event EnableRandomSwapUpdated(bool enabled);
     event EnableTargetSwapUpdated(bool enabled);
-
     event Minted(uint256[] nftIds, uint256[] amounts, address to);
     event Redeemed(uint256[] nftIds, uint256[] specificIds, address to);
     event Swapped(
@@ -60,6 +59,24 @@ interface IFNFTCollection is IERC20Upgradeable {
         uint256[] redeemedIds,
         address to
     );
+
+    error ZeroAddress();
+    error IneligibleNFTs();
+    error ZeroTransferAmount();
+    error NotOwner();
+    error NotManager();
+    error Paused();
+    error TooManyNFTs();
+    error EligibilityAlreadySet();
+    error MintDisabled();
+    error RandomRedeemDisabled();
+    error TargetRedeemDisabled();
+    error RandomSwapDisabled();
+    error TargetSwapDisabled();
+    error NFTAlreadyInCollection();
+    error NotNFTOwner();
+    error FeeTooHigh();
+    error WrongToken();
 
     function __FNFTCollection_init(
         string calldata _name,

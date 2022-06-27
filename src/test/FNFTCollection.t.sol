@@ -9,7 +9,7 @@ import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
 import {LPStaking} from "../contracts/LPStaking.sol";
 import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
 import {VaultManager} from "../contracts/VaultManager.sol";
-import {FNFTCollection} from "../contracts/FNFTCollection.sol";
+import {FNFTCollection, IFNFTCollection} from "../contracts/FNFTCollection.sol";
 import {FeeDistributor} from "../contracts/FeeDistributor.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
 import {ERC20FlashMintUpgradeable} from "../contracts/token/ERC20FlashMintUpgradeable.sol";
@@ -80,7 +80,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     assertTrue(fnftCollectionFactory.isLocked(0));
 
     vm.prank(address(1));
-    vm.expectRevert(FNFTCollection.Paused.selector);
+    vm.expectRevert(IFNFTCollection.Paused.selector);
     fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
   }
 
@@ -211,7 +211,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     pauseFeature(1);
 
     vm.prank(address(1));
-    vm.expectRevert(FNFTCollection.Paused.selector);
+    vm.expectRevert(IFNFTCollection.Paused.selector);
     vault.mint(tokenIds, amounts);
   }
 
@@ -255,7 +255,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
     vault.setVaultFeatures(false, true, true, true, true);
 
-    vm.expectRevert(FNFTCollection.MintDisabled.selector);
+    vm.expectRevert(IFNFTCollection.MintDisabled.selector);
     vault.mint(tokenIds, amounts);
   }
 
@@ -305,7 +305,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     vault.setVaultFeatures(true, true, false, true, true);
 
     vm.prank(address(1));
-    vm.expectRevert(FNFTCollection.TargetRedeemDisabled.selector);
+    vm.expectRevert(IFNFTCollection.TargetRedeemDisabled.selector);
     vault.redeem(2, redeemTokenIds);
   }
 
@@ -321,7 +321,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     pauseFeature(2);
 
     vm.prank(address(1));
-    vm.expectRevert(FNFTCollection.Paused.selector);
+    vm.expectRevert(IFNFTCollection.Paused.selector);
     vault.redeem(2, redeemTokenIds);
   }
 
@@ -356,7 +356,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     vault.setVaultFeatures(true, false, true, true, true);
 
     vm.prank(address(1));
-    vm.expectRevert(FNFTCollection.RandomRedeemDisabled.selector);
+    vm.expectRevert(IFNFTCollection.RandomRedeemDisabled.selector);
     vault.redeem(2, new uint256[](0));
   }
 
@@ -368,7 +368,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     pauseFeature(2);
 
     vm.prank(address(1));
-    vm.expectRevert(FNFTCollection.Paused.selector);
+    vm.expectRevert(IFNFTCollection.Paused.selector);
     vault.redeem(2, new uint256[](0));
   }
 
@@ -427,7 +427,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
     vault.setVaultFeatures(true, true, true, true, false);
 
-    failedSwap(tokenIds, specificIds, FNFTCollection.TargetSwapDisabled.selector);
+    failedSwap(tokenIds, specificIds, IFNFTCollection.TargetSwapDisabled.selector);
   }
 
   function testTargetSwapPaused() public {
@@ -444,7 +444,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
     pauseFeature(3);
 
-    failedSwap(tokenIds, specificIds, FNFTCollection.Paused.selector);
+    failedSwap(tokenIds, specificIds, IFNFTCollection.Paused.selector);
   }
 
   function testRandomSwap() public {
@@ -493,7 +493,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
     vault.setVaultFeatures(true, true, true, false, true);
 
-    failedSwap(tokenIds, new uint256[](0), FNFTCollection.RandomSwapDisabled.selector);
+    failedSwap(tokenIds, new uint256[](0), IFNFTCollection.RandomSwapDisabled.selector);
   }
 
   function testRandomSwapPaused() public {
@@ -507,7 +507,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
     pauseFeature(3);
 
-    failedSwap(tokenIds, new uint256[](0), FNFTCollection.Paused.selector);
+    failedSwap(tokenIds, new uint256[](0), IFNFTCollection.Paused.selector);
   }
 
   // TODO: we need an FNFTCollectionFactoryTest contract

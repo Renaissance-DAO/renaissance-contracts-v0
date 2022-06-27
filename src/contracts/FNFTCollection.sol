@@ -23,8 +23,8 @@ import {IPriceOracle} from "./PriceOracle.sol";
 // Authors: @0xKiwi_ and @alexgausman.
 
 contract FNFTCollection is
-    OwnableUpgradeable,
     IFNFTCollection,
+    OwnableUpgradeable,
     IERC165,
     ERC20FlashMintUpgradeable,
     ReentrancyGuardUpgradeable,
@@ -55,26 +55,6 @@ contract FNFTCollection is
 
     EnumerableSetUpgradeable.UintSet holdings;
     mapping(uint256 => uint256) quantity1155;
-
-    event VaultShutdown(address assetAddress, uint256 numItems, address recipient);
-
-    error ZeroAddress();
-    error IneligibleNFTs();
-    error ZeroTransferAmount();
-    error NotOwner();
-    error NotManager();
-    error Paused();
-    error TooManyNFTs();
-    error EligibilityAlreadySet();
-    error MintDisabled();
-    error RandomRedeemDisabled();
-    error TargetRedeemDisabled();
-    error RandomSwapDisabled();
-    error TargetSwapDisabled();
-    error NFTAlreadyInCollection();
-    error NotNFTOwner();
-    error FeeTooHigh();
-    error WrongToken();
 
     function __FNFTCollection_init(
         string memory _name,
