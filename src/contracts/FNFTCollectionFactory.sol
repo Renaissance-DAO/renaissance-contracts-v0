@@ -51,10 +51,10 @@ contract FNFTCollectionFactory is
         onlyOwnerIfPaused(0);
         if (childImplementation() == address(0)) revert ZeroAddress();
         IVaultManager _vaultManager = vaultManager;
-        address vaultAddr = deployVault(name, symbol, _assetAddress, is1155, allowAllItems);
-        uint vaultId = _vaultManager.addVault(vaultAddr);
-        emit NewVault(vaultId, vaultAddr, _assetAddress);
-        return vaultAddr;
+        address fnftCollection = deployVault(name, symbol, _assetAddress, is1155, allowAllItems);
+        uint vaultId = _vaultManager.addVault(fnftCollection);
+        emit NewVault(vaultId, fnftCollection, _assetAddress);
+        return fnftCollection;
     }
 
     function setVaultManager(address _vaultManager) public virtual override onlyOwner {
@@ -165,8 +165,17 @@ contract FNFTCollectionFactory is
         bool is1155,
         bool allowAllItems
     ) internal returns (address) {
-        address newBeaconProxy = address(new BeaconProxy(address(this), ""));
-        FNFTCollection(newBeaconProxy).__FNFTCollection_init(name, symbol, _assetAddress, is1155, allowAllItems);
+        bytes memory _initializationCalldata = abi.encodeWithSelector(
+            FNFTCollection.__FNFTCollection_init.selector,
+            name,
+            symbol,
+            _assetAddress,
+            is1155,
+            allowAllItems
+        );
+
+        address newBeaconProxy = address(new BeaconProxy(address(this), _initializationCalldata));
+
         // Manager for configuration.
         FNFTCollection(newBeaconProxy).setManager(msg.sender);
         // Owner for administrative functions.
