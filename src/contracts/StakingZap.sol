@@ -11,6 +11,8 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+
+import "./interfaces/IStakingZap.sol";
 import "./interfaces/IWETH.sol";
 import "./interfaces/ILPStaking.sol";
 import "./interfaces/IInventoryStaking.sol";
@@ -19,35 +21,18 @@ import "./interfaces/IVaultManager.sol";
 import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/IUniswapV2Router.sol";
 
-contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC1155HolderUpgradeable {
+contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC1155HolderUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
-  IWETH public immutable WETH;
-  ILPStaking public lpStaking;
-  IInventoryStaking public inventoryStaking;
-  IVaultManager public immutable vaultManager;
-  IUniswapV2Router public immutable router;
+  IWETH public immutable override WETH;
+  ILPStaking public override lpStaking;
+  IInventoryStaking public override inventoryStaking;
+  IVaultManager public immutable override vaultManager;
+  IUniswapV2Router public immutable override router;
 
-  uint256 public lpLockTime = 48 hours;
-  uint256 public inventoryLockTime = 7 days;
+  uint256 public override lpLockTime = 48 hours;
+  uint256 public override inventoryLockTime = 7 days;
   uint256 constant BASE = 1e18;
-
-  error LockTooLong();
-  error NotZero();
-  error NotEqualLength();
-  error IncorrectAmount();
-  error CallFailed();
-  error CallFailedWithMessage(string message);
-  error NotOwner();
-  error IdenticalAddress();
-  error ZeroAddress();
-  error OnlyWETH();
-  error InvalidDestination();
-  error NotExcluded();
-
-  event UserStaked(uint256 vaultId, uint256 count, uint256 lpBalance, uint256 timelockUntil, address sender);
-  event InventoryLockTimeUpdated(uint256 oldLockTime, uint256 newLockTime);
-  event LPLockTimeUpdated(uint256 oldLockTime, uint256 newLockTime);
 
   constructor(address _vaultManager, address _router) Ownable() ReentrancyGuard() {
     vaultManager = IVaultManager(_vaultManager);
@@ -56,26 +41,26 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     IERC20Upgradeable(address(IUniswapV2Router(_router).WETH())).safeApprove(_router, type(uint256).max);
   }
 
-  function assignStakingContracts() public {
+  function assignStakingContracts() public override {
     if (address(lpStaking) != address(0) && address(inventoryStaking) != address(0)) revert NotZero();
     IFeeDistributor feeDistributor = IFeeDistributor(IVaultManager(vaultManager).feeDistributor());
     lpStaking = ILPStaking(feeDistributor.lpStaking());
     inventoryStaking = IInventoryStaking(feeDistributor.inventoryStaking());
   }
 
-  function setLPLockTime(uint256 newLPLockTime) external onlyOwner {
+  function setLPLockTime(uint256 newLPLockTime) external override onlyOwner {
     if (newLPLockTime > 7 days) revert LockTooLong();
     emit LPLockTimeUpdated(lpLockTime, newLPLockTime);
     lpLockTime = newLPLockTime;
   }
 
-  function setInventoryLockTime(uint256 newInventoryLockTime) external onlyOwner {
+  function setInventoryLockTime(uint256 newInventoryLockTime) external override onlyOwner {
     if (newInventoryLockTime > 14 days) revert LockTooLong();
     emit InventoryLockTimeUpdated(inventoryLockTime, newInventoryLockTime);
     inventoryLockTime = newInventoryLockTime;
   }
 
-  function provideInventory721(uint256 vaultId, uint256[] calldata tokenIds) external {
+  function provideInventory721(uint256 vaultId, uint256[] calldata tokenIds) external override {
     uint256 count = tokenIds.length;
     IFNFTCollection vault = IFNFTCollection(vaultManager.vault(vaultId));
     inventoryStaking.timelockMintFor(vaultId, count*BASE, msg.sender, inventoryLockTime);
@@ -96,7 +81,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     if (newBal != oldBal + count*BASE) revert IncorrectAmount();
   }
 
-  function provideInventory1155(uint256 vaultId, uint256[] calldata tokenIds, uint256[] calldata amounts) external {
+  function provideInventory1155(uint256 vaultId, uint256[] calldata tokenIds, uint256[] calldata amounts) external override {
     uint256 length = tokenIds.length;
     if (length != amounts.length) revert NotEqualLength();
     uint256 count;
@@ -122,7 +107,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     uint256 vaultId,
     uint256[] calldata ids,
     uint256 minWethIn
-  ) external payable returns (uint256) {
+  ) external payable override returns (uint256) {
     return addLiquidity721ETHTo(vaultId, ids, minWethIn, msg.sender);
   }
 
@@ -131,7 +116,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     uint256[] memory ids,
     uint256 minWethIn,
     address to
-  ) public payable nonReentrant returns (uint256) {
+  ) public payable override nonReentrant returns (uint256) {
     if (to == address(0) || to == address(this)) revert InvalidDestination();
     WETH.deposit{value: msg.value}();
     (, uint256 amountEth, uint256 liquidity) = _addLiquidity721WETH(vaultId, ids, minWethIn, msg.value, to);
@@ -152,7 +137,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     uint256[] calldata ids,
     uint256[] calldata amounts,
     uint256 minEthIn
-  ) external payable returns (uint256) {
+  ) external payable override returns (uint256) {
     return addLiquidity1155ETHTo(vaultId, ids, amounts, minEthIn, msg.sender);
   }
 
@@ -162,7 +147,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     uint256[] memory amounts,
     uint256 minEthIn,
     address to
-  ) public payable nonReentrant returns (uint256) {
+  ) public payable override nonReentrant returns (uint256) {
     if (to == address(0) || to == address(this)) revert InvalidDestination();
     WETH.deposit{value: msg.value}();
     // Finish this.
@@ -184,7 +169,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     uint256[] calldata ids,
     uint256 minWethIn,
     uint256 wethIn
-  ) external returns (uint256) {
+  ) external override returns (uint256) {
     return addLiquidity721To(vaultId, ids, minWethIn, wethIn, msg.sender);
   }
 
@@ -194,7 +179,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     uint256 minWethIn,
     uint256 wethIn,
     address to
-  ) public nonReentrant returns (uint256) {
+  ) public override nonReentrant returns (uint256) {
     if (to == address(0) || to == address(this)) revert InvalidDestination();
     IERC20Upgradeable(address(WETH)).safeTransferFrom(msg.sender, address(this), wethIn);
     (, uint256 amountEth, uint256 liquidity) = _addLiquidity721WETH(vaultId, ids, minWethIn, wethIn, to);
@@ -214,7 +199,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     uint256[] memory amounts,
     uint256 minWethIn,
     uint256 wethIn
-  ) public returns (uint256) {
+  ) public override returns (uint256) {
     return addLiquidity1155To(vaultId, ids, amounts, minWethIn, wethIn, msg.sender);
   }
 
@@ -225,7 +210,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     uint256 minWethIn,
     uint256 wethIn,
     address to
-  ) public nonReentrant returns (uint256) {
+  ) public override nonReentrant returns (uint256) {
     if (to == address(0) || to == address(this)) revert InvalidDestination();
     IERC20Upgradeable(address(WETH)).safeTransferFrom(msg.sender, address(this), wethIn);
     (, uint256 amountEth, uint256 liquidity) = _addLiquidity1155WETH(vaultId, ids, amounts, minWethIn, wethIn, to);
@@ -438,7 +423,7 @@ contract StakingZap is Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC115
     if (msg.sender != address(WETH)) revert OnlyWETH();
   }
 
-  function rescue(address token) external onlyOwner {
+  function rescue(address token) external override onlyOwner {
     if (token == address(0)) {
       (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
       if (!success) revert CallFailed();
