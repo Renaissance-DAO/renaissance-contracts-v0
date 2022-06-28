@@ -50,14 +50,11 @@ interface IFeeDistributor {
 
   function setInventoryStakingAddress(address _inventoryStaking) external;
 
-  function setVaultManager(address _vaultManager) external;
-
   function pauseFeeDistribution(bool _pause) external;
 
   event UpdateTreasuryAddress(address newTreasury);
   event UpdateLPStakingAddress(address newLPStaking);
   event UpdateInventoryStakingAddress(address newInventoryStaking);
-  event UpdateVaultManager(address newVaultManager);
   event PauseDistribution(bool paused);
   event AddFeeReceiver(address receiver, uint256 allocPoint);
   event UpdateFeeReceiverAlloc(address receiver, uint256 allocPoint);

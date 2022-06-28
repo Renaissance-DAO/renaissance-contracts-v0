@@ -61,8 +61,8 @@ contract FNFTSingleFactory is
         __Ownable_init();
         __Pausable_init();
         __BeaconUpgradeable__init(address(new FNFTSingle()));
-        setVaultManager(_vaultManager);
 
+        vaultManager = IVaultManager(_vaultManager);
         maxAuctionLength = 2 weeks;
         minAuctionLength = 3 days;
         minReserveFactor = 2000; // 20%
@@ -109,11 +109,6 @@ contract FNFTSingleFactory is
 
     function togglePaused() external override onlyOwner {
         paused() ? _unpause() : _pause();
-    }
-
-    function setVaultManager(address _vaultManager) public virtual override onlyOwner {
-        emit UpdateVaultManager(address(vaultManager), _vaultManager);
-        vaultManager = IVaultManager(_vaultManager);
     }
 
     function setAuctionLength(Boundary boundary, uint256 _length) external override onlyOwner {

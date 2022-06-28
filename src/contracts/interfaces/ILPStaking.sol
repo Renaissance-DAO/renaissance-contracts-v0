@@ -22,8 +22,6 @@ interface ILPStaking {
 
     function __LPStaking__init(address _vaultManager, address _stakingTokenProvider) external;
 
-    function setVaultManager(address _vaultManager) external;
-
     function setStakingTokenProvider(address newProvider) external;
 
     function addPoolForVault(uint256 vaultId) external;

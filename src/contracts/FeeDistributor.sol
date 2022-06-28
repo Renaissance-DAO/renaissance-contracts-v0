@@ -28,9 +28,11 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   function __FeeDistributor_init(address _vaultManager, address _lpStaking, address _treasury) public override initializer {
     __Pausable_init();
+
+    vaultManager = IVaultManager(_vaultManager);
+
     setTreasuryAddress(_treasury);
     setLPStakingAddress(_lpStaking);
-    setVaultManager(_vaultManager);
 
     _addReceiver(0.8 ether, _lpStaking, true);
   }
@@ -124,12 +126,6 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   function setInventoryStakingAddress(address _inventoryStaking) public override onlyOwner {
     inventoryStaking = IInventoryStaking(_inventoryStaking);
     emit UpdateInventoryStakingAddress(_inventoryStaking);
-  }
-
-  function setVaultManager(address _vaultManager) public override onlyOwner {
-    if (address(vaultManager) != address(0)) revert VaultManagerIsImmutable();
-    vaultManager = IVaultManager(_vaultManager);
-    emit UpdateVaultManager(_vaultManager);
   }
 
   function pauseFeeDistribution(bool _pause) external override onlyOwner {

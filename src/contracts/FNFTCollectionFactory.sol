@@ -37,7 +37,7 @@ contract FNFTCollectionFactory is
         __Pausable_init();
         // We use a beacon proxy so that every child contract follows the same implementation code.
         __BeaconUpgradeable__init(address(new FNFTCollection()));
-        setVaultManager(_vaultManager);
+        vaultManager = IVaultManager(_vaultManager);
         setFactoryFees(0.1 ether, 0.05 ether, 0.1 ether, 0.05 ether, 0.1 ether);
     }
 
@@ -55,11 +55,6 @@ contract FNFTCollectionFactory is
         uint vaultId = _vaultManager.addVault(fnftCollection);
         emit NewVault(vaultId, fnftCollection, _assetAddress);
         return fnftCollection;
-    }
-
-    function setVaultManager(address _vaultManager) public virtual override onlyOwner {
-        emit UpdateVaultManager(address(vaultManager), _vaultManager);
-        vaultManager = IVaultManager(_vaultManager);
     }
 
     function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {

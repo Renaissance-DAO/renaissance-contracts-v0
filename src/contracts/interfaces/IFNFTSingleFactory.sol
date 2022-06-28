@@ -48,8 +48,6 @@ interface IFNFTSingleFactory {
 
     function flashLoanFee() external view returns (uint256);
 
-    function setVaultManager(address _vaultManager) external;
-
     function setAuctionLength(Boundary boundary, uint256 _length) external;
 
     function setFee(FeeType feeType, uint256 _fee) external;
@@ -78,7 +76,6 @@ interface IFNFTSingleFactory {
     event UpdateLiquidityThreshold(uint256 _old, uint256 _new);
     event UpdateInstantBuyMultiplier(uint256 _old, uint256 _new);
     event UpdateFlashLoanFee(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
-    event UpdateVaultManager(address _old, address _new);
     event FeeExclusion(address target, bool excluded);
     event FNFTSingleCreated(
         address indexed token,
