@@ -3,8 +3,8 @@
 pragma solidity 0.8.13;
 
 interface ICustomRouter {
-    function factory() external returns (address);
-    function WETH() external returns (address);
+    function factory() external view returns (address);
+    function WETH() external view returns (address);
 
     function addLiquidityETH(
         address token,
