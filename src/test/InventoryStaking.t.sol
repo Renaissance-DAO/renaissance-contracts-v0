@@ -4,7 +4,7 @@ pragma solidity 0.8.13;
 import "ds-test/test.sol";
 import {MockNFT} from "../contracts/mocks/NFT.sol";
 import {console, SetupEnvironment} from "./utils/utils.sol";
-import {InventoryStaking} from "../contracts/InventoryStaking.sol";
+import {InventoryStaking, IInventoryStaking} from "../contracts/InventoryStaking.sol";
 import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
 import {FNFTCollection} from "../contracts/FNFTCollection.sol";
 import {XTokenUpgradeable} from "../contracts/token/XTokenUpgradeable.sol";
@@ -49,7 +49,7 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
   }
 
   function testSetInventoryLockTimeErc20LockTooLong() public {
-    vm.expectRevert(InventoryStaking.LockTooLong.selector);
+    vm.expectRevert(IInventoryStaking.LockTooLong.selector);
     inventoryStaking.setInventoryLockTimeErc20(14 days + 1 seconds);
     assertEq(inventoryStaking.inventoryLockTimeErc20(), 0);
   }
@@ -57,7 +57,7 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
   function testDeployXTokenForVault() public {
     mintVaultTokens(1);
 
-    vm.expectRevert(InventoryStaking.XTokenNotDeployed.selector);
+    vm.expectRevert(IInventoryStaking.XTokenNotDeployed.selector);
     inventoryStaking.vaultXToken(vaultId);
     inventoryStaking.deployXTokenForVault(vaultId);
     // contract deployed, does not throw an error
@@ -110,7 +110,7 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
     mintVaultTokens(1);
 
     inventoryStaking.deployXTokenForVault(vaultId);
-    vm.expectRevert(InventoryStaking.NotZapContract.selector);
+    vm.expectRevert(IInventoryStaking.NotZapContract.selector);
     inventoryStaking.timelockMintFor(vaultId, 123 ether, address(this), 3 seconds);
   }
 
@@ -120,7 +120,7 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
     inventoryStaking.deployXTokenForVault(vaultId);
     vaultManager.setZapContract(address(123));
     vm.prank(address(123));
-    vm.expectRevert(InventoryStaking.NotExcludedFromFees.selector);
+    vm.expectRevert(IInventoryStaking.NotExcludedFromFees.selector);
     inventoryStaking.timelockMintFor(vaultId, 123 ether, address(this), 3 seconds);
   }
 
@@ -166,13 +166,13 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
 
   function testVaultXTokenNotDeployed() public {
     mintVaultTokens(1);
-    vm.expectRevert(InventoryStaking.XTokenNotDeployed.selector);
+    vm.expectRevert(IInventoryStaking.XTokenNotDeployed.selector);
     inventoryStaking.vaultXToken(vaultId);
   }
 
   function testXTokenShareValueXTokenNotDeployed() public {
     mintVaultTokens(1);
-    vm.expectRevert(InventoryStaking.XTokenNotDeployed.selector);
+    vm.expectRevert(IInventoryStaking.XTokenNotDeployed.selector);
     inventoryStaking.xTokenShareValue(vaultId);
   }
 

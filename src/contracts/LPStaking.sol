@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 
 import "./interfaces/IVaultManager.sol";
+import "./interfaces/ILPStaking.sol";
 import "./util/Pausable.sol";
 import "./StakingTokenProvider.sol";
 import "./token/TimelockRewardDistributionTokenImpl.sol";
@@ -18,11 +19,11 @@ import "./token/TimelockRewardDistributionTokenImpl.sol";
 // Pausing codes for LP staking are:
 // 10: Deposit
 
-contract LPStaking is Pausable {
+contract LPStaking is ILPStaking, Pausable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    IVaultManager public vaultManager;
-    StakingTokenProvider public stakingTokenProvider;
+    IVaultManager public override vaultManager;
+    StakingTokenProvider public override stakingTokenProvider;
     TimelockRewardDistributionTokenImpl public timelockRewardDistTokenImpl;
 
     mapping(uint256 => StakingPool) public vaultStakingInfo;

@@ -22,7 +22,7 @@ import "./interfaces/ITimelockExcludeList.sol";
 // Pausing codes for inventory staking are:
 // 10: Deposit
 
-contract InventoryStaking is Pausable, BeaconUpgradeable, IInventoryStaking {
+contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     // Small locktime to prevent flash deposits.
@@ -31,18 +31,8 @@ contract InventoryStaking is Pausable, BeaconUpgradeable, IInventoryStaking {
 
     IVaultManager public override vaultManager;
 
-    uint256 public inventoryLockTimeErc20;
-    ITimelockExcludeList public timelockExcludeList;
-
-    event XTokenCreated(uint256 vaultId, address baseToken, address xToken);
-    event Deposit(uint256 vaultId, uint256 baseTokenAmount, uint256 xTokenAmount, uint256 timelockUntil, address sender);
-    event Withdraw(uint256 vaultId, uint256 baseTokenAmount, uint256 xTokenAmount, address sender);
-    event FeesReceived(uint256 vaultId, uint256 amount);
-
-    error LockTooLong();
-    error NotZapContract();
-    error NotExcludedFromFees();
-    error XTokenNotDeployed();
+    uint256 public override inventoryLockTimeErc20;
+    ITimelockExcludeList public override timelockExcludeList;
 
     function __InventoryStaking_init(address _vaultManager) external virtual override initializer {
         __Ownable_init();
@@ -57,16 +47,16 @@ contract InventoryStaking is Pausable, BeaconUpgradeable, IInventoryStaking {
     }
 
     // TODO: timelock exclude list is not yet implemented
-    function setTimelockExcludeList(address addr) external onlyOwner {
+    function setTimelockExcludeList(address addr) external override onlyOwner {
         timelockExcludeList = ITimelockExcludeList(addr);
     }
 
-    function setInventoryLockTimeErc20(uint256 time) external onlyOwner {
+    function setInventoryLockTimeErc20(uint256 time) external override onlyOwner {
         if (time > 14 days) revert LockTooLong();
         inventoryLockTimeErc20 = time;
     }
 
-    function isAddressTimelockExcluded(address addr, uint256 vaultId) public view returns (bool) {
+    function isAddressTimelockExcluded(address addr, uint256 vaultId) public view override returns (bool) {
         if (address(timelockExcludeList) == address(0)) {
             return false;
         } else {
@@ -146,12 +136,12 @@ contract InventoryStaking is Pausable, BeaconUpgradeable, IInventoryStaking {
             : multiplier;
     }
 
-    function timelockUntil(uint256 vaultId, address who) external view returns (uint256) {
+    function timelockUntil(uint256 vaultId, address who) external view override returns (uint256) {
         XTokenUpgradeable xToken = XTokenUpgradeable(vaultXToken(vaultId));
         return xToken.timelockUntil(who);
     }
 
-    function balanceOf(uint256 vaultId, address who) external view returns (uint256) {
+    function balanceOf(uint256 vaultId, address who) external view override returns (uint256) {
         XTokenUpgradeable xToken = XTokenUpgradeable(vaultXToken(vaultId));
         return xToken.balanceOf(who);
     }
