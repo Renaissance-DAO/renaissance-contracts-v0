@@ -5,8 +5,6 @@ cache = true
 remappings = [
     "ds-test=lib/ds-test/src/",
     "solmate=lib/solmate/src/",
-    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
-    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
 ]
 eth_rpc_url = "https://mainnet.aurora.dev"
 
