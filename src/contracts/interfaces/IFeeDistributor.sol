@@ -55,7 +55,6 @@ interface IFeeDistributor {
   event UpdateTreasuryAddress(address newTreasury);
   event UpdateLPStakingAddress(address newLPStaking);
   event UpdateInventoryStakingAddress(address newInventoryStaking);
-  event UpdateVaultManager(address newVaultManager);
   event PauseDistribution(bool paused);
   event AddFeeReceiver(address receiver, uint256 allocPoint);
   event UpdateFeeReceiverAlloc(address receiver, uint256 allocPoint);

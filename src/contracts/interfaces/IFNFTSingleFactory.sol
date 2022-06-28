@@ -76,7 +76,6 @@ interface IFNFTSingleFactory {
     event UpdateLiquidityThreshold(uint256 _old, uint256 _new);
     event UpdateInstantBuyMultiplier(uint256 _old, uint256 _new);
     event UpdateFlashLoanFee(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
-    event UpdateVaultManager(address _old, address _new);
     event FeeExclusion(address target, bool excluded);
     event FNFTSingleCreated(
         address indexed token,
