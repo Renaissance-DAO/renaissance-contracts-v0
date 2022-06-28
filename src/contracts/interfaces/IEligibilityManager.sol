@@ -9,7 +9,7 @@ interface IEligibilityManager {
         string name;
     }
 
-    function modules(uint256) external view returns(address, address, string calldata);
+    function modules(uint256) external view returns(address, address, string memory);
 
     function __EligibilityManager_init() external;
 
