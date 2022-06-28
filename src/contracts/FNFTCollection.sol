@@ -269,17 +269,17 @@ contract FNFTCollection is
         return ids;
     }
 
-    function flashFee(address token, uint256 amount) public view override (
+    function flashFee(address borrowedToken, uint256 amount) public view override (
         IERC3156FlashLenderUpgradeable,
         IFNFTCollection
     ) returns (uint256) {
-        if (token != address(this)) revert WrongToken();
+        if (borrowedToken != address(this)) revert WrongToken();
         return uint256(factory.flashLoanFee()) * amount / 10000;
     }
 
     function flashLoan(
         IERC3156FlashBorrowerUpgradeable receiver,
-        address token,
+        address borrowedToken,
         uint256 amount,
         bytes calldata data
     ) public virtual override (
@@ -288,8 +288,8 @@ contract FNFTCollection is
     ) returns (bool) {
         onlyOwnerIfPaused(4);
 
-        uint256 fee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(token, amount);
-        return _flashLoan(receiver, token, amount, fee, data);
+        uint256 flashLoanFee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(borrowedToken, amount);
+        return _flashLoan(receiver, borrowedToken, amount, flashLoanFee, data);
     }
 
     function mintFee() public view override virtual returns (uint256) {

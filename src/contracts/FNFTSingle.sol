@@ -576,25 +576,25 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         return success;
     }
 
-    function flashFee(address token, uint256 amount) public view override (
+    function flashFee(address borrowedToken, uint256 amount) public view override (
         IERC3156FlashLenderUpgradeable,
         IFNFTSingle
     ) returns (uint256) {
-        if (token != address(this)) revert WrongToken();
+        if (borrowedToken != address(this)) revert WrongToken();
         return IFNFTSingleFactory(factory).flashLoanFee() * amount / 10000;
     }
 
     function flashLoan(
         IERC3156FlashBorrowerUpgradeable receiver,
-        address token,
+        address borrowedToken,
         uint256 amount,
         bytes calldata data
     ) public virtual override (
         IERC3156FlashLenderUpgradeable,
         IFNFTSingle
     ) returns (bool) {
-        uint256 fee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(token, amount);
-        return _flashLoan(receiver, token, amount, fee, data);
+        uint256 flashLoanFee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(borrowedToken, amount);
+        return _flashLoan(receiver, borrowedToken, amount, flashLoanFee, data);
     }
 
     function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {

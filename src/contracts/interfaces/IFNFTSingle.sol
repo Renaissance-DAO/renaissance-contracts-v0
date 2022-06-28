@@ -100,11 +100,11 @@ interface IFNFTSingle  is IERC20Upgradeable {
 
     function cash() external;
 
-    function flashFee(address token, uint256 amount) external view returns (uint256);
+    function flashFee(address borrowedToken, uint256 amount) external view returns (uint256);
 
     function flashLoan(
         IERC3156FlashBorrowerUpgradeable receiver,
-        address token,
+        address borrowedToken,
         uint256 amount,
         bytes calldata data
     ) external returns (bool);
