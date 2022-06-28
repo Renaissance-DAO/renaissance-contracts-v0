@@ -24,32 +24,11 @@ contract LPStaking is ILPStaking, Pausable {
 
     IVaultManager public override vaultManager;
     StakingTokenProvider public override stakingTokenProvider;
-    TimelockRewardDistributionTokenImpl public timelockRewardDistTokenImpl;
+    TimelockRewardDistributionTokenImpl public override timelockRewardDistTokenImpl;
 
-    mapping(uint256 => StakingPool) public vaultStakingInfo;
+    mapping(uint256 => StakingPool) public override vaultStakingInfo;
 
-    event PoolCreated(uint256 vaultId, address pool);
-    event PoolUpdated(uint256 vaultId, address pool);
-    event FeesReceived(uint256 vaultId, uint256 amount);
-
-    struct StakingPool {
-        address stakingToken;
-        address rewardToken;
-    }
-
-    error VaultManagerAlreadySet();
-    error VaultManagerNotSet();
-    error NotAPool();
-    error NotDeployingProperDistro();
-    error NotExcludedFromFees();
-    error NothingToMigrate();
-    error PoolAlreadyExists();
-    error PoolDoesNotExist();
-    error TimelockTooLong();
-    error TimelockRewardDistTokenImplAlreadySet();
-    error ZeroAddress();
-
-    function __LPStaking__init(address _vaultManager, address _stakingTokenProvider) external initializer {
+    function __LPStaking__init(address _vaultManager, address _stakingTokenProvider) external override initializer {
         __Ownable_init();
         if (_stakingTokenProvider == address(0)) revert ZeroAddress();
         if (address(timelockRewardDistTokenImpl) != address(0)) revert TimelockRewardDistTokenImplAlreadySet();
@@ -64,17 +43,17 @@ contract LPStaking is ILPStaking, Pausable {
         _;
     }
 
-    function setVaultManager(address _vaultManager) public onlyOwner {
+    function setVaultManager(address _vaultManager) public override onlyOwner {
         if (address(vaultManager) != address(0)) revert VaultManagerAlreadySet();
         vaultManager = IVaultManager(_vaultManager);
     }
 
-    function setStakingTokenProvider(address newProvider) external onlyOwner {
+    function setStakingTokenProvider(address newProvider) external override onlyOwner {
         if (newProvider == address(0)) revert ZeroAddress();
         stakingTokenProvider = StakingTokenProvider(newProvider);
     }
 
-    function addPoolForVault(uint256 vaultId) external onlyAdmin {
+    function addPoolForVault(uint256 vaultId) external override onlyAdmin {
         if (address(vaultManager) == address(0)) revert VaultManagerNotSet();
         if (vaultStakingInfo[vaultId].stakingToken != address(0)) revert PoolAlreadyExists();
         address _rewardToken = vaultManager.vault(vaultId);
@@ -85,7 +64,7 @@ contract LPStaking is ILPStaking, Pausable {
         emit PoolCreated(vaultId, newRewardDistToken);
     }
 
-    function updatePoolForVaults(uint256[] calldata vaultIds) external {
+    function updatePoolForVaults(uint256[] calldata vaultIds) external override {
         uint256 length = vaultIds.length;
         for (uint256 i; i < length;) {
             updatePoolForVault(vaultIds[i]);
@@ -96,7 +75,7 @@ contract LPStaking is ILPStaking, Pausable {
     }
 
     // In case the provider changes, this lets the pool be updated. Anyone can call it.
-    function updatePoolForVault(uint256 vaultId) public {
+    function updatePoolForVault(uint256 vaultId) public override {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         // Not letting people use this function to create new pools.
         if (pool.stakingToken == address(0)) revert PoolDoesNotExist();
@@ -113,7 +92,7 @@ contract LPStaking is ILPStaking, Pausable {
         emit PoolUpdated(vaultId, newRewardDistToken);
     }
 
-    function receiveRewards(uint256 vaultId, uint256 amount) external onlyAdmin returns (bool) {
+    function receiveRewards(uint256 vaultId, uint256 amount) external override onlyAdmin returns (bool) {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         if (pool.stakingToken == address(0)) {
             // In case the pair is updated, but not yet
@@ -133,7 +112,7 @@ contract LPStaking is ILPStaking, Pausable {
         return true;
     }
 
-    function deposit(uint256 vaultId, uint256 amount) external {
+    function deposit(uint256 vaultId, uint256 amount) external override {
         onlyOwnerIfPaused(10);
         // Check the pool in case its been updated.
         updatePoolForVault(vaultId);
@@ -156,7 +135,7 @@ contract LPStaking is ILPStaking, Pausable {
         }
     }
 
-    function timelockDepositFor(uint256 vaultId, address account, uint256 amount, uint256 timelockLength) external {
+    function timelockDepositFor(uint256 vaultId, address account, uint256 amount, uint256 timelockLength) external override {
         if (timelockLength >= 2592000) revert TimelockTooLong();
         if (!vaultManager.excludedFromFees(msg.sender)) revert NotExcludedFromFees();
         onlyOwnerIfPaused(10);
@@ -168,13 +147,13 @@ contract LPStaking is ILPStaking, Pausable {
         _rewardDistributionToken(pool).timelockMint(account, amount, timelockLength);
     }
 
-    function exit(uint256 vaultId) external {
+    function exit(uint256 vaultId) external override {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         _claimRewards(pool, msg.sender);
         _withdraw(pool, balanceOf(vaultId, msg.sender), msg.sender);
     }
 
-    function emergencyExitAndClaim(address _stakingToken, address _rewardToken) external {
+    function emergencyExitAndClaim(address _stakingToken, address _rewardToken) external override {
         StakingPool memory pool = StakingPool(_stakingToken, _rewardToken);
         TimelockRewardDistributionTokenImpl dist = _rewardDistributionToken(pool);
         if (!isContract(address(dist))) revert NotAPool();
@@ -182,25 +161,25 @@ contract LPStaking is ILPStaking, Pausable {
         _withdraw(pool, dist.balanceOf(msg.sender), msg.sender);
     }
 
-    function emergencyExit(address _stakingToken, address _rewardToken) external {
+    function emergencyExit(address _stakingToken, address _rewardToken) external override {
         StakingPool memory pool = StakingPool(_stakingToken, _rewardToken);
         TimelockRewardDistributionTokenImpl dist = _rewardDistributionToken(pool);
         if (!isContract(address(dist))) revert NotAPool();
         _withdraw(pool, dist.balanceOf(msg.sender), msg.sender);
     }
 
-    function withdraw(uint256 vaultId, uint256 amount) external {
+    function withdraw(uint256 vaultId, uint256 amount) external override {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         _claimRewards(pool, msg.sender);
         _withdraw(pool, amount, msg.sender);
     }
 
-    function claimRewards(uint256 vaultId) public {
+    function claimRewards(uint256 vaultId) public override {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         _claimRewards(pool, msg.sender);
     }
 
-    function claimMultipleRewards(uint256[] calldata vaultIds) external {
+    function claimMultipleRewards(uint256[] calldata vaultIds) external override {
         uint256 length = vaultIds.length;
         for (uint256 i; i < length;) {
             claimRewards(vaultIds[i]);
@@ -210,7 +189,7 @@ contract LPStaking is ILPStaking, Pausable {
         }
     }
 
-    function rewardDistributionToken(uint256 vaultId) external view returns (TimelockRewardDistributionTokenImpl) {
+    function rewardDistributionToken(uint256 vaultId) external view override returns (TimelockRewardDistributionTokenImpl) {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         if (pool.stakingToken == address(0)) {
             return TimelockRewardDistributionTokenImpl(address(0));
@@ -218,25 +197,25 @@ contract LPStaking is ILPStaking, Pausable {
         return _rewardDistributionToken(pool);
     }
 
-    function rewardDistributionTokenAddr(address stakedToken, address rewardToken) public view returns (address) {
+    function rewardDistributionTokenAddr(address stakedToken, address rewardToken) public view override returns (address) {
         StakingPool memory pool = StakingPool(stakedToken, rewardToken);
         return address(_rewardDistributionToken(pool));
     }
 
-    function balanceOf(uint256 vaultId, address addr) public view returns (uint256) {
+    function balanceOf(uint256 vaultId, address addr) public view override returns (uint256) {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         TimelockRewardDistributionTokenImpl dist = _rewardDistributionToken(pool);
         if (!isContract(address(dist))) revert NotAPool();
         return dist.balanceOf(addr);
     }
 
-    function lockedUntil(uint256 vaultId, address who) external view returns (uint256) {
+    function lockedUntil(uint256 vaultId, address who) external view override returns (uint256) {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         TimelockRewardDistributionTokenImpl dist = _rewardDistributionToken(pool);
         return dist.timelockUntil(who);
     }
 
-    function lockedLPBalance(uint256 vaultId, address who) external view returns (uint256) {
+    function lockedLPBalance(uint256 vaultId, address who) external view override returns (uint256) {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         TimelockRewardDistributionTokenImpl dist = _rewardDistributionToken(pool);
         if(block.timestamp > dist.timelockUntil(who)) {
@@ -266,7 +245,7 @@ contract LPStaking is ILPStaking, Pausable {
     }
 
     // Note: this function does not guarantee the token is deployed, we leave that check to elsewhere to save gas.
-    function _rewardDistributionToken(StakingPool memory pool) public view returns (TimelockRewardDistributionTokenImpl) {
+    function _rewardDistributionToken(StakingPool memory pool) public view override returns (TimelockRewardDistributionTokenImpl) {
         bytes32 salt = keccak256(abi.encodePacked(pool.stakingToken, pool.rewardToken, uint256(2) /* small nonce to change tokens */));
         address tokenAddr = ClonesUpgradeable.predictDeterministicAddress(address(timelockRewardDistTokenImpl), salt);
         return TimelockRewardDistributionTokenImpl(tokenAddr);
@@ -283,7 +262,7 @@ contract LPStaking is ILPStaking, Pausable {
         return size > 0;
     }
 
-    function retrieveTokens(uint256 vaultId, uint256 amount, address from, address to) public onlyOwner {
+    function retrieveTokens(uint256 vaultId, uint256 amount, address from, address to) public override onlyOwner {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         TimelockRewardDistributionTokenImpl rewardDistToken = _rewardDistributionToken(pool);
         rewardDistToken.burnFrom(from, amount);
