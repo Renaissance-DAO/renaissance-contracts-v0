@@ -8,19 +8,15 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-contract StakingTokenProvider is OwnableUpgradeable {
+import "./interfaces/IStakingTokenProvider.sol";
 
-  address public uniLikeExchange;
-  address public defaultPairedToken;
-  string public defaultPrefix;
-  mapping(address => address) public pairedToken;
-  mapping(address => string) public pairedPrefix;
+contract StakingTokenProvider is IStakingTokenProvider, OwnableUpgradeable {
 
-  event NewDefaultPaired(address oldPaired, address newPaired);
-  event NewPairedTokenForVault(address vaultToken, address oldPairedtoken, address newPairedToken);
-
-  error IdenticalAddress();
-  error ZeroAddress();
+  address public override uniLikeExchange;
+  address public override defaultPairedToken;
+  string public override defaultPrefix;
+  mapping(address => address) public override pairedToken;
+  mapping(address => string) public override pairedPrefix;
 
   // This is an address provder to allow us to abstract out what liquidity
   // our vault tokens should be paired with.
