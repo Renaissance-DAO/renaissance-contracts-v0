@@ -24,7 +24,7 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
     /// @notice the address who receives ifo fees
     address payable public override feeReceiver;
 
-    function __IFOFactory_init() external initializer {
+    function __IFOFactory_init() external override initializer {
         __Ownable_init();
         __Pausable_init();
         __BeaconUpgradeable__init(address(new IFO()));

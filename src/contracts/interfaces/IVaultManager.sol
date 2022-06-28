@@ -6,6 +6,11 @@ interface IVaultManager {
     function fnftCollectionFactory() external view returns (address);
     function excludedFromFees(address) external view returns (bool);
     function feeDistributor() external view returns (address);
+    function __VaultManager_init(
+        address _weth,
+        address _ifoFactory,
+        address _priceOracle
+    ) external;
     function WETH() external view returns (address);
     function priceOracle() external view returns (address);
     function ifoFactory() external view returns (address);

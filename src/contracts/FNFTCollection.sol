@@ -42,7 +42,7 @@ contract FNFTCollection is
     IFNFTCollectionFactory public override factory;
     IEligibility public override eligibilityStorage;
 
-    uint256 randNonce;
+    uint256 private randNonce;
 
     address public override assetAddress;
     bool public override is1155;
@@ -53,8 +53,8 @@ contract FNFTCollection is
     bool public override enableRandomSwap;
     bool public override enableTargetSwap;
 
-    EnumerableSetUpgradeable.UintSet holdings;
-    mapping(uint256 => uint256) quantity1155;
+    EnumerableSetUpgradeable.UintSet internal holdings;
+    mapping(uint256 => uint256) public override quantity1155;
 
     function __FNFTCollection_init(
         string memory _name,
@@ -269,7 +269,10 @@ contract FNFTCollection is
         return ids;
     }
 
-    function flashFee(address token, uint256 amount) public view returns (uint256) {
+    function flashFee(address token, uint256 amount) public view override (
+        IERC3156FlashLenderUpgradeable,
+        IFNFTCollection
+    ) returns (uint256) {
         if (token != address(this)) revert WrongToken();
         return uint256(factory.flashLoanFee()) * amount / 10000;
     }
@@ -279,7 +282,10 @@ contract FNFTCollection is
         address token,
         uint256 amount,
         bytes calldata data
-    ) public override virtual returns (bool) {
+    ) public virtual override (
+        IERC3156FlashLenderUpgradeable,
+        IFNFTCollection
+    ) returns (bool) {
         onlyOwnerIfPaused(4);
 
         uint256 fee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(token, amount);
@@ -353,8 +359,8 @@ contract FNFTCollection is
     }
 
     // Added in v1.0.3.
-    function version() external pure returns (string memory) {
-        return "v1.0.5";
+    function version() external pure override returns (string memory) {
+        return "v1.0.0";
     }
 
     // We set a hook to the eligibility module (if it exists) after redeems in case anything needs to be modified.
@@ -549,7 +555,7 @@ contract FNFTCollection is
         _mint(to, amount);
     }
 
-    function shutdown(address recipient) public onlyOwner {
+    function shutdown(address recipient) public override onlyOwner {
         uint256 numItems = totalSupply() / base;
         if (numItems >= 4) revert TooManyNFTs();
         uint256[] memory specificIds = new uint256[](0);

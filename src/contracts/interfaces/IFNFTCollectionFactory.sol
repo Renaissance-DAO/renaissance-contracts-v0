@@ -6,6 +6,15 @@ import "../proxy/IBeacon.sol";
 import "./IVaultManager.sol";
 
 interface IFNFTCollectionFactory is IBeacon {
+  struct VaultFees {
+      bool active;
+      uint64 mintFee;
+      uint64 randomRedeemFee;
+      uint64 targetRedeemFee;
+      uint64 randomSwapFee;
+      uint64 targetSwapFee;
+  }
+
   // Read functions.
   function vaultManager() external view returns (IVaultManager);
   function eligibilityManager() external view returns (address);

@@ -17,16 +17,6 @@ contract FNFTCollectionFactory is
     Pausable,
     BeaconUpgradeable
 {
-
-    // v1.0.2
-    struct VaultFees {
-        bool active;
-        uint64 mintFee;
-        uint64 randomRedeemFee;
-        uint64 targetRedeemFee;
-        uint64 randomSwapFee;
-        uint64 targetSwapFee;
-    }
     mapping(uint256 => VaultFees) private _vaultFees;
 
     uint64 public override factoryMintFee;

@@ -2,6 +2,8 @@
 
 pragma solidity 0.8.13;
 
+import "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
+
 import "./IEligibility.sol";
 import "./IFNFTCollectionFactory.sol";
 import "./IVaultManager.sol";
@@ -9,74 +11,58 @@ import "../token/ERC20Upgradeable.sol";
 
 interface IFNFTCollection is IERC20Upgradeable {
     function vaultManager() external view returns (IVaultManager);
+
     function manager() external view returns (address);
+
     function pair() external view returns (address);
+
     function assetAddress() external view returns (address);
+
     function factory() external view returns (IFNFTCollectionFactory);
+
     function eligibilityStorage() external view returns (IEligibility);
 
     function is1155() external view returns (bool);
+
     function allowAllItems() external view returns (bool);
+
     function enableMint() external view returns (bool);
+
     function enableRandomRedeem() external view returns (bool);
+
     function enableTargetRedeem() external view returns (bool);
+
     function enableRandomSwap() external view returns (bool);
+
     function enableTargetSwap() external view returns (bool);
 
+    function quantity1155(uint256) external view returns (uint256);
+
     function vaultId() external view returns (uint256);
+
     function nftIdAt(uint256 holdingsIndex) external view returns (uint256);
+
     function allHoldings() external view returns (uint256[] memory);
+
     function totalHoldings() external view returns (uint256);
+
     function mintFee() external view returns (uint256);
+
     function randomRedeemFee() external view returns (uint256);
+
     function targetRedeemFee() external view returns (uint256);
+
     function randomSwapFee() external view returns (uint256);
+
     function targetSwapFee() external view returns (uint256);
+
     function vaultFees() external view returns (uint256, uint256, uint256, uint256, uint256);
 
+    function shutdown(address recipient) external;
+
+    function version() external returns (string memory);
+
     event VaultShutdown(address assetAddress, uint256 numItems, address recipient);
-
-    event VaultInit(
-        uint256 indexed vaultId,
-        address assetAddress,
-        bool is1155,
-        bool allowAllItems
-    );
-    event ManagerSet(address manager);
-    event EligibilityDeployed(uint256 moduleIndex, address eligibilityAddr);
-    // event CustomEligibilityDeployed(address eligibilityAddr);
-    event EnableMintUpdated(bool enabled);
-    event EnableRandomRedeemUpdated(bool enabled);
-    event EnableTargetRedeemUpdated(bool enabled);
-    event EnableRandomSwapUpdated(bool enabled);
-    event EnableTargetSwapUpdated(bool enabled);
-    event Minted(uint256[] nftIds, uint256[] amounts, address to);
-    event Redeemed(uint256[] nftIds, uint256[] specificIds, address to);
-    event Swapped(
-        uint256[] nftIds,
-        uint256[] amounts,
-        uint256[] specificIds,
-        uint256[] redeemedIds,
-        address to
-    );
-
-    error ZeroAddress();
-    error IneligibleNFTs();
-    error ZeroTransferAmount();
-    error NotOwner();
-    error NotManager();
-    error Paused();
-    error TooManyNFTs();
-    error EligibilityAlreadySet();
-    error MintDisabled();
-    error RandomRedeemDisabled();
-    error TargetRedeemDisabled();
-    error RandomSwapDisabled();
-    error TargetSwapDisabled();
-    error NFTAlreadyInCollection();
-    error NotNFTOwner();
-    error FeeTooHigh();
-    error WrongToken();
 
     function __FNFTCollection_init(
         string calldata _name,
@@ -155,8 +141,58 @@ interface IFNFTCollection is IERC20Upgradeable {
         address to
     ) external returns (uint256[] calldata);
 
+    function flashFee(address token, uint256 amount) external view returns (uint256);
+
+    function flashLoan(
+        IERC3156FlashBorrowerUpgradeable receiver,
+        address token,
+        uint256 amount,
+        bytes calldata data
+    ) external returns (bool);
+
     function allValidNFTs(uint256[] calldata tokenIds)
         external
         view
         returns (bool);
+
+    event VaultInit(
+        uint256 indexed vaultId,
+        address assetAddress,
+        bool is1155,
+        bool allowAllItems
+    );
+    event ManagerSet(address manager);
+    event EligibilityDeployed(uint256 moduleIndex, address eligibilityAddr);
+    event EnableMintUpdated(bool enabled);
+    event EnableRandomRedeemUpdated(bool enabled);
+    event EnableTargetRedeemUpdated(bool enabled);
+    event EnableRandomSwapUpdated(bool enabled);
+    event EnableTargetSwapUpdated(bool enabled);
+    event Minted(uint256[] nftIds, uint256[] amounts, address to);
+    event Redeemed(uint256[] nftIds, uint256[] specificIds, address to);
+    event Swapped(
+        uint256[] nftIds,
+        uint256[] amounts,
+        uint256[] specificIds,
+        uint256[] redeemedIds,
+        address to
+    );
+
+    error ZeroAddress();
+    error IneligibleNFTs();
+    error ZeroTransferAmount();
+    error NotOwner();
+    error NotManager();
+    error Paused();
+    error TooManyNFTs();
+    error EligibilityAlreadySet();
+    error MintDisabled();
+    error RandomRedeemDisabled();
+    error TargetRedeemDisabled();
+    error RandomSwapDisabled();
+    error TargetSwapDisabled();
+    error NFTAlreadyInCollection();
+    error NotNFTOwner();
+    error FeeTooHigh();
+    error WrongToken();
 }

@@ -10,8 +10,8 @@ import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
 contract IFO is IIFO, Initializable {
-    address public curator;
-    IIFOFactory public factory;
+    address public override curator;
+    IIFOFactory public override factory;
     IFNFTSingle public override fnft; // fNFT the ifo contract sells
 
     uint256 public override amountForSale; // amount of fNFT for sale

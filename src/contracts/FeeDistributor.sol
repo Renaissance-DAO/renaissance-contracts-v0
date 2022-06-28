@@ -15,7 +15,7 @@ import "./util/Pausable.sol";
 contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
-  bool public distributionPaused;
+  bool public override distributionPaused;
 
   IVaultManager public override vaultManager;
   ILPStaking public override lpStaking;

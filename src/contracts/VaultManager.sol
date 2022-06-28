@@ -37,7 +37,7 @@ contract VaultManager is
         address _weth,
         address _ifoFactory,
         address _priceOracle
-    ) external initializer {
+    ) external override initializer {
         __Ownable_init();
         __Pausable_init();
         WETH = _weth;
@@ -58,7 +58,7 @@ contract VaultManager is
         fnftSingleFactory = _fnftSingleFactory;
     }
 
-    function togglePaused() external onlyOwner {
+    function togglePaused() external override onlyOwner {
         paused() ? _unpause() : _pause();
     }
 
