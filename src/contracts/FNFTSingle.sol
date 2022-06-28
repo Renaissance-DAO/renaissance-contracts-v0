@@ -86,14 +86,14 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     mapping(address => uint256) public override userReservePrice;
 
     function __FNFTSingle_init(
+        string memory _name,
+        string memory _symbol,
         address _curator,
         address _token,
         uint256 _id,
         uint256 _supply,
         uint256 _listPrice,
-        uint256 _fee,
-        string memory _name,
-        string memory _symbol
+        uint256 _fee
     ) external override initializer {
         // initialize inherited contracts
         __ERC20_init(_name, _symbol);

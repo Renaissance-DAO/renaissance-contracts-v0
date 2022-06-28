@@ -34,7 +34,7 @@ interface IFNFTSingleFactory {
 
     function __FNFTSingleFactory_init(address _vaultManager) external;
 
-    function mint(
+    function createVault(
         string memory _name,
         string memory _symbol,
         address _nft,

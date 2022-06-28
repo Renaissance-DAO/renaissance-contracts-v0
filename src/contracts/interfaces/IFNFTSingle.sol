@@ -54,14 +54,14 @@ interface IFNFTSingle  is IERC20Upgradeable {
     function userReservePrice(address) external returns (uint256);
 
     function __FNFTSingle_init(
+        string memory _name,
+        string memory _symbol,
         address _curator,
         address _token,
         uint256 _id,
         uint256 _supply,
         uint256 _listPrice,
-        uint256 _fee,
-        string memory _name,
-        string memory _symbol
+        uint256 _fee
     ) external;
 
     function reservePrice() external view returns (uint256);

@@ -81,7 +81,7 @@ contract FNFTSingleFactory is
     /// @param _tokenId the uint256 ID of the token
     /// @param _listPrice the initial price of the NFT
     /// @return the ID of the vault
-    function mint(
+    function createVault(
         string memory _name,
         string memory _symbol,
         address _nft,
@@ -90,24 +90,20 @@ contract FNFTSingleFactory is
         uint256 _listPrice,
         uint256 _fee
     ) external override whenNotPaused returns (address) {
-        bytes memory _initializationCalldata = abi.encodeWithSelector(
-            FNFTSingle.__FNFTSingle_init.selector,
-            msg.sender,
+        address fnftSingle = deployVault(
+            _name,
+            _symbol,
             _nft,
             _tokenId,
             _supply,
             _listPrice,
-            _fee,
-            _name,
-            _symbol
+            _fee
         );
-
-        address fnftSingle = address(new BeaconProxy(address(this), _initializationCalldata));
         IVaultManager _vaultManager = vaultManager;
         _vaultManager.addVault(fnftSingle);
-        emit FNFTSingleCreated(_nft, fnftSingle, msg.sender, _listPrice, _name, _symbol);
-
         IERC721(_nft).safeTransferFrom(msg.sender, fnftSingle, _tokenId);
+
+        emit FNFTSingleCreated(_nft, fnftSingle, msg.sender, _listPrice, _name, _symbol);
         return fnftSingle;
     }
 
@@ -194,5 +190,29 @@ contract FNFTSingleFactory is
         if (_flashLoanFee > 500) revert FeeTooHigh();
         emit UpdateFlashLoanFee(flashLoanFee, _flashLoanFee);
         flashLoanFee = _flashLoanFee;
+    }
+
+    function deployVault(
+        string memory _name,
+        string memory _symbol,
+        address _nft,
+        uint256 _tokenId,
+        uint256 _supply,
+        uint256 _listPrice,
+        uint256 _fee
+    ) internal returns (address) {
+        bytes memory _initializationCalldata = abi.encodeWithSelector(
+            FNFTSingle.__FNFTSingle_init.selector,
+            _name,
+            _symbol,
+            msg.sender,
+            _nft,
+            _tokenId,
+            _supply,
+            _listPrice,
+            _fee
+        );
+
+        return address(new BeaconProxy(address(this), _initializationCalldata));
     }
 }

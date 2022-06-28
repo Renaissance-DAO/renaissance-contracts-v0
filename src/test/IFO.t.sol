@@ -55,7 +55,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
 
         nft.setApprovalForAll(address(fnftSingleFactory), true);
         fractionalizedNFT = FNFTSingle(
-            fnftSingleFactory.mint(
+            fnftSingleFactory.createVault(
                 "testName",
                 "TEST",
                 address(nft),

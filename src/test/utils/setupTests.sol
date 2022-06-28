@@ -91,7 +91,7 @@ contract SetupEnvironment {
         token.setApprovalForAll(_fnftSingleFactory, true);
 
         // FNFTSingle minted on this test contract address.
-        fnftSingle = FNFTSingle(factory.mint("testName", "TEST", address(token), 1, _amountToMint, 1 ether, 50));
+        fnftSingle = FNFTSingle(factory.createVault("testName", "TEST", address(token), 1, _amountToMint, 1 ether, 50));
     }
 
     function setupFNFTCollectionFactory(address vaultManager) public returns (FNFTCollectionFactory fnftCollectionFactory) {
