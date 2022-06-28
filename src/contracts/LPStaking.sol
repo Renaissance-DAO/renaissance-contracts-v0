@@ -10,8 +10,8 @@ import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 
 import "./interfaces/IVaultManager.sol";
 import "./interfaces/ILPStaking.sol";
+import "./interfaces/IStakingTokenProvider.sol";
 import "./util/Pausable.sol";
-import "./StakingTokenProvider.sol";
 import "./token/TimelockRewardDistributionTokenImpl.sol";
 
 // Author: 0xKiwi.
@@ -23,7 +23,7 @@ contract LPStaking is ILPStaking, Pausable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     IVaultManager public override vaultManager;
-    StakingTokenProvider public override stakingTokenProvider;
+    IStakingTokenProvider public override stakingTokenProvider;
     TimelockRewardDistributionTokenImpl public override timelockRewardDistTokenImpl;
 
     mapping(uint256 => StakingPool) public override vaultStakingInfo;
@@ -33,7 +33,7 @@ contract LPStaking is ILPStaking, Pausable {
         if (_stakingTokenProvider == address(0)) revert ZeroAddress();
         if (address(timelockRewardDistTokenImpl) != address(0)) revert TimelockRewardDistTokenImplAlreadySet();
         setVaultManager(_vaultManager);
-        stakingTokenProvider = StakingTokenProvider(_stakingTokenProvider);
+        stakingTokenProvider = IStakingTokenProvider(_stakingTokenProvider);
         timelockRewardDistTokenImpl = new TimelockRewardDistributionTokenImpl();
         timelockRewardDistTokenImpl.__TimelockRewardDistributionToken_init(IERC20Upgradeable(address(0)), "", "");
     }
@@ -50,7 +50,7 @@ contract LPStaking is ILPStaking, Pausable {
 
     function setStakingTokenProvider(address newProvider) external override onlyOwner {
         if (newProvider == address(0)) revert ZeroAddress();
-        stakingTokenProvider = StakingTokenProvider(newProvider);
+        stakingTokenProvider = IStakingTokenProvider(newProvider);
     }
 
     function addPoolForVault(uint256 vaultId) external override onlyAdmin {

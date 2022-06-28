@@ -3,7 +3,7 @@
 pragma solidity 0.8.13;
 
 import "./IVaultManager.sol";
-import "../StakingTokenProvider.sol";
+import "./IStakingTokenProvider.sol";
 import "../token/TimelockRewardDistributionTokenImpl.sol";
 
 interface ILPStaking {
@@ -14,7 +14,7 @@ interface ILPStaking {
 
     function vaultManager() external view returns (IVaultManager);
 
-    function stakingTokenProvider() external view returns (StakingTokenProvider);
+    function stakingTokenProvider() external view returns (IStakingTokenProvider);
 
     function timelockRewardDistTokenImpl() external view returns (TimelockRewardDistributionTokenImpl);
 
