@@ -203,14 +203,14 @@ contract FNFTSingleFactory is
     ) internal returns (address) {
         bytes memory _initializationCalldata = abi.encodeWithSelector(
             FNFTSingle.__FNFTSingle_init.selector,
+            _name,
+            _symbol,
             msg.sender,
             _nft,
             _tokenId,
             _supply,
             _listPrice,
-            _fee,
-            _name,
-            _symbol
+            _fee
         );
 
         return address(new BeaconProxy(address(this), _initializationCalldata));
