@@ -5,7 +5,7 @@ import "ds-test/test.sol";
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import {PriceOracle, IPriceOracle, PairInfo} from "../contracts/PriceOracle.sol";
+import {PriceOracle, IPriceOracle} from "../contracts/PriceOracle.sol";
 import {FNFTSingleFactory} from "../contracts/FNFTSingleFactory.sol";
 import {FNFTSingle} from "../contracts/FNFTSingle.sol";
 import {IUniswapV2Pair} from "../contracts/interfaces/IUniswapV2Pair.sol";
@@ -304,7 +304,7 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
     Update pair info in PriceOracle minimum number of times that is required to get fnftSingle price in ETH.
      */
     function _updatePriceOracleMinimumTimes(address _priceOracle, address _pair) internal {
-        PairInfo memory pairInfo = IPriceOracle(_priceOracle).getPairInfo(_pair);
+        IPriceOracle.PairInfo memory pairInfo = IPriceOracle(_priceOracle).getPairInfo(_pair);
         uint blockTimestampLast = pairInfo.blockTimestampLast;
 
         // Move block.timestamp forward and sync uniswap pair and update price oracle.

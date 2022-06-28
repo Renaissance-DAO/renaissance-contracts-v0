@@ -6,45 +6,30 @@ import "./libraries/PriceOracleLibrary.sol";
 import "./libraries/UQ112x112.sol";
 import "./libraries/math/FixedPoint.sol";
 import "./interfaces/IUniswapV2Factory.sol";
-import {IPriceOracle, PairInfo} from "./interfaces/IPriceOracle.sol";
+import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 
 /**
     1. Store cumulative prices for each pair in the pool
     2. Update to calculate twap and update for each pair
 */
-contract PriceOracle is OwnableUpgradeable, IPriceOracle {
+contract PriceOracle is IPriceOracle, OwnableUpgradeable {
     using FixedPoint for *;
 
-    uint256 public period;
-    uint256 public minimumPairInfoUpdate;
+    uint256 public override period;
+    uint256 public override minimumPairInfoUpdate;
 
     // Map of pair address to PairInfo struct, which contains cumulative price, last block timestamps, and etc.
     mapping(address => PairInfo) private _getTwap;
 
-    address public immutable WETH;
-    IUniswapV2Factory public immutable FACTORY;
-
-    /**
-        EVENTS
-     */
-    event UpdatePeriod(uint256 _old, uint256 _new);
-    event UpdateMinimumPairInfoUpdate(uint256 _old, uint256 _new);
-    event UpdatePairFactory(address _old, address _new);
-
-    /**
-        ERROR
-     */
-    error PairInfoDoesNotExist();
-    error InvalidToken();
-    error NotEnoughUpdates();
-    error PairInfoAlreadyExists();
+    address public immutable override WETH;
+    IUniswapV2Factory public immutable override FACTORY;
 
     constructor(address _factory, address _weth) {
         WETH = _weth;
         FACTORY = IUniswapV2Factory(_factory);
     }
 
-    function __PriceOracle_init() external initializer {
+    function __PriceOracle_init() external override initializer {
         __Ownable_init();
 
         period = 10 minutes;

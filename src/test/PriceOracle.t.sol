@@ -4,12 +4,12 @@ pragma solidity 0.8.13;
 import "ds-test/test.sol";
 
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {PriceOracle} from "../contracts/PriceOracle.sol";
+import {PriceOracle, IPriceOracle} from "../contracts/PriceOracle.sol";
 import {UniswapV2Pair} from "./utils/uniswap-v2/UniswapV2Pair.sol";
 import {UniswapV2Factory} from "./utils/uniswap-v2/UniswapV2Factory.sol";
 import {IUniswapV2Pair} from "../contracts/interfaces/IUniswapV2Pair.sol";
 import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
-import {PairInfo} from "../contracts/interfaces/IPriceOracle.sol";
+import {IPriceOracle} from "../contracts/interfaces/IPriceOracle.sol";
 import {WETH} from "../contracts/mocks/WETH.sol";
 import {MockERC20Upgradeable} from "../contracts/mocks/ERC20.sol";
 import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH, Pair, PairWithWETH} from "./utils/utils.sol";
@@ -67,7 +67,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
 
         // VERIFY
         // Get pair info with pair address.
-        PairInfo memory pairInfo = priceOracle.getPairInfo(token0, token1);
+        IPriceOracle.PairInfo memory pairInfo = priceOracle.getPairInfo(token0, token1);
         (, , uint32 blockTimestamp) = IUniswapV2Pair(pairAddress).getReserves();
 
         // Get token addresses with UniswapV2Pair interface.
@@ -108,7 +108,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
 
         // VERIFY
         // check that price has been updated in price oracle.
-        PairInfo memory pairInfo = priceOracle.getPairInfo(token0, token1);
+        IPriceOracle.PairInfo memory pairInfo = priceOracle.getPairInfo(token0, token1);
         (uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(pairAddress).getReserves();
 
         // price(0|1)CumulativeLast = 0 * t0 + token(0|1)Balance * t1
@@ -134,7 +134,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
 
         // VERIFY
         // Check that the pair is not updated and does not exist in price oracle.
-        PairInfo memory pairInfo = priceOracle.getPairInfo(token0, token1);
+        IPriceOracle.PairInfo memory pairInfo = priceOracle.getPairInfo(token0, token1);
         assertTrue(!pairInfo.exists);
     }
 
@@ -168,7 +168,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
 
         // VERIFY
         // check that price has NOT been updated in price oracle.
-        PairInfo memory pairInfo = priceOracle.getPairInfo(token0, token1);
+        IPriceOracle.PairInfo memory pairInfo = priceOracle.getPairInfo(token0, token1);
 
         // price(0|1)CumulativeLast = 0 * t0 + token(0|1)Balance * t1
         assertEq(pairInfo.price0CumulativeLast, price0CumulativeLast);
@@ -233,7 +233,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
             priceOracle.updatePairInfo(fnftSingle, wethToken);
         }
 
-        vm.expectRevert(PriceOracle.NotEnoughUpdates.selector);
+        vm.expectRevert(IPriceOracle.NotEnoughUpdates.selector);
         // Get Price of FNFT in ETH.
         priceOracle.getFNFTPriceETH(fnftSingle, 50 ether);
     }
@@ -244,7 +244,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
     function testFNFTPriceETHPairInfoDoesNotExist() public {
         address fakeToken = address(new MockERC20Upgradeable());
 
-        vm.expectRevert(PriceOracle.PairInfoDoesNotExist.selector);
+        vm.expectRevert(IPriceOracle.PairInfoDoesNotExist.selector);
         // Get Price of fakeToken in ETH.
         priceOracle.getFNFTPriceETH(fakeToken, 50 ether);
     }
