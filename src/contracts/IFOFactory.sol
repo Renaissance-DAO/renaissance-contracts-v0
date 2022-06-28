@@ -11,7 +11,7 @@ import "./proxy/BeaconProxy.sol";
 
 contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeable {
     /// @notice the mapping of fNFT to IFO address
-    mapping(address => address) public getIFO;
+    mapping(address => address) public override getIFO;
 
     uint256 public override minimumDuration;
     uint256 public override maximumDuration;
@@ -23,27 +23,6 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
     bool public override creatorIFOLock;
     /// @notice the address who receives ifo fees
     address payable public override feeReceiver;
-
-    event UpdateCreatorIFOLock(bool _old, bool _new);
-    event UpdateMinimumDuration(uint256 _old, uint256 _new);
-    event UpdateMaximumDuration(uint256 _old, uint256 _new);
-    event UpdateCreatorUtilityContract(address _old, address _new);
-    event UpdateGovernanceFee(uint256 _old, uint256 _new);
-    event UpdateFeeReceiver(address _old, address _new);
-    event IFOCreated(
-        address indexed IFO,
-        address indexed FNFT,
-        uint256 amountForSale,
-        uint256 price,
-        uint256 cap,
-        uint256 duration,
-        bool allowWhitelisting
-    );
-
-    error ZeroAddressDisallowed();
-    error FeeTooHigh();
-    error InvalidDuration();
-    error IFOExists(address nft);
 
     function __IFOFactory_init() external initializer {
         __Ownable_init();
@@ -70,7 +49,7 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         uint256 _cap,
         uint256 _duration,
         bool _allowWhitelisting
-    ) external whenNotPaused returns (address) {
+    ) external override whenNotPaused returns (address) {
         bytes memory _initializationCalldata = abi.encodeWithSelector(
             IFO.__IFO_init.selector,
             msg.sender,
@@ -92,21 +71,21 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         return _IFO;
     }
 
-    function pause() external onlyOwner {
+    function pause() external override onlyOwner {
         _pause();
     }
 
-    function unpause() external onlyOwner {
+    function unpause() external override onlyOwner {
         _unpause();
     }
 
-    function setCreatorIFOLock(bool _lock) external onlyOwner {
+    function setCreatorIFOLock(bool _lock) external override onlyOwner {
         emit UpdateCreatorIFOLock(creatorIFOLock, _lock);
 
         creatorIFOLock = _lock;
     }
 
-    function setMinimumDuration(uint256 _blocks) external onlyOwner {
+    function setMinimumDuration(uint256 _blocks) external override onlyOwner {
         if (_blocks > maximumDuration) revert InvalidDuration();
 
         emit UpdateMinimumDuration(minimumDuration, _blocks);
@@ -114,7 +93,7 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         minimumDuration = _blocks;
     }
 
-    function setMaximumDuration(uint256 _blocks) external onlyOwner {
+    function setMaximumDuration(uint256 _blocks) external override onlyOwner {
         if (minimumDuration > _blocks) revert InvalidDuration();
 
         emit UpdateMaximumDuration(maximumDuration, _blocks);
@@ -122,13 +101,13 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         maximumDuration = _blocks;
     }
 
-    function setCreatorUtilityContract(address _utility) external onlyOwner {
+    function setCreatorUtilityContract(address _utility) external override onlyOwner {
         emit UpdateCreatorUtilityContract(creatorUtilityContract, _utility);
 
         creatorUtilityContract = _utility;
     }
 
-    function setGovernanceFee(uint256 _fee) external onlyOwner {
+    function setGovernanceFee(uint256 _fee) external override onlyOwner {
         if (_fee > MAX_GOV_FEE) revert FeeTooHigh();
 
         emit UpdateGovernanceFee(governanceFee, _fee);
@@ -136,7 +115,7 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         governanceFee = _fee;
     }
 
-    function setFeeReceiver(address payable _receiver) external onlyOwner {
+    function setFeeReceiver(address payable _receiver) external override onlyOwner {
         if (_receiver == address(0)) revert ZeroAddressDisallowed();
 
         emit UpdateFeeReceiver(feeReceiver, _receiver);

@@ -46,13 +46,13 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
 
     function testInvalidMinimumDuration() public {
         ifoFactory.setMaximumDuration(86401);
-        vm.expectRevert(IFOFactory.InvalidDuration.selector);
+        vm.expectRevert(IIFOFactory.InvalidDuration.selector);
         ifoFactory.setMinimumDuration(86402);
     }
 
     function testInvalidMaximumDuration() public {
         uint256 val = ifoFactory.minimumDuration() - 1;
-        vm.expectRevert(IFOFactory.InvalidDuration.selector);
+        vm.expectRevert(IIFOFactory.InvalidDuration.selector);
         ifoFactory.setMaximumDuration(val);
     }
 
@@ -70,7 +70,7 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
     }
 
     function testSetGovernanceFeeTooHigh() public {
-        vm.expectRevert(IFOFactory.FeeTooHigh.selector);
+        vm.expectRevert(IIFOFactory.FeeTooHigh.selector);
         ifoFactory.setGovernanceFee(1001);
     }
 
@@ -80,7 +80,7 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
     }
 
     function testSetFeeReceiverZeroAddressDisallowed() public {
-        vm.expectRevert(IFOFactory.ZeroAddressDisallowed.selector);
+        vm.expectRevert(IIFOFactory.ZeroAddressDisallowed.selector);
         ifoFactory.setFeeReceiver(payable(address(0)));
     }
 }
