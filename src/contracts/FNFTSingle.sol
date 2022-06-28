@@ -99,8 +99,8 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         __ERC20_init(_name, _symbol);
         __ERC721Holder_init();
 
-        IFNFTSingleFactory _factory = IFNFTSingleFactory(msg.sender);
         IVaultManager _vaultManager = IVaultManager(_factory.vaultManager());
+        IFNFTSingleFactory _factory = IFNFTSingleFactory(msg.sender);
 
         if (_fee > _factory.maxCuratorFee()) revert FeeTooHigh();
 

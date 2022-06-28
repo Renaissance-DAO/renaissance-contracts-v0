@@ -48,8 +48,6 @@ interface IFNFTSingleFactory {
 
     function flashLoanFee() external view returns (uint256);
 
-    function setVaultManager(address _vaultManager) external;
-
     function setAuctionLength(Boundary boundary, uint256 _length) external;
 
     function setFee(FeeType feeType, uint256 _fee) external;

@@ -58,11 +58,6 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     assertEq(address(lpStaking.stakingTokenProvider()), address(stakingTokenProvider));
   }
 
-  function testSetVaultManagerAlreadySet() public {
-    vm.expectRevert(ILPStaking.VaultManagerAlreadySet.selector);
-    lpStaking.setVaultManager(address(1));
-  }
-
   function testSetStakingTokenProvider() public {
     lpStaking.setStakingTokenProvider(address(1));
     assertEq(address(lpStaking.stakingTokenProvider()), address(1));

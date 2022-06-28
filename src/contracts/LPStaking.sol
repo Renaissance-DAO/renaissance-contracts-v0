@@ -32,7 +32,7 @@ contract LPStaking is ILPStaking, Pausable {
         __Ownable_init();
         if (_stakingTokenProvider == address(0)) revert ZeroAddress();
         if (address(timelockRewardDistTokenImpl) != address(0)) revert TimelockRewardDistTokenImplAlreadySet();
-        setVaultManager(_vaultManager);
+        vaultManager = IVaultManager(_vaultManager);
         stakingTokenProvider = IStakingTokenProvider(_stakingTokenProvider);
         timelockRewardDistTokenImpl = new TimelockRewardDistributionTokenImpl();
         timelockRewardDistTokenImpl.__TimelockRewardDistributionToken_init(IERC20Upgradeable(address(0)), "", "");
@@ -41,11 +41,6 @@ contract LPStaking is ILPStaking, Pausable {
     modifier onlyAdmin() {
         if (msg.sender != owner() && msg.sender != vaultManager.feeDistributor()) revert Unauthorized();
         _;
-    }
-
-    function setVaultManager(address _vaultManager) public override onlyOwner {
-        if (address(vaultManager) != address(0)) revert VaultManagerAlreadySet();
-        vaultManager = IVaultManager(_vaultManager);
     }
 
     function setStakingTokenProvider(address newProvider) external override onlyOwner {

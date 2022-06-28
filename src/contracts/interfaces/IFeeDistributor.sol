@@ -50,8 +50,6 @@ interface IFeeDistributor {
 
   function setInventoryStakingAddress(address _inventoryStaking) external;
 
-  function setVaultManager(address _vaultManager) external;
-
   function pauseFeeDistribution(bool _pause) external;
 
   event UpdateTreasuryAddress(address newTreasury);
