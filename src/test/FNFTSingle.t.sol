@@ -56,7 +56,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         token.mint(address(this), 1);
         token.setApprovalForAll(address(fnftSingleFactory), true);
         // FNFTSingle minted on this test contract address.
-        fnftSingle = FNFTSingle(fnftSingleFactory.mint(
+        fnftSingle = FNFTSingle(fnftSingleFactory.createVault(
             "testName",
             "TEST",
             address(token),
@@ -84,7 +84,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         uint256 maxCuratorFee = fnftSingleFactory.maxCuratorFee();
         token.mint(address(this), 2);
         vm.expectRevert(IFNFTSingle.FeeTooHigh.selector);
-        fnftSingle = FNFTSingle(fnftSingleFactory.mint(
+        fnftSingle = FNFTSingle(fnftSingleFactory.createVault(
             "TheFeeIsTooDamnHigh",
             "HIGH",
             address(token),
@@ -127,7 +127,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         temp.mint(address(this), 1);
 
         temp.setApprovalForAll(address(fnftSingleFactory), true);
-        fnftSingleFactory.mint("testName2", "TEST2", address(temp), 1, 100e18, 1 ether, 500);
+        fnftSingleFactory.createVault("testName2", "TEST2", address(temp), 1, 100e18, 1 ether, 500);
     }
 
     function testFNFTSingleFactoryPausedCannotMint() public {
@@ -138,7 +138,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
 
         temp.setApprovalForAll(address(fnftSingleFactory), true);
         vm.expectRevert("Pausable: paused");
-        fnftSingleFactory.mint("testName2", "TEST2", address(temp), 1, 100e18, 1 ether, 500);
+        fnftSingleFactory.createVault("testName2", "TEST2", address(temp), 1, 100e18, 1 ether, 500);
     }
 
     /// -------------------------------
@@ -457,7 +457,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     function testListPriceZero() public {
         token.mint(address(this), 2);
 
-        fnftSingle = FNFTSingle(fnftSingleFactory.mint("testName", "TEST", address(token), 2, 100e18, 0, 500));
+        fnftSingle = FNFTSingle(fnftSingleFactory.createVault("testName", "TEST", address(token), 2, 100e18, 0, 500));
 
         assertEq(fnftSingle.votingTokens(), 0);
     }
@@ -465,7 +465,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     function testFail_listPriceZeroNoAuction() public {
         token.mint(address(this), 2);
 
-        fnftSingle = FNFTSingle(fnftSingleFactory.mint("testName", "TEST", address(token), 2, 100e18, 0, 500));
+        fnftSingle = FNFTSingle(fnftSingleFactory.createVault("testName", "TEST", address(token), 2, 100e18, 0, 500));
 
         User userTemp = new User(address(fnftSingle));
 

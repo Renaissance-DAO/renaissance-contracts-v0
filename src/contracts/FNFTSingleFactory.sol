@@ -81,7 +81,7 @@ contract FNFTSingleFactory is
     /// @param _tokenId the uint256 ID of the token
     /// @param _listPrice the initial price of the NFT
     /// @return the ID of the vault
-    function mint(
+    function createVault(
         string memory _name,
         string memory _symbol,
         address _nft,

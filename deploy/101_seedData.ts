@@ -219,7 +219,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 
   // NFT1 - scenario is done here
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle1", // name
     "FNFTSingle1",  // symbol
     nft1CollectionInfo.address, // collection address
@@ -230,7 +230,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT2
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle2", // name
     "FNFTSingle2",  // symbol
     nft2CollectionInfo.address, // collection address
@@ -242,7 +242,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle2Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft2CollectionInfo.address, 2));
 
   // NFT3
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle3", // name
     "FNFTSingle3",  // symbol
     nft3CollectionInfo.address, // collection address
@@ -254,7 +254,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle3Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft3CollectionInfo.address, 3));
 
   // NFT4
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle4", // name
     "FNFTSingle4",  // symbol
     nft4CollectionInfo.address, // collection address
@@ -266,7 +266,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle4Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft4CollectionInfo.address, 4));
 
   // NFT5
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle5", // name
     "FNFTSingle5",  // symbol
     nft5CollectionInfo.address, // collection address
@@ -278,7 +278,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle5Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft5CollectionInfo.address, 5));
 
   // NFT6
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle6", // name
     "FNFTSingle6",  // symbol
     nft6CollectionInfo.address, // collection address
@@ -290,7 +290,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle6Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft6CollectionInfo.address, 6));
 
   // NFT7
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle7", // name
     "FNFTSingle7",  // symbol
     nft7CollectionInfo.address, // collection address
@@ -302,7 +302,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle7Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft7CollectionInfo.address, 7));
 
   // NFT8
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle8", // name
     "FNFTSingle8",  // symbol
     nft8CollectionInfo.address, // collection address
@@ -314,7 +314,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle8Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft8CollectionInfo.address, 8));
 
   // NFT9
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle9", // name
     "FNFTSingle9",  // symbol
     nft9CollectionInfo.address, // collection address
@@ -326,7 +326,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle9Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft9CollectionInfo.address, 9));
 
   // NFT10
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle10", // name
     "FNFTSingle10",  // symbol
     nft10CollectionInfo.address, // collection address
@@ -338,7 +338,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle10Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft10CollectionInfo.address, 10));
 
   // NFT11
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle11", // name
     "FNFTSingle11",  // symbol
     nft11CollectionInfo.address, // collection address
@@ -350,7 +350,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle11Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft11CollectionInfo.address, 11));
 
   // NFT12
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle12", // name
     "FNFTSingle12",  // symbol
     nft12CollectionInfo.address, // collection address
@@ -362,7 +362,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle12Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft12CollectionInfo.address, 12));
 
   // NFT13
-  await FNFTSingleFactory.mint(
+  await FNFTSingleFactory.createVault(
     "FNFTSingle13", // name
     "FNFTSingle13",  // symbol
     nft13CollectionInfo.address, // collection address
