@@ -22,5 +22,8 @@ jobs:
       - name: Install dependencies
         run: forge install
 
+      - name: Install NPM dependencies
+        run: npm install
+
       - name: Run tests with fuzzing
         run: FOUNDRY_PROFILE=CI forge test --gas-report
