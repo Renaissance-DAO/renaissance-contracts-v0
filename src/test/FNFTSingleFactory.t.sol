@@ -4,14 +4,14 @@ pragma solidity 0.8.13;
 
 import "ds-test/test.sol";
 
-import {FNFTSingleFactory, IFNFTSingleFactory} from "../contracts/FNFTSingleFactory.sol";
+import {IFNFTSingleFactory} from "../contracts/FNFTSingleFactory.sol";
 import "../contracts/mocks/NFT.sol";
 import {console, CheatCodes, SetupEnvironment} from "./utils/utils.sol";
 
 
 /// @title Tests for the fnftSingleFactory
 contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
-    FNFTSingleFactory public fnftSingleFactory;
+    IFNFTSingleFactory public fnftSingleFactory;
     MockNFT public token;
     MockNFT public token2;
 
