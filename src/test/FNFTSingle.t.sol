@@ -80,7 +80,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         payable(address(user4)).transfer(10 ether);
     }
 
-    function test_InitializeFeeTooHigh() public {
+    function testInitializeFeeTooHigh() public {
         uint256 maxCuratorFee = fnftSingleFactory.maxCuratorFee();
         token.mint(address(this), 2);
         vm.expectRevert(IFNFTSingle.FeeTooHigh.selector);
@@ -553,22 +553,22 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
             false // allow whitelist
         );
 
-        IFO fNFTIfo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        IFO ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
         ifoFactory.setCreatorIFOLock(true);
 
-        fNFTIfo.start();
+        ifo.start();
 
         vm.startPrank(address(user1));
-        fNFTIfo.deposit{value: 0.1 ether}(); // 10 eth
+        ifo.deposit{value: 0.1 ether}(); // 10 eth
         vm.stopPrank();
 
         vm.startPrank(address(user2));
-        fNFTIfo.deposit{value: 0.3 ether}(); // 30 eth
+        ifo.deposit{value: 0.3 ether}(); // 30 eth
         vm.stopPrank();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
         //60 eth should be locked up in IFO now. 40 eth should be the circulating supply
 

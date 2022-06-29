@@ -29,17 +29,17 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
         ) = setupContracts();
     }
 
-    function test_setCreatorIFOLock() public {
+    function testSetCreatorIFOLock() public {
         ifoFactory.setCreatorIFOLock(true);
         assertTrue(ifoFactory.creatorIFOLock());
     }
 
-    function test_setMinimumDuration() public {
+    function testSetMinimumDuration() public {
         ifoFactory.setMinimumDuration(0);
         assertEq(ifoFactory.minimumDuration(), 0);
     }
 
-    function test_setMaximumDuration() public {
+    function testSetMaximumDuration() public {
         ifoFactory.setMaximumDuration(86401);
         assertEq(ifoFactory.maximumDuration(), 86401);
     }
@@ -56,7 +56,7 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
         ifoFactory.setMaximumDuration(val);
     }
 
-    function test_setCreatorUtilityContract() public {
+    function testSetCreatorUtilityContract() public {
         ifoFactory.setCreatorUtilityContract(address(1));
         assertEq(ifoFactory.creatorUtilityContract(), address(1));
 
@@ -64,7 +64,7 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
         assertEq(ifoFactory.creatorUtilityContract(), address(0));
     }
 
-    function test_setGovernanceFee() public {
+    function testSetGovernanceFee() public {
         ifoFactory.setGovernanceFee(1000);
         assertEq(ifoFactory.governanceFee(), 1000);
     }
@@ -74,7 +74,7 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
         ifoFactory.setGovernanceFee(1001);
     }
 
-    function test_setFeeReceiver() public {
+    function testSetFeeReceiver() public {
         ifoFactory.setFeeReceiver(payable(address(1)));
         assertEq(ifoFactory.feeReceiver(), payable(address(1)));
     }

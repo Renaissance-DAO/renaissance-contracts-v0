@@ -20,18 +20,18 @@ contract FNFTCollectionFactory is
 
     uint64 public override factoryMintFee;
     uint64 public override factoryRandomRedeemFee;
-    uint64 public override factoryTargetRedeemFee;
     uint64 public override factoryRandomSwapFee;
+    uint64 public override factoryTargetRedeemFee;
 
     IVaultManager public override vaultManager;
     uint64 public override factoryTargetSwapFee;
 
     address public override eligibilityManager;
-    uint64 public override flashLoanFee;
+    uint256 public override flashLoanFee;
 
     uint256 public override swapFee;
 
-    function __FNFTCollectionFactory_init(address _vaultManager) public override initializer {
+    function __FNFTCollectionFactory_init(address _vaultManager) external override initializer {
         if (_vaultManager == address(0)) revert ZeroAddress();
         __Pausable_init();
         // We use a beacon proxy so that every child contract follows the same implementation code.
@@ -56,16 +56,49 @@ contract FNFTCollectionFactory is
         return fnftCollection;
     }
 
+    function isLocked(uint256 lockId) external view override virtual returns (bool) {
+        return isPaused[lockId];
+    }
+
+    function setEligibilityManager(address _eligibilityManager) external onlyOwner virtual override {
+        emit EligibilityManagerUpdated(eligibilityManager, _eligibilityManager);
+        eligibilityManager = _eligibilityManager;
+    }
+
     function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {
         if (_flashLoanFee > 500) revert FeeTooHigh();
         emit FlashLoanFeeUpdated(flashLoanFee, _flashLoanFee);
-        flashLoanFee = uint64(_flashLoanFee);
+        flashLoanFee = _flashLoanFee;
     }
 
     function setSwapFee(uint256 _swapFee) external virtual override onlyOwner {
         if (_swapFee > 500) revert FeeTooHigh();
         emit SwapFeeUpdated(swapFee, _swapFee);
         swapFee = _swapFee;
+    }
+
+    function vaultFees(uint256 vaultId) external view virtual override returns (uint256, uint256, uint256, uint256, uint256) {
+        VaultFees memory fees = _vaultFees[vaultId];
+        if (fees.active) {
+            return (
+                uint256(fees.mintFee),
+                uint256(fees.randomRedeemFee),
+                uint256(fees.targetRedeemFee),
+                uint256(fees.randomSwapFee),
+                uint256(fees.targetSwapFee)
+            );
+        }
+
+        return (uint256(factoryMintFee), uint256(factoryRandomRedeemFee), uint256(factoryTargetRedeemFee), uint256(factoryRandomSwapFee), uint256(factoryTargetSwapFee));
+    }
+
+    function disableVaultFees(uint256 vaultId) public virtual override {
+        if (msg.sender != owner()) {
+            address vaultAddr = vaultManager.vault(vaultId);
+            if (msg.sender != vaultAddr) revert CallerIsNotVault();
+        }
+        delete _vaultFees[vaultId];
+        emit VaultFeesDisabled(vaultId);
     }
 
     function setFactoryFees(
@@ -117,39 +150,6 @@ contract FNFTCollectionFactory is
             uint64(_targetSwapFee)
         );
         emit VaultFeesUpdated(vaultId, _mintFee, _randomRedeemFee, _targetRedeemFee, _randomSwapFee, _targetSwapFee);
-    }
-
-    function disableVaultFees(uint256 vaultId) public virtual override {
-        if (msg.sender != owner()) {
-            address vaultAddr = vaultManager.vault(vaultId);
-            if (msg.sender != vaultAddr) revert CallerIsNotVault();
-        }
-        delete _vaultFees[vaultId];
-        emit VaultFeesDisabled(vaultId);
-    }
-
-    function setEligibilityManager(address _eligibilityManager) external onlyOwner virtual override {
-        emit EligibilityManagerUpdated(eligibilityManager, _eligibilityManager);
-        eligibilityManager = _eligibilityManager;
-    }
-
-    function vaultFees(uint256 vaultId) external view virtual override returns (uint256, uint256, uint256, uint256, uint256) {
-        VaultFees memory fees = _vaultFees[vaultId];
-        if (fees.active) {
-            return (
-                uint256(fees.mintFee),
-                uint256(fees.randomRedeemFee),
-                uint256(fees.targetRedeemFee),
-                uint256(fees.randomSwapFee),
-                uint256(fees.targetSwapFee)
-            );
-        }
-
-        return (uint256(factoryMintFee), uint256(factoryRandomRedeemFee), uint256(factoryTargetRedeemFee), uint256(factoryRandomSwapFee), uint256(factoryTargetSwapFee));
-    }
-
-    function isLocked(uint256 lockId) external view override virtual returns (bool) {
-        return isPaused[lockId];
     }
 
     function deployVault(

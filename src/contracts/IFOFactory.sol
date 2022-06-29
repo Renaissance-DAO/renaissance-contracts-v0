@@ -37,14 +37,14 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
     }
 
     /// @notice the function to create an IFO
-    /// @param _FNFT the ERC20 token address of the FNFT
+    /// @param _fnft the ERC20 token address of the FNFT
     /// @param _amountForSale the amount of FNFT for sale in IFO
     /// @param _price the price of each FNFT token
     /// @param _cap the maximum amount an account can buy
     /// @param _allowWhitelisting if IFO should be governed by whitelists
     /// @return IFO address
     function create(
-        address _FNFT,
+        address _fnft,
         uint256 _amountForSale,
         uint256 _price,
         uint256 _cap,
@@ -54,7 +54,7 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         bytes memory _initializationCalldata = abi.encodeWithSelector(
             IFO.__IFO_init.selector,
             msg.sender,
-            _FNFT,
+            _fnft,
             _amountForSale,
             _price,
             _cap,
@@ -62,14 +62,14 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
             _allowWhitelisting
         );
 
-        address _IFO = address(new BeaconProxy(address(this), _initializationCalldata));
-        getIFO[_FNFT] = _IFO;
+        address _ifo = address(new BeaconProxy(address(this), _initializationCalldata));
+        getIFO[_fnft] = _ifo;
 
-        IERC20(_FNFT).transferFrom(msg.sender, _IFO, IERC20(_FNFT).balanceOf(msg.sender));
+        IERC20(_fnft).transferFrom(msg.sender, _ifo, IERC20(_fnft).balanceOf(msg.sender));
 
-        emit IFOCreated(_IFO, _FNFT, _amountForSale, _price, _cap, _duration, _allowWhitelisting);
+        emit IFOCreated(_ifo, _fnft, _amountForSale, _price, _cap, _duration, _allowWhitelisting);
 
-        return _IFO;
+        return _ifo;
     }
 
     function pause() external override onlyOwner {

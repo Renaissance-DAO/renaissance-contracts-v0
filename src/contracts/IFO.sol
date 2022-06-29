@@ -271,11 +271,11 @@ contract IFO is IIFO, Initializable {
         }
 
         IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(fnftAddress);
-        uint256 fNFTBalance = _fnft.balanceOf(address(this));
-        lockedSupply -= fNFTBalance;
-        _fnft.transfer(msg.sender, fNFTBalance);
+        uint256 balance = _fnft.balanceOf(address(this));
+        lockedSupply -= balance;
+        _fnft.transfer(msg.sender, balance);
 
-        emit AdminFNFTWithdrawn(fnftAddress, fNFTBalance);
+        emit AdminFNFTWithdrawn(fnftAddress, balance);
     }
 
     /// @notice approve fNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
@@ -288,11 +288,11 @@ contract IFO is IIFO, Initializable {
 
     function emergencyWithdrawFNFT() external override onlyGov {
         IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(address(fnft));
-        uint256 fNFTBalance = _fnft.balanceOf(address(this));
+        uint256 balance = _fnft.balanceOf(address(this));
         lockedSupply = 0;
-        _fnft.transfer(curator, fNFTBalance);
+        _fnft.transfer(curator, balance);
 
-        emit EmergencyFNFTWithdrawn(address(_fnft), fNFTBalance);
+        emit EmergencyFNFTWithdrawn(address(_fnft), balance);
     }
 
     // Helper functions

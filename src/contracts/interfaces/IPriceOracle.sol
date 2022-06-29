@@ -42,7 +42,7 @@ interface IPriceOracle {
 
     function updatePairInfo(address _token0, address _token1) external;
 
-    function updateFNFTPairInfo(address _FNFT) external;
+    function updateFNFTPairInfo(address _fnft) external;
 
     function createFNFTPair(address _token0) external returns (address);
 
@@ -52,7 +52,7 @@ interface IPriceOracle {
         uint256 _amountIn
     ) external view returns (uint256 amountOut);
 
-    function getFNFTPriceETH(address _FNFT, uint256 _amountIn) external view returns (uint256 amountOut);
+    function getFNFTPriceETH(address _fnft, uint256 _amountIn) external view returns (uint256 amountOut);
 
     event PeriodUpdated(uint256 oldPeriod, uint256 newPeriod);
     event MinimumPairInfoUpdateUpdated(uint256 oldMinimumPairInfoUpdate, uint256 newMinimumPairInfoUpdate);

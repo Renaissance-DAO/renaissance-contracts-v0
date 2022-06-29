@@ -71,8 +71,8 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
     }
 
     // Update fNFT-WETH pair info.
-    function updateFNFTPairInfo(address _FNFT) external override {
-        _updatePairInfo(_FNFT, WETH);
+    function updateFNFTPairInfo(address _fnft) external override {
+        _updatePairInfo(_fnft, WETH);
     }
 
     function createFNFTPair(address _token0) external override returns (address) {
@@ -93,13 +93,13 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
 
     // Get fNFT TWAP Price in ETH/WETH.
     // note this will always return 0 before update has been called successfully for the first time.
-    function getFNFTPriceETH(address _FNFT, uint256 _amountIn) external view override returns (uint256 amountOut) {
-        address pair = _getPairAddress(_FNFT, WETH);
+    function getFNFTPriceETH(address _fnft, uint256 _amountIn) external view override returns (uint256 amountOut) {
+        address pair = _getPairAddress(_fnft, WETH);
         PairInfo memory pairInfo = _getTwap[pair];
         if (!pairInfo.exists) revert PairInfoDoesNotExist();
         if (pairInfo.totalUpdates < minimumPairInfoUpdate) revert NotEnoughUpdates();
 
-        amountOut = _calculatePrice(_FNFT, _amountIn, pairInfo);
+        amountOut = _calculatePrice(_fnft, _amountIn, pairInfo);
     }
 
     // Calculate token twap price based on pair info and the amount in.

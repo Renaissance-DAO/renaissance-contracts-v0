@@ -26,7 +26,7 @@ interface IFNFTCollectionFactory is IBeacon {
   function factoryTargetSwapFee() external view returns (uint64);
   function swapFee() external view returns (uint256);
   function vaultFees(uint256 vaultId) external view returns (uint256, uint256, uint256, uint256, uint256);
-  function flashLoanFee() external view returns (uint64);
+  function flashLoanFee() external view returns (uint256);
 
   // Write functions.
   function __FNFTCollectionFactory_init(address _vaultManager) external;

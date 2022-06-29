@@ -32,7 +32,7 @@ contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
         token2 = new MockNFT();
     }
 
-    function test_setMaxAuction() public {
+    function testSetMaxAuction() public {
         fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Max, 4 weeks);
         assertEq(fnftSingleFactory.maxAuctionLength(), 4 weeks);
     }
@@ -47,7 +47,7 @@ contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
         fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Max, 2.9 days);
     }
 
-    function test_setMinAuction() public {
+    function testSetMinAuction() public {
         fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Min, 1 weeks);
     }
 
@@ -61,7 +61,7 @@ contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
         fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Min, 5 weeks);
     }
 
-    function test_setGovernanceFee() public {
+    function testSetGovernanceFee() public {
         fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.GovernanceFee, 1000);
     }
 
@@ -71,7 +71,7 @@ contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
         fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.GovernanceFee, 1001);
     }
 
-    function test_setMinBidIncrease() public {
+    function testSetMinBidIncrease() public {
         fnftSingleFactory.setMinBidIncrease(750);
     }
 
@@ -87,7 +87,7 @@ contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
         fnftSingleFactory.setMinBidIncrease(50);
     }
 
-    function test_setMaxReserveFactor() public {
+    function testSetMaxReserveFactor() public {
         fnftSingleFactory.setReserveFactor(IFNFTSingleFactory.Boundary.Max, 100000);
     }
 
@@ -96,7 +96,7 @@ contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
         fnftSingleFactory.setReserveFactor(IFNFTSingleFactory.Boundary.Max, 2000);
     }
 
-    function test_setMinReserveFactor() public {
+    function testSetMinReserveFactor() public {
         fnftSingleFactory.setReserveFactor(IFNFTSingleFactory.Boundary.Min, 4000);
     }
 

@@ -82,7 +82,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     /// -------------------------------
     /// -------- INIT FUNCTIONS -------
     /// -------------------------------
-    function createValidIFO() private returns(IFO fNFTIfo) {
+    function createValidIFO() private returns(IFO ifo) {
         uint balance = fractionalizedNFT.balanceOf(address(this));
         fractionalizedNFT.approve(address(ifoFactory), balance);
         ifoFactory.create(
@@ -93,7 +93,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
-        fNFTIfo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
+        ifo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
     }
 
     function createValidFNFTCollectionIFO() private returns(IFO fnftCollectionIfo) {
@@ -110,7 +110,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         fnftCollectionIfo = IFO(ifoFactory.getIFO(address(fractionalizedNFTCollection)));
     }
 
-    function createValidAllowWhitelistIFO() private returns(IFO fNFTIfo) {
+    function createValidAllowWhitelistIFO() private returns(IFO ifo) {
         uint balance = fractionalizedNFT.balanceOf(address(this));
         fractionalizedNFT.approve(address(ifoFactory), balance);
         ifoFactory.create(
@@ -121,10 +121,10 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             true // allow whitelist
         );
-        fNFTIfo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
+        ifo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
     }
 
-    function createValidIFOWith3EthCap() private returns(IFO fNFTIfo) {
+    function createValidIFOWith3EthCap() private returns(IFO ifo) {
         uint256 balance = fractionalizedNFT.balanceOf(address(this));
         uint256 price = 0.01 ether;
         fractionalizedNFT.approve(address(ifoFactory), balance);
@@ -136,7 +136,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
-        fNFTIfo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
+        ifo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
     }
 
     function testPause() public {
@@ -145,10 +145,10 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testCreateIFO() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), fractionalizedNFT.totalSupply());
-        assertEq(fNFTIfo.duration(), ifoFactory.minimumDuration());
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), fractionalizedNFT.totalSupply());
+        assertEq(ifo.duration(), ifoFactory.minimumDuration());
     }
 
     function testCreateFNFTCollectionIFO() public {
@@ -339,20 +339,20 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
-        IFO fNFTIfo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
+        IFO ifo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
 
         vm.stopPrank();
 
-        fNFTIfo.updateFNFTAddress(address(user2));
+        ifo.updateFNFTAddress(address(user2));
 
-        assertEq(address(fNFTIfo.fnft()), address(user2));
+        assertEq(address(ifo.fnft()), address(user2));
     }
 
     function testUpdateFNFTAddressZeroAddress() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         vm.expectRevert(IIFO.InvalidAddress.selector);
-        fNFTIfo.updateFNFTAddress(address(0));
+        ifo.updateFNFTAddress(address(0));
     }
 
     function testUpdateFNFTAddressNotGov() public {
@@ -371,10 +371,10 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
-        IFO fNFTIfo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
+        IFO ifo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
 
         vm.expectRevert(IIFO.NotGov.selector);
-        fNFTIfo.updateFNFTAddress(address(user1));
+        ifo.updateFNFTAddress(address(user1));
 
         vm.stopPrank();
     }
@@ -384,47 +384,47 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     /// -----------------------------------
 
     function testAddWhitelist() public {
-        IFO fNFTIfo = createValidAllowWhitelistIFO();
+        IFO ifo = createValidAllowWhitelistIFO();
 
-        fNFTIfo.addWhitelist(address(user1));
-        assertTrue(fNFTIfo.whitelisted(address(user1)));
+        ifo.addWhitelist(address(user1));
+        assertTrue(ifo.whitelisted(address(user1)));
     }
 
     function testAddWhitelistNotCurator() public {
-        IFO fNFTIfo = createValidAllowWhitelistIFO();
+        IFO ifo = createValidAllowWhitelistIFO();
 
         vm.startPrank(address(user1));
 
         vm.expectRevert(IIFO.NotCurator.selector);
-        fNFTIfo.addWhitelist(address(user1));
+        ifo.addWhitelist(address(user1));
 
         vm.stopPrank();
     }
 
     function testAddWhitelistWhitelistNotAllowed() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         vm.expectRevert(IIFO.WhitelistingDisallowed.selector);
-        fNFTIfo.addWhitelist(address(user1));
+        ifo.addWhitelist(address(user1));
     }
 
     function testAddMultipleWhitelist() public {
-        IFO fNFTIfo = createValidAllowWhitelistIFO();
+        IFO ifo = createValidAllowWhitelistIFO();
 
         address[] memory whitelists = new address[](3);
 
         whitelists[0] = address(user1);
         whitelists[1] = address(user2);
         whitelists[2] = address(user3);
-        fNFTIfo.addMultipleWhitelists(whitelists);
+        ifo.addMultipleWhitelists(whitelists);
 
-        assertTrue(fNFTIfo.whitelisted(address(user1)));
-        assertTrue(fNFTIfo.whitelisted(address(user2)));
-        assertTrue(fNFTIfo.whitelisted(address(user3)));
+        assertTrue(ifo.whitelisted(address(user1)));
+        assertTrue(ifo.whitelisted(address(user2)));
+        assertTrue(ifo.whitelisted(address(user3)));
     }
 
     function testAddMultipleWhitelistNotCurator() public {
-        IFO fNFTIfo = createValidAllowWhitelistIFO();
+        IFO ifo = createValidAllowWhitelistIFO();
 
         address[] memory whitelists = new address[](3);
 
@@ -435,13 +435,13 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         vm.startPrank(address(user1));
 
         vm.expectRevert(IIFO.NotCurator.selector);
-        fNFTIfo.addMultipleWhitelists(whitelists);
+        ifo.addMultipleWhitelists(whitelists);
 
         vm.stopPrank();
     }
 
     function testAddMultipleWhitelistWhitelistNotAllowed() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         address[] memory whitelists = new address[](3);
 
@@ -450,86 +450,86 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         whitelists[2] = address(user3);
 
         vm.expectRevert(IIFO.WhitelistingDisallowed.selector);
-        fNFTIfo.addMultipleWhitelists(whitelists);
+        ifo.addMultipleWhitelists(whitelists);
     }
 
     function testRemoveWhitelist() public {
-        IFO fNFTIfo = createValidAllowWhitelistIFO();
+        IFO ifo = createValidAllowWhitelistIFO();
 
-        fNFTIfo.addWhitelist(address(user1));
+        ifo.addWhitelist(address(user1));
 
-        assertTrue(fNFTIfo.whitelisted(address(user1)));
+        assertTrue(ifo.whitelisted(address(user1)));
 
-        fNFTIfo.removeWhitelist(address(user1));
+        ifo.removeWhitelist(address(user1));
 
-        assertTrue(!fNFTIfo.whitelisted(address(user1)));
+        assertTrue(!ifo.whitelisted(address(user1)));
     }
 
     function testRemoveWhitelistNotCurator() public {
-        IFO fNFTIfo = createValidAllowWhitelistIFO();
+        IFO ifo = createValidAllowWhitelistIFO();
 
-        fNFTIfo.addWhitelist(address(user1));
+        ifo.addWhitelist(address(user1));
 
-        assertTrue(fNFTIfo.whitelisted(address(user1)));
+        assertTrue(ifo.whitelisted(address(user1)));
 
         vm.startPrank(address(user1));
 
         vm.expectRevert(IIFO.NotCurator.selector);
-        fNFTIfo.removeWhitelist(address(user1));
+        ifo.removeWhitelist(address(user1));
 
         vm.stopPrank();
     }
 
     function testStart() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        assertTrue(!fNFTIfo.started());
+        assertTrue(!ifo.started());
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
     }
 
     function testStartNotCurator() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        assertTrue(!fNFTIfo.started());
+        assertTrue(!ifo.started());
 
         vm.startPrank(address(user1));
 
         vm.expectRevert(IIFO.NotCurator.selector);
-        fNFTIfo.start();
+        ifo.start();
 
         vm.stopPrank();
     }
 
     function testStartAlreadyStarted() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        assertTrue(!fNFTIfo.started());
+        assertTrue(!ifo.started());
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
         vm.expectRevert(IIFO.SaleAlreadyStarted.selector);
-        fNFTIfo.start();
+        ifo.start();
     }
 
     function testEnd() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        assertTrue(!fNFTIfo.started());
+        assertTrue(!ifo.started());
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
-        assertTrue(fNFTIfo.ended());
+        assertTrue(ifo.ended());
     }
 
     function testFail_startDoesNotHaveFNFT() public {
@@ -546,170 +546,170 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             true // allow whitelist
         );
 
-        IFO fNFTIfo = IFO(address(new BeaconProxy(address(new IFO()), _initializationCalldata)));
+        IFO ifo = IFO(address(new BeaconProxy(address(new IFO()), _initializationCalldata)));
 
-        fNFTIfo.start();
+        ifo.start();
     }
 
     function testEndNotCurator() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
         vm.startPrank(address(user1));
 
         vm.expectRevert(IIFO.NotCurator.selector);
-        fNFTIfo.end();
+        ifo.end();
 
         vm.stopPrank();
     }
 
     function testEndWhilePaused() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        fNFTIfo.togglePause();
+        ifo.togglePause();
 
-        assertTrue(fNFTIfo.paused());
+        assertTrue(ifo.paused());
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
         vm.expectRevert(IIFO.ContractPaused.selector);
-        fNFTIfo.end();
+        ifo.end();
     }
 
     function testEndBeforeStart() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        assertTrue(!fNFTIfo.started());
+        assertTrue(!ifo.started());
 
         vm.expectRevert(IIFO.SaleUnstarted.selector);
-        fNFTIfo.end();
+        ifo.end();
     }
 
     function testEndBeforeDuration() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration());
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration());
 
         vm.expectRevert(IIFO.DeadlineActive.selector);
-        fNFTIfo.end();
+        ifo.end();
     }
 
     function testEndAfterEnd() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
-        assertTrue(fNFTIfo.ended());
+        assertTrue(ifo.ended());
 
         vm.expectRevert(IIFO.SaleAlreadyEnded.selector);
-        fNFTIfo.end();
+        ifo.end();
     }
 
     function testEndBeforeMinimumDurationForInfiniteDuration() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
         vm.expectRevert(IIFO.DeadlineActive.selector);
-        fNFTIfo.end();
+        ifo.end();
     }
 
     function testEndAfterMinimumDurationForInfiniteDuration() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
     }
 
     function testTogglePause() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        vm.roll(fNFTIfo.startBlock() + 1000);
+        vm.roll(ifo.startBlock() + 1000);
 
-        assertEq(block.number, fNFTIfo.startBlock() + 1000);
+        assertEq(block.number, ifo.startBlock() + 1000);
 
-        fNFTIfo.togglePause();
+        ifo.togglePause();
 
-        assertTrue(fNFTIfo.paused());
+        assertTrue(ifo.paused());
 
-        assertEq(fNFTIfo.duration(), ifoFactory.minimumDuration());
+        assertEq(ifo.duration(), ifoFactory.minimumDuration());
 
-        vm.roll(fNFTIfo.pauseBlock() + 1000);
+        vm.roll(ifo.pauseBlock() + 1000);
 
-        fNFTIfo.togglePause();
+        ifo.togglePause();
 
-        assertTrue(!fNFTIfo.paused());
+        assertTrue(!ifo.paused());
 
-        assertEq(fNFTIfo.duration(), ifoFactory.minimumDuration() + 1000);
+        assertEq(ifo.duration(), ifoFactory.minimumDuration() + 1000);
     }
 
     function testTogglePauseWhenNotStarted() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         vm.expectRevert(IIFO.SaleUnstarted.selector);
-        fNFTIfo.togglePause();
+        ifo.togglePause();
     }
 
     function testTogglePauseAfterEnded() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
         vm.expectRevert(IIFO.SaleAlreadyEnded.selector);
-        fNFTIfo.togglePause();
+        ifo.togglePause();
     }
 
     function testTogglePauseNotCurator() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
         vm.startPrank(address(user1));
 
         vm.expectRevert(IIFO.NotCurator.selector);
-        fNFTIfo.togglePause();
+        ifo.togglePause();
 
         vm.stopPrank();
     }
 
     function testWithdrawProfit() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
         uint256 originalAccountBalance = address(this).balance;
         uint256 originalUser2Balance = address(user2).balance;
 
@@ -718,33 +718,33 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         uint256 fee = (govFee * 1 ether) / 10000;
         uint256 profit = 1 ether - fee;
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
         vm.startPrank(address(user2));
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
         vm.stopPrank();
 
-        assertEq(fNFTIfo.profitRaised(), profit * 2);
+        assertEq(ifo.profitRaised(), profit * 2);
 
-        assertEq(address(fNFTIfo).balance, profit * 2);
+        assertEq(address(ifo).balance, profit * 2);
 
         assertEq(address(this).balance, originalAccountBalance - 1 ether);
 
         assertEq(address(user2).balance, originalUser2Balance - 1 ether);
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
-        fNFTIfo.adminWithdrawProfit();
+        ifo.adminWithdrawProfit();
 
-        assertEq(fNFTIfo.profitRaised(), 0);
+        assertEq(ifo.profitRaised(), 0);
 
-        assertEq(address(fNFTIfo).balance, 0);
+        assertEq(address(ifo).balance, 0);
 
         assertEq(address(user2).balance, originalUser2Balance - 1 ether);
 
@@ -752,40 +752,40 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testWithdrawProfitNotCurator() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         ifoFactory.setFeeReceiver(payable(address(user1)));
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
         vm.startPrank(address(user2));
         vm.expectRevert(IIFO.NotCurator.selector);
-        fNFTIfo.adminWithdrawProfit();
+        ifo.adminWithdrawProfit();
         vm.stopPrank();
     }
 
     function testWithdrawProfitAutoEndsAfterDuration() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         ifoFactory.setFeeReceiver(payable(address(user1)));
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.adminWithdrawProfit();
+        ifo.adminWithdrawProfit();
     }
 
     function testWithdrawProfitBeforeEnd() public {
@@ -798,142 +798,142 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             0, //sale duration
             false // allow whitelist
         );
-        IFO fNFTIfo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
+        IFO ifo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
 
         ifoFactory.setFeeReceiver(payable(address(user1)));
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
         vm.expectRevert(IIFO.SaleActive.selector);
-        fNFTIfo.adminWithdrawProfit();
+        ifo.adminWithdrawProfit();
     }
 
     function testWithdrawProfitTwice() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         ifoFactory.setFeeReceiver(payable(address(user1)));
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.adminWithdrawProfit();
+        ifo.adminWithdrawProfit();
 
         vm.expectRevert(IIFO.NoProfit.selector);
-        fNFTIfo.adminWithdrawProfit();
+        ifo.adminWithdrawProfit();
     }
 
     function testWithdrawFNFT() public {
         uint originalBalance = fractionalizedNFT.balanceOf(address(this));
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
         assertEq(fractionalizedNFT.balanceOf(address(this)), 0);
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalBalance);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalBalance);
 
         vm.startPrank(address(user1));
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
         vm.stopPrank();
 
         uint256 withdrawnBalance = originalBalance - (1 ether * 1e18 / 0.01 ether);
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), withdrawnBalance);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), withdrawnBalance);
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
-        fNFTIfo.adminWithdrawFNFT();
+        ifo.adminWithdrawFNFT();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), 0);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), 0);
 
         assertEq(fractionalizedNFT.balanceOf(address(this)), withdrawnBalance);
     }
 
     function testWithdrawFNFTWhileSaleActive() public {
         uint originalBalance = fractionalizedNFT.balanceOf(address(this));
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
         assertEq(fractionalizedNFT.balanceOf(address(this)), 0);
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalBalance);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalBalance);
 
         vm.startPrank(address(user1));
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
         vm.stopPrank();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalBalance - (1 ether * 1e18 / 0.01 ether));
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalBalance - (1 ether * 1e18 / 0.01 ether));
 
         vm.expectRevert(IIFO.SaleActive.selector);
-        fNFTIfo.adminWithdrawFNFT();
+        ifo.adminWithdrawFNFT();
     }
 
     function testWithdrawFNFTAutoEndsAfterDuration() public {
         uint originalBalance = fractionalizedNFT.balanceOf(address(this));
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
         assertEq(fractionalizedNFT.balanceOf(address(this)), 0);
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalBalance);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalBalance);
 
         vm.startPrank(address(user1));
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
         vm.stopPrank();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalBalance - (1 ether * 1e18 / 0.01 ether));
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalBalance - (1 ether * 1e18 / 0.01 ether));
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.adminWithdrawFNFT();
+        ifo.adminWithdrawFNFT();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), 0);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), 0);
 
         assertEq(fractionalizedNFT.balanceOf(address(this)), originalBalance - (1 ether * 1e18 / 0.01 ether));
     }
 
     function testWithdrawFNFTIfLockedAndRedeemed() public {
         uint originalBalance = fractionalizedNFT.balanceOf(address(this));
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
         ifoFactory.setCreatorIFOLock(true);
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
         assertEq(fractionalizedNFT.balanceOf(address(this)), 0);
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalBalance);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalBalance);
 
         vm.startPrank(address(user1));
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
         vm.stopPrank();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalBalance - (1 ether * 1e18 / 0.01 ether));
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalBalance - (1 ether * 1e18 / 0.01 ether));
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
         //start and end the bidding process
         user1.call_start(10 ether);
@@ -943,81 +943,81 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         fractionalizedNFT.end();
         assertTrue(fractionalizedNFT.auctionState() == IFNFTSingle.State.Ended);
 
-        fNFTIfo.adminWithdrawFNFT();
+        ifo.adminWithdrawFNFT();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), 0);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), 0);
 
         assertEq(fractionalizedNFT.balanceOf(address(this)), originalBalance - (1 ether * 1e18 / 0.01 ether));
     }
 
     function testWithdrawFNFTIfLockedAndNotRedeemed() public {
         uint originalBalance = fractionalizedNFT.balanceOf(address(this));
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
         ifoFactory.setCreatorIFOLock(true);
-        fNFTIfo.start();
+        ifo.start();
 
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
         assertEq(fractionalizedNFT.balanceOf(address(this)), 0);
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalBalance);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalBalance);
 
         vm.startPrank(address(user1));
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
         vm.stopPrank();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalBalance - (1 ether * 1e18 / 0.01 ether));
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalBalance - (1 ether * 1e18 / 0.01 ether));
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
         vm.expectRevert(IIFO.FNFTLocked.selector);
-        fNFTIfo.adminWithdrawFNFT();
+        ifo.adminWithdrawFNFT();
     }
 
     function testApproveUtilityContract() public {
         ifoFactory.setCreatorUtilityContract(address(user2));
         uint originalBalance = fractionalizedNFT.balanceOf(address(this));
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         vm.startPrank(address(user2));
-        fractionalizedNFT.transferFrom(address(fNFTIfo), address(user2), fractionalizedNFT.balanceOf(address(fNFTIfo)));
+        fractionalizedNFT.transferFrom(address(ifo), address(user2), fractionalizedNFT.balanceOf(address(ifo)));
         vm.stopPrank();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), 0);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), 0);
         assertEq(fractionalizedNFT.balanceOf(address(user2)), originalBalance);
     }
 
     function testFail_approveUtilityContractZeroAddress() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         vm.startPrank(address(user2));
-        fractionalizedNFT.transferFrom(address(fNFTIfo), address(user2), fractionalizedNFT.balanceOf(address(fNFTIfo)));
+        fractionalizedNFT.transferFrom(address(ifo), address(user2), fractionalizedNFT.balanceOf(address(ifo)));
         vm.stopPrank();
     }
 
     function testManualApproveUtilityContract() public {
         uint originalBalance = fractionalizedNFT.balanceOf(address(this));
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         ifoFactory.setCreatorUtilityContract(address(user2));
 
-        fNFTIfo.approve();
+        ifo.approve();
 
         vm.startPrank(address(user2));
-        fractionalizedNFT.transferFrom(address(fNFTIfo), address(user2), fractionalizedNFT.balanceOf(address(fNFTIfo)));
+        fractionalizedNFT.transferFrom(address(ifo), address(user2), fractionalizedNFT.balanceOf(address(ifo)));
         vm.stopPrank();
 
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), 0);
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), 0);
         assertEq(fractionalizedNFT.balanceOf(address(user2)), originalBalance);
     }
 
     function testManualApproveUtilityContractZeroAddress() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         vm.expectRevert(IIFO.InvalidAddress.selector);
-        fNFTIfo.approve();
+        ifo.approve();
     }
 
     /// --------------------------------
@@ -1027,7 +1027,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     function testDeposit() public {
         uint256 originalAccountFNFTBalance = fractionalizedNFT.balanceOf(address(this));
         uint256 price = 0.01 ether;
-        IFO fNFTIfo = createValidIFOWith3EthCap();
+        IFO ifo = createValidIFOWith3EthCap();
         uint256 originalAccountBalance = address(this).balance;
         uint256 originalUser2Balance = address(user2).balance;
         uint256 originalUser1Balance = address(user1).balance;
@@ -1037,127 +1037,127 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         uint256 fee = (govFee * 1 ether) / 10000;
         uint256 profit = 1 ether - fee;
 
-        fNFTIfo.start();
+        ifo.start();
 
         //started
-        assertTrue(fNFTIfo.started());
+        assertTrue(ifo.started());
 
         //start remaining allocation 3
-        assertEq(fNFTIfo.getUserRemainingAllocation(address(this)), 3 ether * 1e18 / price, "this remaining allocaiton 3");
-        assertEq(fNFTIfo.getUserRemainingAllocation(address(user2)), 3 ether * 1e18 / price, "user2 remaining allocaiton 3");
+        assertEq(ifo.getUserRemainingAllocation(address(this)), 3 ether * 1e18 / price, "this remaining allocaiton 3");
+        assertEq(ifo.getUserRemainingAllocation(address(user2)), 3 ether * 1e18 / price, "user2 remaining allocaiton 3");
 
         //fnft balance 0 before deposit
         assertEq(fractionalizedNFT.balanceOf(address(this)), 0, "this fnft balance before deposit");
         assertEq(fractionalizedNFT.balanceOf(address(user2)), 0, "user2 fnft balance before deposit");
 
         //fnft balance full in ifo contract
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalAccountFNFTBalance, "ifo fnft balance before deposit");
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalAccountFNFTBalance, "ifo fnft balance before deposit");
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
         //fnft balance of ifo contract after this address deposit
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalAccountFNFTBalance - (1 ether * 1e18 / price), "ifo fnft balance after this deposit");
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalAccountFNFTBalance - (1 ether * 1e18 / price), "ifo fnft balance after this deposit");
         //profitRaised balance of ifo contract after this address deposit
-        assertEq(fNFTIfo.profitRaised(), profit, "profitRaised balance after this deposit");
+        assertEq(ifo.profitRaised(), profit, "profitRaised balance after this deposit");
         //totalaRaised balance of ifo contract after this address deposit
-        assertEq(fNFTIfo.totalRaised(), 1 ether, "totalRaised balance after this deposit");
+        assertEq(ifo.totalRaised(), 1 ether, "totalRaised balance after this deposit");
         //this address remaining allocation (3 - 1)
-        assertEq(fNFTIfo.getUserRemainingAllocation(address(this)), 2 ether * 1e18 / price, "this remaining allocation after deposit");
+        assertEq(ifo.getUserRemainingAllocation(address(this)), 2 ether * 1e18 / price, "this remaining allocation after deposit");
         //this address got fnft
         assertEq(fractionalizedNFT.balanceOf(address(this)), 1 ether * 1e18 / price, "this address fnft balance after deposit");
         //this balance after deposit
         assertEq(address(this).balance, originalAccountBalance - 1 ether);
         //ifo balance after deposit
-        assertEq(address(fNFTIfo).balance, profit);
+        assertEq(address(ifo).balance, profit);
         //user1 balance after deposit
         assertEq(address(user1).balance, originalUser1Balance + fee);
 
         vm.startPrank(address(user2));
-        fNFTIfo.deposit{value: 2 ether}();
+        ifo.deposit{value: 2 ether}();
         vm.stopPrank();
 
         //fnft balance of ifo contract after user2 address deposit (1 + 2)
-        assertEq(fractionalizedNFT.balanceOf(address(fNFTIfo)), originalAccountFNFTBalance - (3 ether * 1e18 / price), "ifo fnft balance after user2 deposit");
+        assertEq(fractionalizedNFT.balanceOf(address(ifo)), originalAccountFNFTBalance - (3 ether * 1e18 / price), "ifo fnft balance after user2 deposit");
         //profitRaised balance of ifo contract after user2 address deposit
-        assertEq(fNFTIfo.profitRaised(), profit * 3, "profitRaised balance after user2 deposit");
+        assertEq(ifo.profitRaised(), profit * 3, "profitRaised balance after user2 deposit");
         //totalaRaised balance of ifo contract after user2 address deposit
-        assertEq(fNFTIfo.totalRaised(), 3 ether, "totalRaised balance after user2 deposit");
+        assertEq(ifo.totalRaised(), 3 ether, "totalRaised balance after user2 deposit");
         //user2 address remaining allocation (3 - 2)
-        assertEq(fNFTIfo.getUserRemainingAllocation(address(user2)), 1 ether * 1e18 / price, "user2 remaining allocation after deposit");
+        assertEq(ifo.getUserRemainingAllocation(address(user2)), 1 ether * 1e18 / price, "user2 remaining allocation after deposit");
         //user2 address got fnft
         assertEq(fractionalizedNFT.balanceOf(address(user2)), 2 ether * 1e18 / price, "user2 address fnft balance after deposit");
         //this balance after deposit
         assertEq(address(user2).balance, originalUser2Balance - 2 ether);
         //ifo balance after deposit
-        assertEq(address(fNFTIfo).balance, profit * 3);
+        assertEq(address(ifo).balance, profit * 3);
         //user1 balance after deposit
         assertEq(address(user1).balance, originalUser1Balance + fee * 3);
     }
 
     function testDepositAfterSaleEnded() public {
-        IFO fNFTIfo = createValidIFOWith3EthCap();
+        IFO ifo = createValidIFOWith3EthCap();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
-        fNFTIfo.end();
+        ifo.end();
 
         vm.expectRevert(IIFO.SaleAlreadyEnded.selector);
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
     }
 
     function testDepositWhilePaused() public {
-        IFO fNFTIfo = createValidIFOWith3EthCap();
+        IFO ifo = createValidIFOWith3EthCap();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        fNFTIfo.togglePause();
+        ifo.togglePause();
 
         vm.expectRevert(IIFO.ContractPaused.selector);
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
     }
 
     function testDepositAfterSaleResumesAfterDeadline() public {
-        IFO fNFTIfo = createValidIFOWith3EthCap();
+        IFO ifo = createValidIFOWith3EthCap();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        fNFTIfo.togglePause();
+        ifo.togglePause();
 
-        assertEq(fNFTIfo.duration(), ifoFactory.minimumDuration());
+        assertEq(ifo.duration(), ifoFactory.minimumDuration());
 
-        vm.roll(fNFTIfo.startBlock() + 1000);
+        vm.roll(ifo.startBlock() + 1000);
 
-        assertEq(fNFTIfo.duration(), ifoFactory.minimumDuration());
+        assertEq(ifo.duration(), ifoFactory.minimumDuration());
 
-        fNFTIfo.togglePause();
+        ifo.togglePause();
 
-        assertEq(fNFTIfo.duration(), ifoFactory.minimumDuration() + 1000);
+        assertEq(ifo.duration(), ifoFactory.minimumDuration() + 1000);
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1001);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1001);
 
-        fNFTIfo.end();
+        ifo.end();
     }
 
     function testDepositSaleEndAutoAfterDeadline() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        vm.roll(fNFTIfo.startBlock() + ifoFactory.minimumDuration() + 1);
+        vm.roll(ifo.startBlock() + ifoFactory.minimumDuration() + 1);
 
         vm.expectRevert(IIFO.SaleAlreadyEnded.selector);
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
     }
 
     function testDepositBeforeSaleStarted() public {
-        IFO fNFTIfo = createValidIFO();
+        IFO ifo = createValidIFO();
 
         vm.expectRevert(IIFO.SaleUnstarted.selector);
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
     }
 
     function testDepositIfNotWhitelisted() public {
@@ -1172,12 +1172,12 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             true // allow whitelist
         );
-        IFO fNFTIfo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
+        IFO ifo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
 
-        fNFTIfo.start();
+        ifo.start();
 
         vm.expectRevert(IIFO.NotWhitelisted.selector);
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
     }
 
     function testDepositAfterWhitelisted() public {
@@ -1192,62 +1192,62 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             true // allow whitelist
         );
-        IFO fNFTIfo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
-        fNFTIfo.addWhitelist(address(this));
+        IFO ifo = IFO(ifoFactory.getIFO(address(fractionalizedNFT)));
+        ifo.addWhitelist(address(this));
 
-        fNFTIfo.start();
+        ifo.start();
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
     }
 
     function testDepositMoreThanCap() public {
-        IFO fNFTIfo = createValidIFOWith3EthCap();
+        IFO ifo = createValidIFOWith3EthCap();
 
-        fNFTIfo.start();
+        ifo.start();
 
         vm.expectRevert(IIFO.OverLimit.selector);
-        fNFTIfo.deposit{value: 3.1 ether}();
+        ifo.deposit{value: 3.1 ether}();
     }
 
     function testDepositMoreThanCapAfterDeposit() public {
-        IFO fNFTIfo = createValidIFOWith3EthCap();
+        IFO ifo = createValidIFOWith3EthCap();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
         vm.expectRevert(IIFO.OverLimit.selector);
-        fNFTIfo.deposit{value: 2.1 ether}();
+        ifo.deposit{value: 2.1 ether}();
     }
 
     function testDepositMoreThanCapAfterMeetingDeposit() public {
-        IFO fNFTIfo = createValidIFOWith3EthCap();
+        IFO ifo = createValidIFOWith3EthCap();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
-        fNFTIfo.deposit{value: 2 ether}();
+        ifo.deposit{value: 2 ether}();
 
         vm.expectRevert(IIFO.OverLimit.selector);
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
     }
 
     function testGetUserRemainingAllocation() public {
         uint256 price = 0.01 ether;
-        IFO fNFTIfo = createValidIFOWith3EthCap();
+        IFO ifo = createValidIFOWith3EthCap();
 
-        fNFTIfo.start();
+        ifo.start();
 
-        assertEq(fNFTIfo.getUserRemainingAllocation(address(this)), 3 ether * 1e18 / price);
+        assertEq(ifo.getUserRemainingAllocation(address(this)), 3 ether * 1e18 / price);
 
-        fNFTIfo.deposit{value: 1 ether}();
+        ifo.deposit{value: 1 ether}();
 
-        assertEq(fNFTIfo.getUserRemainingAllocation(address(this)), 2 ether * 1e18 / price);
+        assertEq(ifo.getUserRemainingAllocation(address(this)), 2 ether * 1e18 / price);
 
-        fNFTIfo.deposit{value: 2 ether}();
+        ifo.deposit{value: 2 ether}();
 
-        assertEq(fNFTIfo.getUserRemainingAllocation(address(this)), 0);
+        assertEq(ifo.getUserRemainingAllocation(address(this)), 0);
     }
 
     receive() external payable {}
