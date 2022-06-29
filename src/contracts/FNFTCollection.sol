@@ -192,7 +192,7 @@ contract FNFTCollection is
         IFNFTCollection
     ) returns (uint256) {
         if (borrowedToken != address(this)) revert WrongToken();
-        return uint256(factory.flashLoanFee()) * amount / 10000;
+        return factory.flashLoanFee() * amount / 10000;
     }
 
     function flashLoan(
