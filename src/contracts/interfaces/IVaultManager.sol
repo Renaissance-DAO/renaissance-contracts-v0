@@ -29,13 +29,13 @@ interface IVaultManager {
     function vaults(uint256) external view returns (address);
     function numVaults() external view returns (uint);
 
-    event PriceOracleUpdated(address _old, address _new);
-    event FeeReceiverUpdated(address _old, address _new);
-    event ZapContractUpdated(address _old, address _new);
-    event FNFTCollectionFactoryUpdated(address _old, address _new);
-    event FNFTSingleFactoryUpdated(address _old, address _new);
-    event VaultSet(uint256 _vaultId, address _fnft);
-    event FeeDistributorUpdated(address oldDistributor, address newDistributor);
+    event PriceOracleUpdated(address oldPriceOracle, address newPriceOracle);
+    event FeeReceiverUpdated(address oldFeeReceiver, address newFeeReceiver);
+    event ZapContractUpdated(address oldZapContract, address newZapContract);
+    event FNFTCollectionFactoryUpdated(address oldFNFTCollectionFactory, address newFNFTCollectionFactory);
+    event FNFTSingleFactoryUpdated(address oldFNFTSingleFactory, address newFNFTSingleFactory);
+    event VaultSet(uint256 vaultId, address vault);
+    event FeeDistributorUpdated(address oldFeeDistributor, address newFeeDistributor);
     event FeeExclusionUpdated(address target, bool excluded);
 
     error MaxAuctionLengthOutOfBounds();

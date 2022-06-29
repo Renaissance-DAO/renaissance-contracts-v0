@@ -18,9 +18,9 @@ import "../interfaces/IOwnable.sol";
 
 contract Deployer is Ownable {
     event ProxyDeployed(
-        bytes32 indexed _identifier,
-        address _logic,
-        address _creator
+        bytes32 indexed identifier,
+        address logic,
+        address creator
     );
 
     error NoController();

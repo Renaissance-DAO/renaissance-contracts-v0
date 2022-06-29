@@ -58,7 +58,7 @@ interface IFNFTCollectionFactory is IBeacon {
   function disableVaultFees(uint256 vaultId) external;
   function setFlashLoanFee(uint256 _flashLoanFee) external;
 
-  event FeeDistributorUpdated(address oldDistributor, address newDistributor);
+  event FeeDistributorUpdated(address oldFeeDistributor, address newFeeDistributor);
   event FeeExclusionUpdated(address target, bool excluded);
   event PriceOracleUpdated(address oldPriceOracle, address newPriceOracle);
   event EligibilityManagerUpdated(address oldEligManager, address newEligManager);
@@ -67,7 +67,7 @@ interface IFNFTCollectionFactory is IBeacon {
   event VaultFeesDisabled(uint256 vaultId);
   event FactoryFeesUpdated(uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
   event FlashLoanFeeUpdated(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
-  event SwapFeeUpdated(uint256 _old, uint256 _new);
+  event SwapFeeUpdated(uint256 oldSwapFee, uint256 newSwapFee);
 
   error FeeTooHigh();
   error CallerIsNotVault();

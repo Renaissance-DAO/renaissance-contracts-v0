@@ -25,7 +25,7 @@ interface IStakingTokenProvider {
 
     function pairForVaultToken(address _vaultToken, address _pairedToken) external view returns (address);
 
-    event DefaultPairedTokenUpdated(address oldPaired, address newPaired);
+    event DefaultPairedTokenUpdated(address oldDefaultPairedToken, address newDefaultPairedToken);
     event PairedTokenForVaultUpdated(address vaultToken, address oldPairedtoken, address newPairedToken);
 
     error IdenticalAddress();

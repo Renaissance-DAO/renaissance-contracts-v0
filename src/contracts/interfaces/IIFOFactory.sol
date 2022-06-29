@@ -43,12 +43,12 @@ interface IIFOFactory {
 
     function setFeeReceiver(address payable _feeReceiver) external;
 
-    event CreatorIFOLockUpdated(bool _old, bool _new);
-    event MinimumDurationUpdated(uint256 _old, uint256 _new);
-    event MaximumDurationUpdated(uint256 _old, uint256 _new);
-    event CreatorUtilityContractUpdated(address _old, address _new);
-    event GovernanceFeeUpdated(uint256 _old, uint256 _new);
-    event FeeReceiverUpdated(address _old, address _new);
+    event CreatorIFOLockUpdated(bool oldCreatorIFOLock, bool newCreatorIFOLock);
+    event MinimumDurationUpdated(uint256 oldMinimumDuration, uint256 newMinimumDuration);
+    event MaximumDurationUpdated(uint256 oldMaximumDuration, uint256 newMaximumDuration);
+    event CreatorUtilityContractUpdated(address oldCreatorUtilityContract, address newCreatorUtilityContract);
+    event GovernanceFeeUpdated(uint256 oldGovernanceFee, uint256 newGovernanceFee);
+    event FeeReceiverUpdated(address oldFeeReceiver, address newFeeReceiver);
     event IFOCreated(
         address indexed IFO,
         address indexed FNFT,
