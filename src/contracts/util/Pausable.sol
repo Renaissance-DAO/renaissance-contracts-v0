@@ -43,8 +43,8 @@ contract Pausable is OwnableUpgradeable {
         emit SetPaused(lockId, true);
     }
 
-    function setIsGuardian(address addr, bool _isGuardian) public virtual onlyOwner {
-        isGuardian[addr] = _isGuardian;
-        emit SetIsGuardian(addr, _isGuardian);
+    function setIsGuardian(address _address, bool _isGuardian) public virtual onlyOwner {
+        isGuardian[_address] = _isGuardian;
+        emit SetIsGuardian(_address, _isGuardian);
     }
 }

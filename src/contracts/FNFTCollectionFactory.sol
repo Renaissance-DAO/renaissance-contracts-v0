@@ -41,8 +41,8 @@ contract FNFTCollectionFactory is
     }
 
     function createVault(
-        string memory name,
-        string memory symbol,
+        string memory _name,
+        string memory _symbol,
         address _assetAddress,
         bool is1155,
         bool allowAllItems
@@ -50,7 +50,7 @@ contract FNFTCollectionFactory is
         onlyOwnerIfPaused(0);
         if (childImplementation() == address(0)) revert ZeroAddress();
         IVaultManager _vaultManager = vaultManager;
-        address fnftCollection = deployVault(name, symbol, _assetAddress, is1155, allowAllItems);
+        address fnftCollection = deployVault(_name, _symbol, _assetAddress, is1155, allowAllItems);
         uint vaultId = _vaultManager.addVault(fnftCollection);
         emit VaultCreated(vaultId, fnftCollection, _assetAddress);
         return fnftCollection;
@@ -69,54 +69,54 @@ contract FNFTCollectionFactory is
     }
 
     function setFactoryFees(
-        uint256 mintFee,
-        uint256 randomRedeemFee,
-        uint256 targetRedeemFee,
-        uint256 randomSwapFee,
-        uint256 targetSwapFee
+        uint256 _factoryMintFee,
+        uint256 _factoryRandomRedeemFee,
+        uint256 _factoryTargetRedeemFee,
+        uint256 _factoryRandomSwapFee,
+        uint256 _factoryTargetSwapFee
     ) public onlyOwner virtual override {
-        if (mintFee > 0.5 ether) revert FeeTooHigh();
-        if (randomRedeemFee > 0.5 ether) revert FeeTooHigh();
-        if (targetRedeemFee > 0.5 ether) revert FeeTooHigh();
-        if (randomSwapFee > 0.5 ether) revert FeeTooHigh();
-        if (targetSwapFee > 0.5 ether) revert FeeTooHigh();
+        if (_factoryMintFee > 0.5 ether) revert FeeTooHigh();
+        if (_factoryRandomRedeemFee > 0.5 ether) revert FeeTooHigh();
+        if (_factoryTargetRedeemFee > 0.5 ether) revert FeeTooHigh();
+        if (_factoryRandomSwapFee > 0.5 ether) revert FeeTooHigh();
+        if (_factoryTargetSwapFee > 0.5 ether) revert FeeTooHigh();
 
-        factoryMintFee = uint64(mintFee);
-        factoryRandomRedeemFee = uint64(randomRedeemFee);
-        factoryTargetRedeemFee = uint64(targetRedeemFee);
-        factoryRandomSwapFee = uint64(randomSwapFee);
-        factoryTargetSwapFee = uint64(targetSwapFee);
+        factoryMintFee = uint64(_factoryMintFee);
+        factoryRandomRedeemFee = uint64(_factoryRandomRedeemFee);
+        factoryTargetRedeemFee = uint64(_factoryTargetRedeemFee);
+        factoryRandomSwapFee = uint64(_factoryRandomSwapFee);
+        factoryTargetSwapFee = uint64(_factoryTargetSwapFee);
 
-        emit FactoryFeesUpdated(mintFee, randomRedeemFee, targetRedeemFee, randomSwapFee, targetSwapFee);
+        emit FactoryFeesUpdated(_factoryMintFee, _factoryRandomRedeemFee, _factoryTargetRedeemFee, _factoryRandomSwapFee, _factoryTargetSwapFee);
     }
 
     function setVaultFees(
         uint256 vaultId,
-        uint256 mintFee,
-        uint256 randomRedeemFee,
-        uint256 targetRedeemFee,
-        uint256 randomSwapFee,
-        uint256 targetSwapFee
+        uint256 _mintFee,
+        uint256 _randomRedeemFee,
+        uint256 _targetRedeemFee,
+        uint256 _randomSwapFee,
+        uint256 _targetSwapFee
     ) public virtual override {
         if (msg.sender != owner()) {
             address vaultAddr = vaultManager.vault(vaultId);
             if (msg.sender != vaultAddr) revert CallerIsNotVault();
         }
-        if (mintFee > 0.5 ether) revert FeeTooHigh();
-        if (randomRedeemFee > 0.5 ether) revert FeeTooHigh();
-        if (targetRedeemFee > 0.5 ether) revert FeeTooHigh();
-        if (randomSwapFee > 0.5 ether) revert FeeTooHigh();
-        if (targetSwapFee > 0.5 ether) revert FeeTooHigh();
+        if (_mintFee > 0.5 ether) revert FeeTooHigh();
+        if (_randomRedeemFee > 0.5 ether) revert FeeTooHigh();
+        if (_targetRedeemFee > 0.5 ether) revert FeeTooHigh();
+        if (_randomSwapFee > 0.5 ether) revert FeeTooHigh();
+        if (_targetSwapFee > 0.5 ether) revert FeeTooHigh();
 
         _vaultFees[vaultId] = VaultFees(
             true,
-            uint64(mintFee),
-            uint64(randomRedeemFee),
-            uint64(targetRedeemFee),
-            uint64(randomSwapFee),
-            uint64(targetSwapFee)
+            uint64(_mintFee),
+            uint64(_randomRedeemFee),
+            uint64(_targetRedeemFee),
+            uint64(_randomSwapFee),
+            uint64(_targetSwapFee)
         );
-        emit VaultFeesUpdated(vaultId, mintFee, randomRedeemFee, targetRedeemFee, randomSwapFee, targetSwapFee);
+        emit VaultFeesUpdated(vaultId, _mintFee, _randomRedeemFee, _targetRedeemFee, _randomSwapFee, _targetSwapFee);
     }
 
     function disableVaultFees(uint256 vaultId) public virtual override {

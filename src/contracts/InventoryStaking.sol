@@ -47,13 +47,15 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
     }
 
     // TODO: timelock exclude list is not yet implemented
-    function setTimelockExcludeList(address addr) external override onlyOwner {
-        timelockExcludeList = ITimelockExcludeList(addr);
+    // TODO: missing event emission
+    function setTimelockExcludeList(address _timelockExcludeList) external override onlyOwner {
+        timelockExcludeList = ITimelockExcludeList(_timelockExcludeList);
     }
 
-    function setInventoryLockTimeErc20(uint256 time) external override onlyOwner {
-        if (time > 14 days) revert LockTooLong();
-        inventoryLockTimeErc20 = time;
+    // TODO: missing event emission
+    function setInventoryLockTimeErc20(uint256 _inventoryLockTimeErc20) external override onlyOwner {
+        if (_inventoryLockTimeErc20 > 14 days) revert LockTooLong();
+        inventoryLockTimeErc20 = _inventoryLockTimeErc20;
     }
 
     function isAddressTimelockExcluded(address addr, uint256 vaultId) public view override returns (bool) {

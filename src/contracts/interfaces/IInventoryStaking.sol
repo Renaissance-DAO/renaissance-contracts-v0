@@ -15,9 +15,9 @@ interface IInventoryStaking {
 
     function __InventoryStaking_init(address _vaultManager) external;
 
-    function setTimelockExcludeList(address addr) external;
+    function setTimelockExcludeList(address _timelockExcludeList) external;
 
-    function setInventoryLockTimeErc20(uint256 time) external;
+    function setInventoryLockTimeErc20(uint256 _inventoryLockTimeErc20) external;
 
     function isAddressTimelockExcluded(address addr, uint256 vaultId) external returns (bool);
 

@@ -31,8 +31,8 @@ interface IFNFTCollectionFactory is IBeacon {
   // Write functions.
   function __FNFTCollectionFactory_init(address _vaultManager) external;
   function createVault(
-      string calldata name,
-      string calldata symbol,
+      string calldata _name,
+      string calldata _symbol,
       address _assetAddress,
       bool is1155,
       bool allowAllItems
@@ -41,22 +41,22 @@ interface IFNFTCollectionFactory is IBeacon {
   function setSwapFee(uint256 _swapFee) external;
 
   function setFactoryFees(
-    uint256 mintFee,
-    uint256 randomRedeemFee,
-    uint256 targetRedeemFee,
-    uint256 randomSwapFee,
-    uint256 targetSwapFee
+    uint256 _factoryMintFee,
+    uint256 _factoryRandomRedeemFee,
+    uint256 _factoryTargetRedeemFee,
+    uint256 _factoryRandomSwapFee,
+    uint256 _factoryTargetSwapFee
   ) external;
   function setVaultFees(
       uint256 vaultId,
-      uint256 mintFee,
-      uint256 randomRedeemFee,
-      uint256 targetRedeemFee,
-      uint256 randomSwapFee,
-      uint256 targetSwapFee
+      uint256 _mintFee,
+      uint256 _randomRedeemFee,
+      uint256 _targetRedeemFee,
+      uint256 _randomSwapFee,
+      uint256 _targetSwapFee
   ) external;
   function disableVaultFees(uint256 vaultId) external;
-  function setFlashLoanFee(uint256 fee) external;
+  function setFlashLoanFee(uint256 _flashLoanFee) external;
 
   event FeeDistributorUpdated(address oldDistributor, address newDistributor);
   event FeeExclusionUpdated(address target, bool excluded);

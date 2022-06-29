@@ -43,9 +43,10 @@ contract LPStaking is ILPStaking, Pausable {
         _;
     }
 
-    function setStakingTokenProvider(address newProvider) external override onlyOwner {
-        if (newProvider == address(0)) revert ZeroAddress();
-        stakingTokenProvider = IStakingTokenProvider(newProvider);
+    // TODO: missing event emission
+    function setStakingTokenProvider(address _stakingTokenProvider) external override onlyOwner {
+        if (_stakingTokenProvider == address(0)) revert ZeroAddress();
+        stakingTokenProvider = IStakingTokenProvider(_stakingTokenProvider);
     }
 
     function addPoolForVault(uint256 vaultId) external override onlyAdmin {

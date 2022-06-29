@@ -17,7 +17,7 @@ interface IStakingTokenProvider {
 
     function setPairedTokenForVaultToken(address _vaultToken, address _newPairedToken, string calldata _newPrefix) external;
 
-    function setDefaultPairedToken(address _newDefaultPaired, string calldata _newDefaultPrefix) external;
+    function setDefaultPairedToken(address _defaultPairedToken, string calldata _defaultPrefix) external;
 
     function stakingTokenForVaultToken(address _vaultToken) external view returns (address);
 

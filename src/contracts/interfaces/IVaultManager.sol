@@ -18,10 +18,10 @@ interface IVaultManager {
     function feeReceiver() external view returns (address payable);
     function togglePaused() external;
     function addVault(address _fnft) external returns (uint256 vaultId);
-    function setPriceOracle(address _newOracle) external;
+    function setPriceOracle(address _priceOracle) external;
     function setFeeDistributor(address _feeDistributor) external;
-    function setFeeExclusion(address _excludedAddr, bool excluded) external;
-    function setFeeReceiver(address payable _receiver) external;
+    function setFeeExclusion(address _address, bool _excluded) external;
+    function setFeeReceiver(address payable _feeReceiver) external;
     function setZapContract(address _zapContract) external;
     function setFNFTCollectionFactory(address _fnftCollectionFactory) external;
     function setFNFTSingleFactory(address _fnftCollectionFactory) external;

@@ -39,8 +39,8 @@ contract Deployer is Ownable {
 
     // Gov
 
-    function setProxyController(address _controller) external onlyOwner {
-        proxyController = IMultiProxyController(_controller);
+    function setProxyController(address _proxyController) external onlyOwner {
+        proxyController = IMultiProxyController(_proxyController);
     }
 
     /// @notice the function to deploy IFOFactory

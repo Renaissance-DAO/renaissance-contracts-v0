@@ -80,47 +80,37 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         _unpause();
     }
 
-    function setCreatorIFOLock(bool _lock) external override onlyOwner {
-        emit CreatorIFOLockUpdated(creatorIFOLock, _lock);
-
-        creatorIFOLock = _lock;
+    function setCreatorIFOLock(bool _creatorIFOLock) external override onlyOwner {
+        emit CreatorIFOLockUpdated(creatorIFOLock, _creatorIFOLock);
+        creatorIFOLock = _creatorIFOLock;
     }
 
-    function setMinimumDuration(uint256 _blocks) external override onlyOwner {
-        if (_blocks > maximumDuration) revert InvalidDuration();
-
-        emit MinimumDurationUpdated(minimumDuration, _blocks);
-
-        minimumDuration = _blocks;
+    function setMinimumDuration(uint256 _minimumDuration) external override onlyOwner {
+        if (_minimumDuration > maximumDuration) revert InvalidDuration();
+        emit MinimumDurationUpdated(minimumDuration, _minimumDuration);
+        minimumDuration = _minimumDuration;
     }
 
-    function setMaximumDuration(uint256 _blocks) external override onlyOwner {
-        if (minimumDuration > _blocks) revert InvalidDuration();
-
-        emit MaximumDurationUpdated(maximumDuration, _blocks);
-
-        maximumDuration = _blocks;
+    function setMaximumDuration(uint256 _maximumDuration) external override onlyOwner {
+        if (minimumDuration > _maximumDuration) revert InvalidDuration();
+        emit MaximumDurationUpdated(maximumDuration, _maximumDuration);
+        maximumDuration = _maximumDuration;
     }
 
-    function setCreatorUtilityContract(address _utility) external override onlyOwner {
-        emit CreatorUtilityContractUpdated(creatorUtilityContract, _utility);
-
-        creatorUtilityContract = _utility;
+    function setCreatorUtilityContract(address _creatorUtilityContract) external override onlyOwner {
+        emit CreatorUtilityContractUpdated(creatorUtilityContract, _creatorUtilityContract);
+        creatorUtilityContract = _creatorUtilityContract;
     }
 
-    function setGovernanceFee(uint256 _fee) external override onlyOwner {
-        if (_fee > MAX_GOV_FEE) revert FeeTooHigh();
-
-        emit GovernanceFeeUpdated(governanceFee, _fee);
-
-        governanceFee = _fee;
+    function setGovernanceFee(uint256 _governanceFee) external override onlyOwner {
+        if (_governanceFee > MAX_GOV_FEE) revert FeeTooHigh();
+        emit GovernanceFeeUpdated(governanceFee, _governanceFee);
+        governanceFee = _governanceFee;
     }
 
-    function setFeeReceiver(address payable _receiver) external override onlyOwner {
-        if (_receiver == address(0)) revert ZeroAddressDisallowed();
-
-        emit FeeReceiverUpdated(feeReceiver, _receiver);
-
-        feeReceiver = _receiver;
+    function setFeeReceiver(address payable _feeReceiver) external override onlyOwner {
+        if (_feeReceiver == address(0)) revert ZeroAddressDisallowed();
+        emit FeeReceiverUpdated(feeReceiver, _feeReceiver);
+        feeReceiver = _feeReceiver;
     }
 }

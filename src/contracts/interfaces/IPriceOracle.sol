@@ -30,9 +30,9 @@ interface IPriceOracle {
 
     function __PriceOracle_init() external;
 
-    function setPeriod(uint256 _newPeriod) external;
+    function setPeriod(uint256 _period) external;
 
-    function setMinimumPairInfoUpdate(uint256 _newMinimumPairInfoUpdate) external;
+    function setMinimumPairInfoUpdate(uint256 _minimumPairInfoUpdate) external;
 
     function getPairAddress(address _token0, address _token1) external view returns (address);
 

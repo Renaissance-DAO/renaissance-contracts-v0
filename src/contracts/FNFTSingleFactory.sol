@@ -110,15 +110,15 @@ contract FNFTSingleFactory is
         paused() ? _unpause() : _pause();
     }
 
-    function setAuctionLength(Boundary boundary, uint256 _length) external override onlyOwner {
+    function setAuctionLength(Boundary boundary, uint256 _auctionLength) external override onlyOwner {
         if (boundary == Boundary.Min) {
-            if (_length < 1 days || _length >= maxAuctionLength) revert MinAuctionLengthOutOfBounds();
-            emit MinAuctionLengthUpdated(minAuctionLength, _length);
-            minAuctionLength = _length;
+            if (_auctionLength < 1 days || _auctionLength >= maxAuctionLength) revert MinAuctionLengthOutOfBounds();
+            emit MinAuctionLengthUpdated(minAuctionLength, _auctionLength);
+            minAuctionLength = _auctionLength;
         } else if (boundary == Boundary.Max) {
-            if (_length > 8 weeks || _length <= minAuctionLength) revert MaxAuctionLengthOutOfBounds();
-            emit MaxAuctionLengthUpdated(maxAuctionLength, _length);
-            maxAuctionLength = _length;
+            if (_auctionLength > 8 weeks || _auctionLength <= minAuctionLength) revert MaxAuctionLengthOutOfBounds();
+            emit MaxAuctionLengthUpdated(maxAuctionLength, _auctionLength);
+            maxAuctionLength = _auctionLength;
         }
     }
 
@@ -137,47 +137,47 @@ contract FNFTSingleFactory is
         }
     }
 
-    function setMinBidIncrease(uint256 _min) external override onlyOwner {
-        if (_min > 1000 || _min < 100) revert MinBidIncreaseOutOfBounds();
+    function setMinBidIncrease(uint256 _minBidIncrease) external override onlyOwner {
+        if (_minBidIncrease > 1000 || _minBidIncrease < 100) revert MinBidIncreaseOutOfBounds();
 
-        emit MinBidIncreaseUpdated(minBidIncrease, _min);
+        emit MinBidIncreaseUpdated(minBidIncrease, _minBidIncrease);
 
-        minBidIncrease = _min;
+        minBidIncrease = _minBidIncrease;
     }
 
-    function setMinVotePercentage(uint256 _min) external override onlyOwner {
+    function setMinVotePercentage(uint256 _minVotePercentage) external override onlyOwner {
         // 10000 is 100%
-        if (_min > 10000) revert MinVotePercentageTooHigh();
+        if (_minVotePercentage > 10000) revert MinVotePercentageTooHigh();
 
-        emit MinVotePercentageUpdated(minVotePercentage, _min);
+        emit MinVotePercentageUpdated(minVotePercentage, _minVotePercentage);
 
-        minVotePercentage = _min;
+        minVotePercentage = _minVotePercentage;
     }
 
-    function setReserveFactor(Boundary boundary, uint256 _factor) external override onlyOwner {
+    function setReserveFactor(Boundary boundary, uint256 _reserveFactor) external override onlyOwner {
         if (boundary == Boundary.Min) {
-            if (_factor >= maxReserveFactor) revert MinReserveFactorTooHigh();
-            emit MinReserveFactorUpdated(minReserveFactor, _factor);
-            minReserveFactor = _factor;
+            if (_reserveFactor >= maxReserveFactor) revert MinReserveFactorTooHigh();
+            emit MinReserveFactorUpdated(minReserveFactor, _reserveFactor);
+            minReserveFactor = _reserveFactor;
         } else if (boundary == Boundary.Max) {
-            if (_factor <= minReserveFactor) revert MaxReserveFactorTooLow();
-            emit MaxReserveFactorUpdated(maxReserveFactor, _factor);
-            maxReserveFactor = _factor;
+            if (_reserveFactor <= minReserveFactor) revert MaxReserveFactorTooLow();
+            emit MaxReserveFactorUpdated(maxReserveFactor, _reserveFactor);
+            maxReserveFactor = _reserveFactor;
         }
     }
 
-    function setLiquidityThreshold(uint256 _threshold) external override onlyOwner {
-        emit LiquidityThresholdUpdated(liquidityThreshold, _threshold);
+    function setLiquidityThreshold(uint256 _liquidityThreshold) external override onlyOwner {
+        emit LiquidityThresholdUpdated(liquidityThreshold, _liquidityThreshold);
 
-        liquidityThreshold = _threshold;
+        liquidityThreshold = _liquidityThreshold;
     }
 
-    function setInstantBuyMultiplier(uint256 _multiplier) external override onlyOwner {
-        if (_multiplier < 10) revert MultiplierTooLow();
+    function setInstantBuyMultiplier(uint256 _instantBuyMultiplier) external override onlyOwner {
+        if (_instantBuyMultiplier < 10) revert MultiplierTooLow();
 
-        emit InstantBuyMultiplierUpdated(instantBuyMultiplier, _multiplier);
+        emit InstantBuyMultiplierUpdated(instantBuyMultiplier, _instantBuyMultiplier);
 
-        instantBuyMultiplier = _multiplier;
+        instantBuyMultiplier = _instantBuyMultiplier;
     }
 
     function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {

@@ -48,16 +48,16 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     inventoryStaking = IInventoryStaking(feeDistributor.inventoryStaking());
   }
 
-  function setLPLockTime(uint256 newLPLockTime) external override onlyOwner {
-    if (newLPLockTime > 7 days) revert LockTooLong();
-    emit LPLockTimeUpdated(lpLockTime, newLPLockTime);
-    lpLockTime = newLPLockTime;
+  function setLPLockTime(uint256 _lpLockTime) external override onlyOwner {
+    if (_lpLockTime > 7 days) revert LockTooLong();
+    emit LPLockTimeUpdated(lpLockTime, _lpLockTime);
+    lpLockTime = _lpLockTime;
   }
 
-  function setInventoryLockTime(uint256 newInventoryLockTime) external override onlyOwner {
-    if (newInventoryLockTime > 14 days) revert LockTooLong();
-    emit InventoryLockTimeUpdated(inventoryLockTime, newInventoryLockTime);
-    inventoryLockTime = newInventoryLockTime;
+  function setInventoryLockTime(uint256 _inventoryLockTime) external override onlyOwner {
+    if (_inventoryLockTime > 14 days) revert LockTooLong();
+    emit InventoryLockTimeUpdated(inventoryLockTime, _inventoryLockTime);
+    inventoryLockTime = _inventoryLockTime;
   }
 
   function provideInventory721(uint256 vaultId, uint256[] calldata tokenIds) external override {

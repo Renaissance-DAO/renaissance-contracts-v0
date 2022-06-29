@@ -25,9 +25,9 @@ interface IStakingZap {
 
     function assignStakingContracts() external;
 
-    function setLPLockTime(uint256 newLPLockTime) external;
+    function setLPLockTime(uint256 _lpLockTime) external;
 
-    function setInventoryLockTime(uint256 newInventoryLockTime) external;
+    function setInventoryLockTime(uint256 _inventoryLockTime) external;
 
     function provideInventory721(uint256 vaultId, uint256[] calldata tokenIds) external;
 

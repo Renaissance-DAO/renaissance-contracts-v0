@@ -48,19 +48,19 @@ interface IFNFTSingleFactory {
 
     function flashLoanFee() external view returns (uint256);
 
-    function setAuctionLength(Boundary boundary, uint256 _length) external;
+    function setAuctionLength(Boundary boundary, uint256 _auctionLength) external;
 
     function setFee(FeeType feeType, uint256 _fee) external;
 
-    function setMinBidIncrease(uint256 _min) external;
+    function setMinBidIncrease(uint256 _minBidIncrease) external;
 
-    function setMinVotePercentage(uint256 _min) external;
+    function setMinVotePercentage(uint256 _minVotePercentage) external;
 
-    function setReserveFactor(Boundary boundary, uint256 _factor) external;
+    function setReserveFactor(Boundary boundary, uint256 _reserveFactor) external;
 
-    function setLiquidityThreshold(uint256 _threshold) external;
+    function setLiquidityThreshold(uint256 _liquidityThreshold) external;
 
-    function setInstantBuyMultiplier(uint256 _multiplier) external;
+    function setInstantBuyMultiplier(uint256 _instantBuyMultiplier) external;
 
     function setFlashLoanFee(uint256 fee) external;
 

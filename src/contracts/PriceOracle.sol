@@ -38,15 +38,15 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
     }
 
     // Set minimum period to wait for the next pair info update.
-    function setPeriod(uint256 _newPeriod) external override onlyOwner {
-        emit PeriodUpdated(period, _newPeriod);
-        period = _newPeriod;
+    function setPeriod(uint256 _period) external override onlyOwner {
+        emit PeriodUpdated(period, _period);
+        period = _period;
     }
 
     // Set minimum pair info info update required to get fNFT-WETH TWAP price.
-    function setMinimumPairInfoUpdate(uint256 _newMinimumPairInfoUpdate) external override onlyOwner {
-        emit MinimumPairInfoUpdateUpdated(minimumPairInfoUpdate, _newMinimumPairInfoUpdate);
-        minimumPairInfoUpdate = _newMinimumPairInfoUpdate;
+    function setMinimumPairInfoUpdate(uint256 _minimumPairInfoUpdate) external override onlyOwner {
+        emit MinimumPairInfoUpdateUpdated(minimumPairInfoUpdate, _minimumPairInfoUpdate);
+        minimumPairInfoUpdate = _minimumPairInfoUpdate;
     }
 
     // Get pair address from factory. Returns address(0) if not found.

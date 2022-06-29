@@ -36,10 +36,10 @@ contract StakingTokenProvider is IStakingTokenProvider, OwnableUpgradeable {
     pairedPrefix[_vaultToken] = _newPrefix;
   }
 
-  function setDefaultPairedToken(address _newDefaultPaired, string calldata _newDefaultPrefix) external override onlyOwner {
-    emit DefaultPairedTokenUpdated(defaultPairedToken, _newDefaultPaired);
-    defaultPairedToken = _newDefaultPaired;
-    defaultPrefix = _newDefaultPrefix;
+  function setDefaultPairedToken(address _defaultPairedToken, string calldata _defaultPrefix) external override onlyOwner {
+    emit DefaultPairedTokenUpdated(defaultPairedToken, _defaultPairedToken);
+    defaultPairedToken = _defaultPairedToken;
+    defaultPrefix = _defaultPrefix;
   }
 
   function stakingTokenForVaultToken(address _vaultToken) external view override returns (address) {

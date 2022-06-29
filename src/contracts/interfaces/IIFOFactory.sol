@@ -31,17 +31,17 @@ interface IIFOFactory {
 
     function unpause() external;
 
-    function setCreatorIFOLock(bool _lock) external;
+    function setCreatorIFOLock(bool _creatorIFOLock) external;
 
-    function setMinimumDuration(uint256 _blocks) external;
+    function setMinimumDuration(uint256 _minimumDuration) external;
 
-    function setMaximumDuration(uint256 _blocks) external;
+    function setMaximumDuration(uint256 _maximumDuration) external;
 
-    function setCreatorUtilityContract(address _utility) external;
+    function setCreatorUtilityContract(address _creatorUtilityContract) external;
 
-    function setGovernanceFee(uint256 _fee) external;
+    function setGovernanceFee(uint256 _governanceFee) external;
 
-    function setFeeReceiver(address payable _receiver) external;
+    function setFeeReceiver(address payable _feeReceiver) external;
 
     event CreatorIFOLockUpdated(bool _old, bool _new);
     event MinimumDurationUpdated(uint256 _old, uint256 _new);

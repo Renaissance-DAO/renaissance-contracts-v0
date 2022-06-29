@@ -62,9 +62,9 @@ contract VaultManager is
         paused() ? _unpause() : _pause();
     }
 
-    function setPriceOracle(address _newOracle) external override onlyOwner {
-        emit PriceOracleUpdated(priceOracle, _newOracle);
-        priceOracle = _newOracle;
+    function setPriceOracle(address _priceOracle) external override onlyOwner {
+        emit PriceOracleUpdated(priceOracle, _priceOracle);
+        priceOracle = _priceOracle;
     }
 
 
@@ -74,15 +74,15 @@ contract VaultManager is
         feeDistributor = _feeDistributor;
     }
 
-    function setFeeExclusion(address _excludedAddr, bool excluded) public override onlyOwner {
-        emit FeeExclusionUpdated(_excludedAddr, excluded);
-        excludedFromFees[_excludedAddr] = excluded;
+    function setFeeExclusion(address _address, bool _excluded) public override onlyOwner {
+        emit FeeExclusionUpdated(_address, _excluded);
+        excludedFromFees[_address] = _excluded;
     }
 
-    function setFeeReceiver(address payable _receiver) external override onlyOwner {
-        if (_receiver == address(0)) revert ZeroAddressDisallowed();
-        emit FeeReceiverUpdated(feeReceiver, _receiver);
-        feeReceiver = _receiver;
+    function setFeeReceiver(address payable _feeReceiver) external override onlyOwner {
+        if (_feeReceiver == address(0)) revert ZeroAddressDisallowed();
+        emit FeeReceiverUpdated(feeReceiver, _feeReceiver);
+        feeReceiver = _feeReceiver;
     }
 
     function setZapContract(address _zapContract) external override onlyOwner {
