@@ -30,9 +30,9 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
     bytes internal constant beaconCode = type(Create2BeaconProxy).creationCode;
 
     IVaultManager public override vaultManager;
+    ITimelockExcludeList public override timelockExcludeList;
 
     uint256 public override inventoryLockTimeErc20;
-    ITimelockExcludeList public override timelockExcludeList;
 
     function __InventoryStaking_init(address _vaultManager) external virtual override initializer {
         __Ownable_init();
@@ -46,16 +46,22 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
         _;
     }
 
-    // TODO: timelock exclude list is not yet implemented
-    // TODO: missing event emission
-    function setTimelockExcludeList(address _timelockExcludeList) external override onlyOwner {
-        timelockExcludeList = ITimelockExcludeList(_timelockExcludeList);
+    function balanceOf(uint256 vaultId, address who) external view override returns (uint256) {
+        XTokenUpgradeable xToken = XTokenUpgradeable(vaultXToken(vaultId));
+        return xToken.balanceOf(who);
     }
 
-    // TODO: missing event emission
-    function setInventoryLockTimeErc20(uint256 _inventoryLockTimeErc20) external override onlyOwner {
-        if (_inventoryLockTimeErc20 > 14 days) revert LockTooLong();
-        inventoryLockTimeErc20 = _inventoryLockTimeErc20;
+    // Enter staking. Staking, get minted shares and
+    // locks base tokens and mints xTokens.
+    function deposit(uint256 vaultId, uint256 _amount) external virtual override {
+        onlyOwnerIfPaused(10);
+
+        uint256 timelockTime = isAddressTimelockExcluded(msg.sender, vaultId) ? 0 : inventoryLockTimeErc20;
+
+        (IERC20Upgradeable baseToken, XTokenUpgradeable xToken, uint256 xTokensMinted) = _timelockMintFor(vaultId, msg.sender, _amount, timelockTime);
+        // Lock the base token in the xtoken contract
+        baseToken.safeTransferFrom(msg.sender, address(xToken), _amount);
+        emit BaseTokenDeposited(vaultId, _amount, xTokensMinted, timelockTime, msg.sender);
     }
 
     function isAddressTimelockExcluded(address addr, uint256 vaultId) public view override returns (bool) {
@@ -64,18 +70,6 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
         } else {
             return timelockExcludeList.isExcluded(addr, vaultId);
         }
-    }
-
-    function deployXTokenForVault(uint256 vaultId) public virtual override {
-        address baseToken = vaultManager.vault(vaultId);
-        address deployedXToken = xTokenAddr(address(baseToken));
-
-        if (isContract(deployedXToken)) {
-            return;
-        }
-
-        address xToken = _deployXToken(baseToken);
-        emit XTokenCreated(vaultId, baseToken, xToken);
     }
 
     function receiveRewards(uint256 vaultId, uint256 amount) external virtual override onlyAdmin returns (bool) {
@@ -93,17 +87,16 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
         return true;
     }
 
-    // Enter staking. Staking, get minted shares and
-    // locks base tokens and mints xTokens.
-    function deposit(uint256 vaultId, uint256 _amount) external virtual override {
-        onlyOwnerIfPaused(10);
+    // TODO: missing event emission
+    function setInventoryLockTimeErc20(uint256 _inventoryLockTimeErc20) external override onlyOwner {
+        if (_inventoryLockTimeErc20 > 14 days) revert LockTooLong();
+        inventoryLockTimeErc20 = _inventoryLockTimeErc20;
+    }
 
-        uint256 timelockTime = isAddressTimelockExcluded(msg.sender, vaultId) ? 0 : inventoryLockTimeErc20;
-
-        (IERC20Upgradeable baseToken, XTokenUpgradeable xToken, uint256 xTokensMinted) = _timelockMintFor(vaultId, msg.sender, _amount, timelockTime);
-        // Lock the base token in the xtoken contract
-        baseToken.safeTransferFrom(msg.sender, address(xToken), _amount);
-        emit BaseTokenDeposited(vaultId, _amount, xTokensMinted, timelockTime, msg.sender);
+    // TODO: timelock exclude list is not yet implemented
+    // TODO: missing event emission
+    function setTimelockExcludeList(address _timelockExcludeList) external override onlyOwner {
+        timelockExcludeList = ITimelockExcludeList(_timelockExcludeList);
     }
 
     function timelockMintFor(uint256 vaultId, uint256 amount, address to, uint256 timelockLength) external virtual override returns (uint256) {
@@ -115,6 +108,11 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
         (, , uint256 xTokensMinted) = _timelockMintFor(vaultId, to, amount, timelockLength);
         emit BaseTokenDeposited(vaultId, amount, xTokensMinted, timelockLength, to);
         return xTokensMinted;
+    }
+
+    function timelockUntil(uint256 vaultId, address who) external view override returns (uint256) {
+        XTokenUpgradeable xToken = XTokenUpgradeable(vaultXToken(vaultId));
+        return xToken.timelockUntil(who);
     }
 
     // Leave the bar. Claim back your tokens.
@@ -138,21 +136,16 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
             : multiplier;
     }
 
-    function timelockUntil(uint256 vaultId, address who) external view override returns (uint256) {
-        XTokenUpgradeable xToken = XTokenUpgradeable(vaultXToken(vaultId));
-        return xToken.timelockUntil(who);
-    }
+    function deployXTokenForVault(uint256 vaultId) public virtual override {
+        address baseToken = vaultManager.vault(vaultId);
+        address deployedXToken = xTokenAddr(address(baseToken));
 
-    function balanceOf(uint256 vaultId, address who) external view override returns (uint256) {
-        XTokenUpgradeable xToken = XTokenUpgradeable(vaultXToken(vaultId));
-        return xToken.balanceOf(who);
-    }
+        if (isContract(deployedXToken)) {
+            return;
+        }
 
-    // Note: this function does not guarantee the token is deployed, we leave that check to elsewhere to save gas.
-    function xTokenAddr(address baseToken) public view virtual override returns (address) {
-        bytes32 salt = keccak256(abi.encodePacked(baseToken));
-        address tokenAddr = Create2.computeAddress(salt, keccak256(type(Create2BeaconProxy).creationCode));
-        return tokenAddr;
+        address xToken = _deployXToken(baseToken);
+        emit XTokenCreated(vaultId, baseToken, xToken);
     }
 
     function vaultXToken(uint256 vaultId) public view virtual override returns (address) {
@@ -162,13 +155,11 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
         return xToken;
     }
 
-    function _timelockMintFor(uint256 vaultId, address account, uint256 _amount, uint256 timelockLength) internal returns (IERC20Upgradeable, XTokenUpgradeable, uint256) {
-        deployXTokenForVault(vaultId);
-        IERC20Upgradeable baseToken = IERC20Upgradeable(vaultManager.vault(vaultId));
-        XTokenUpgradeable xToken = XTokenUpgradeable((xTokenAddr(address(baseToken))));
-
-        uint256 xTokensMinted = xToken.mintXTokens(account, _amount, timelockLength);
-        return (baseToken, xToken, xTokensMinted);
+    // Note: this function does not guarantee the token is deployed, we leave that check to elsewhere to save gas.
+    function xTokenAddr(address baseToken) public view virtual override returns (address) {
+        bytes32 salt = keccak256(abi.encodePacked(baseToken));
+        address tokenAddr = Create2.computeAddress(salt, keccak256(type(Create2BeaconProxy).creationCode));
+        return tokenAddr;
     }
 
     function _deployXToken(address baseToken) internal returns (address) {
@@ -189,5 +180,14 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
         // solhint-disable-next-line no-inline-assembly
         assembly { size := extcodesize(account) }
         return size != 0;
+    }
+
+    function _timelockMintFor(uint256 vaultId, address account, uint256 _amount, uint256 timelockLength) internal returns (IERC20Upgradeable, XTokenUpgradeable, uint256) {
+        deployXTokenForVault(vaultId);
+        IERC20Upgradeable baseToken = IERC20Upgradeable(vaultManager.vault(vaultId));
+        XTokenUpgradeable xToken = XTokenUpgradeable((xTokenAddr(address(baseToken))));
+
+        uint256 xTokensMinted = xToken.mintXTokens(account, _amount, timelockLength);
+        return (baseToken, xToken, xTokensMinted);
     }
 }
