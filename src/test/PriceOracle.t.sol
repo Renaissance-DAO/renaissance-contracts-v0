@@ -182,7 +182,7 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
     /**
     Test retrieving token(fnftSingle) price in ETH.
      */
-    function testfNFTPriceETH() public {
+    function testFNFTPriceETH() public {
         // ACTION
         // Add pair info to price oracle.
         address pairAddress = address(pairWithWeth.uPair());
@@ -203,11 +203,11 @@ contract PriceOracleTest is DSTest, SetupEnvironment {
         }
 
         // Get Price of FNFT in ETH.
-        uint fNFTAmount = 50 ether;
-        uint ethPrice = priceOracle.getFNFTPriceETH(fnftSingle, fNFTAmount);
+        uint amount = 50 ether;
+        uint ethPrice = priceOracle.getFNFTPriceETH(fnftSingle, amount);
 
         // VERIFY
-        assertEq(ethPrice, fNFTAmount * weth.balanceOf(pairAddress)/IERC20Upgradeable(fnftSingle).balanceOf(pairAddress));
+        assertEq(ethPrice, amount * weth.balanceOf(pairAddress)/IERC20Upgradeable(fnftSingle).balanceOf(pairAddress));
     }
 
     /**

@@ -50,7 +50,7 @@ contract FNFTSingleFactory is
     /// @notice the max % decrease from the initial
     uint256 public override minReserveFactor;
 
-    /// @notice minimum size of fNFT-ETH LP pool for TWAP to take effect
+    /// @notice minimum size of FNFT-ETH LP pool for TWAP to take effect
     uint256 public override liquidityThreshold;
 
     /// @notice instant buy allowed if bid > MC * instantBuyMultiplier

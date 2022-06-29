@@ -43,7 +43,7 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
         period = _period;
     }
 
-    // Set minimum pair info info update required to get fNFT-WETH TWAP price.
+    // Set minimum pair info info update required to get FNFT-WETH TWAP price.
     function setMinimumPairInfoUpdate(uint256 _minimumPairInfoUpdate) external override onlyOwner {
         emit MinimumPairInfoUpdateUpdated(minimumPairInfoUpdate, _minimumPairInfoUpdate);
         minimumPairInfoUpdate = _minimumPairInfoUpdate;
@@ -70,7 +70,7 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
         _updatePairInfo(_token0, _token1);
     }
 
-    // Update fNFT-WETH pair info.
+    // Update FNFT-WETH pair info.
     function updateFNFTPairInfo(address _fnft) external override {
         _updatePairInfo(_fnft, WETH);
     }
@@ -91,7 +91,7 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
         amountOut = _calculatePrice(_token, _amountIn, pairInfo);
     }
 
-    // Get fNFT TWAP Price in ETH/WETH.
+    // Get FNFT TWAP Price in ETH/WETH.
     // note this will always return 0 before update has been called successfully for the first time.
     function getFNFTPriceETH(address _fnft, uint256 _amountIn) external view override returns (uint256 amountOut) {
         address pair = _getPairAddress(_fnft, WETH);

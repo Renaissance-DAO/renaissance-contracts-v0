@@ -11,7 +11,7 @@ import "./proxy/BeaconUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
 
 contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeable {
-    /// @notice the mapping of fNFT to IFO address
+    /// @notice the mapping of FNFT to IFO address
     mapping(address => address) public override getIFO;
 
     uint256 public override minimumDuration;
@@ -20,7 +20,7 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
     /// @notice 10% fee is max
     uint256 public constant MAX_GOV_FEE = 1000;
     address public override creatorUtilityContract;
-    /// @notice the boolean whether creator should have access to the creator's fNFT shares after IFO
+    /// @notice the boolean whether creator should have access to the creator's FNFT shares after IFO
     bool public override creatorIFOLock;
     /// @notice the address who receives ifo fees
     address payable public override feeReceiver;

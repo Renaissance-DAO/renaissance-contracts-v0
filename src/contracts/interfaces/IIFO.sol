@@ -7,7 +7,7 @@ import "./IIFOFactory.sol";
 interface IIFO {
     struct UserInfo {
         uint256 amount; // Amount ETH deposited by user
-        uint256 debt; // total fNFT claimed thus fNFT debt
+        uint256 debt; // total FNFT claimed thus FNFT debt
     }
 
     function curator() external view returns (address);

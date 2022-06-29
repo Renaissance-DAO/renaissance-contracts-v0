@@ -13,14 +13,14 @@ import "./interfaces/IFNFTSingle.sol";
 contract IFO is IIFO, Initializable {
     address public override curator;
     IIFOFactory public override factory;
-    IFNFTSingle public override fnft; // fNFT the ifo contract sells
+    IFNFTSingle public override fnft; // FNFT the ifo contract sells
 
-    uint256 public override amountForSale; // amount of fNFT for sale
-    uint256 public override price; // initial price per fNFT
+    uint256 public override amountForSale; // amount of FNFT for sale
+    uint256 public override price; // initial price per FNFT
     uint256 public override cap; // cap per user
     uint256 public override totalRaised; // total ETH raised by sale
     uint256 public override profitRaised;
-    uint256 public override totalSold; // total fNFT sold by sale
+    uint256 public override totalSold; // total FNFT sold by sale
     uint256 public override lockedSupply;
     uint256 public override duration; // ifo duration
     uint256 public override startBlock; // block started
@@ -85,7 +85,7 @@ contract IFO is IIFO, Initializable {
         duration = _duration;
         fnft = _fnft;
 
-        /// @notice approve fNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
+        /// @notice approve FNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
         address creatorUtilityContract = IIFOFactory(msg.sender).creatorUtilityContract();
         if (creatorUtilityContract != address(0)) {
             _fnftErc20.approve(creatorUtilityContract, totalSupply);
@@ -209,7 +209,7 @@ contract IFO is IIFO, Initializable {
 
         address fnftAddress = address(fnft);
 
-        // fNFT to mint for msg.value
+        // FNFT to mint for msg.value
         uint256 payout = msg.value * (10 ** IERC20MetadataUpgradeable(fnftAddress).decimals()) / price;
 
         if (user.amount + payout > cap) revert OverLimit();
@@ -278,7 +278,7 @@ contract IFO is IIFO, Initializable {
         emit AdminFNFTWithdrawn(fnftAddress, balance);
     }
 
-    /// @notice approve fNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
+    /// @notice approve FNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
     function approve() external override onlyCurator {
         address creatorUtilityContract = factory.creatorUtilityContract();
         if (creatorUtilityContract == address(0)) revert InvalidAddress();

@@ -108,7 +108,7 @@ contract PairWithFNFTAndWETH{
         vm = _vm;
     }
 
-    // Transfer fNFT and weth tokens to pair and sync reserves.
+    // Transfer FNFT and WETH tokens to pair and sync reserves.
     function receiveToken(uint256 _fnftAmount, uint256 _wethAmount) public {
         // Prank next fnftSingle calls as the fnftSingle owner.
         vm.startPrank(msg.sender);
