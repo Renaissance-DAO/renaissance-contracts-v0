@@ -6,9 +6,9 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-import "./interfaces/ILPStaking.sol";
-import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/IInventoryStaking.sol";
+import "./interfaces/IFeeDistributor.sol";
+import "./interfaces/ILPStaking.sol";
 import "./interfaces/IVaultManager.sol";
 import "./util/Pausable.sol";
 

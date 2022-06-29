@@ -12,14 +12,14 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgra
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/utils/ERC1155HolderUpgradeable.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-import "./interfaces/IFNFTCollection.sol";
-import "./interfaces/IFNFTCollectionFactory.sol";
-import "./interfaces/IVaultManager.sol";
+import {IPriceOracle} from "./PriceOracle.sol";
 import "./interfaces/IEligibility.sol";
 import "./interfaces/IEligibilityManager.sol";
 import "./interfaces/IFeeDistributor.sol";
+import "./interfaces/IFNFTCollection.sol";
+import "./interfaces/IFNFTCollectionFactory.sol";
+import "./interfaces/IVaultManager.sol";
 import "./token/ERC20FlashMintUpgradeable.sol";
-import {IPriceOracle} from "./PriceOracle.sol";
 
 // Authors: @0xKiwi_ and @alexgausman.
 

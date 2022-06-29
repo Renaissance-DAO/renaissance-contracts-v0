@@ -2,12 +2,12 @@
 
 pragma solidity 0.8.13;
 
-import "./util/Pausable.sol";
+import "./FNFTCollection.sol";
 import "./interfaces/IFNFTCollectionFactory.sol";
 import "./interfaces/IVaultManager.sol";
-import "./FNFTCollection.sol";
 import "./proxy/BeaconProxy.sol";
 import "./proxy/BeaconUpgradeable.sol";
+import "./util/Pausable.sol";
 
 // Authors: @0xKiwi_ and @alexgausman.
 
