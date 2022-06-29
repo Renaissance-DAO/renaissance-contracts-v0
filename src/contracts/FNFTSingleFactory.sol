@@ -6,11 +6,11 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import "./FNFTSingle.sol";
-import "./proxy/BeaconUpgradeable.sol";
-import "./proxy/BeaconProxy.sol";
+import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/IFNFTSingleFactory.sol";
 import "./interfaces/IVaultManager.sol";
-import "./interfaces/IFeeDistributor.sol";
+import "./proxy/BeaconProxy.sol";
+import "./proxy/BeaconUpgradeable.sol";
 
 contract FNFTSingleFactory is
     IFNFTSingleFactory,
@@ -20,20 +20,26 @@ contract FNFTSingleFactory is
 {
     IVaultManager public override vaultManager;
 
-    /// @notice fee exclusion for swaps
-    uint256 public override swapFee;
+    /// @notice flash loan fee basis point
+    uint256 public override flashLoanFee;
 
     /// @notice governance fee max
     uint256 public override governanceFee;
 
-    /// @notice max curator fee
-    uint256 public override maxCuratorFee;
+    /// @notice instant buy allowed if bid > MC * instantBuyMultiplier
+    uint256 public override instantBuyMultiplier;
 
-    /// @notice flash loan fee basis point
-    uint256 public override flashLoanFee;
+    /// @notice minimum size of FNFT-ETH LP pool for TWAP to take effect
+    uint256 public override liquidityThreshold;
 
     /// @notice the maximum auction length
     uint256 public override maxAuctionLength;
+
+    /// @notice max curator fee
+    uint256 public override maxCuratorFee;
+
+    /// @notice the max % increase over the initial
+    uint256 public override maxReserveFactor;
 
     /// @notice the minimum auction length
     uint256 public override minAuctionLength;
@@ -41,20 +47,14 @@ contract FNFTSingleFactory is
     /// @notice the % bid increase required for a new bid
     uint256 public override minBidIncrease;
 
-    /// @notice the % of tokens required to be voting for an auction to start
-    uint256 public override minVotePercentage;
-
-    /// @notice the max % increase over the initial
-    uint256 public override maxReserveFactor;
-
     /// @notice the max % decrease from the initial
     uint256 public override minReserveFactor;
 
-    /// @notice minimum size of FNFT-ETH LP pool for TWAP to take effect
-    uint256 public override liquidityThreshold;
+    /// @notice the % of tokens required to be voting for an auction to start
+    uint256 public override minVotePercentage;
 
-    /// @notice instant buy allowed if bid > MC * instantBuyMultiplier
-    uint256 public override instantBuyMultiplier;
+    /// @notice fee exclusion for swaps
+    uint256 public override swapFee;
 
     function __FNFTSingleFactory_init(address _vaultManager) external override initializer {
         __Ownable_init();
@@ -106,10 +106,6 @@ contract FNFTSingleFactory is
         return fnftSingle;
     }
 
-    function togglePaused() external override onlyOwner {
-        paused() ? _unpause() : _pause();
-    }
-
     function setAuctionLength(Boundary boundary, uint256 _auctionLength) external override onlyOwner {
         if (boundary == Boundary.Min) {
             if (_auctionLength < 1 days || _auctionLength >= maxAuctionLength) revert MinAuctionLengthOutOfBounds();
@@ -135,6 +131,26 @@ contract FNFTSingleFactory is
             emit SwapFeeUpdated(swapFee, _fee);
             swapFee = _fee;
         }
+    }
+
+    function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {
+        if (_flashLoanFee > 500) revert FeeTooHigh();
+        emit FlashLoanFeeUpdated(flashLoanFee, _flashLoanFee);
+        flashLoanFee = _flashLoanFee;
+    }
+
+    function setInstantBuyMultiplier(uint256 _instantBuyMultiplier) external override onlyOwner {
+        if (_instantBuyMultiplier < 10) revert MultiplierTooLow();
+
+        emit InstantBuyMultiplierUpdated(instantBuyMultiplier, _instantBuyMultiplier);
+
+        instantBuyMultiplier = _instantBuyMultiplier;
+    }
+
+    function setLiquidityThreshold(uint256 _liquidityThreshold) external override onlyOwner {
+        emit LiquidityThresholdUpdated(liquidityThreshold, _liquidityThreshold);
+
+        liquidityThreshold = _liquidityThreshold;
     }
 
     function setMinBidIncrease(uint256 _minBidIncrease) external override onlyOwner {
@@ -166,24 +182,8 @@ contract FNFTSingleFactory is
         }
     }
 
-    function setLiquidityThreshold(uint256 _liquidityThreshold) external override onlyOwner {
-        emit LiquidityThresholdUpdated(liquidityThreshold, _liquidityThreshold);
-
-        liquidityThreshold = _liquidityThreshold;
-    }
-
-    function setInstantBuyMultiplier(uint256 _instantBuyMultiplier) external override onlyOwner {
-        if (_instantBuyMultiplier < 10) revert MultiplierTooLow();
-
-        emit InstantBuyMultiplierUpdated(instantBuyMultiplier, _instantBuyMultiplier);
-
-        instantBuyMultiplier = _instantBuyMultiplier;
-    }
-
-    function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {
-        if (_flashLoanFee > 500) revert FeeTooHigh();
-        emit FlashLoanFeeUpdated(flashLoanFee, _flashLoanFee);
-        flashLoanFee = _flashLoanFee;
+    function togglePaused() external override onlyOwner {
+        paused() ? _unpause() : _pause();
     }
 
     function deployVault(
