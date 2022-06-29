@@ -3,11 +3,11 @@ pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
+import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
+import "./interfaces/IUniswapV2Factory.sol";
 import "./libraries/PriceOracleLibrary.sol";
 import "./libraries/UQ112x112.sol";
 import "./libraries/math/FixedPoint.sol";
-import "./interfaces/IUniswapV2Factory.sol";
-import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 
 /**
     1. Store cumulative prices for each pair in the pool

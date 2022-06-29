@@ -8,11 +8,11 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/ClonesUpgradeable.sol";
 
-import "./interfaces/IVaultManager.sol";
 import "./interfaces/ILPStaking.sol";
 import "./interfaces/IStakingTokenProvider.sol";
-import "./util/Pausable.sol";
+import "./interfaces/IVaultManager.sol";
 import "./token/TimelockRewardDistributionTokenImpl.sol";
+import "./util/Pausable.sol";
 
 // Author: 0xKiwi.
 
