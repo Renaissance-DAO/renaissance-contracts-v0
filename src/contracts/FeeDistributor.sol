@@ -19,8 +19,8 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   IInventoryStaking public override inventoryStaking;
   ILPStaking public override lpStaking;
-  address public override treasury;
   IVaultManager public override vaultManager;
+  address public override treasury;
 
   // Total allocation points per vault.
   uint256 public override allocTotal;

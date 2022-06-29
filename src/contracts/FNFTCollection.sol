@@ -36,13 +36,16 @@ contract FNFTCollection is
 
     uint256 constant base = 10**18;
 
-    uint256 public override vaultId;
+    mapping(uint256 => uint256) public override quantity1155;
+    EnumerableSetUpgradeable.UintSet internal holdings;
+
+    IEligibility public override eligibilityStorage;
+    IFNFTCollectionFactory public override factory;
+    IVaultManager public override vaultManager;
     address public override manager;
     address public override pair;
-    IVaultManager public override vaultManager;
-    IFNFTCollectionFactory public override factory;
-    IEligibility public override eligibilityStorage;
 
+    uint256 public override vaultId;
     uint256 private randNonce;
 
     address public override assetAddress;
@@ -54,16 +57,13 @@ contract FNFTCollection is
     bool public override enableRandomSwap;
     bool public override enableTargetSwap;
 
-    EnumerableSetUpgradeable.UintSet internal holdings;
-    mapping(uint256 => uint256) public override quantity1155;
-
     function __FNFTCollection_init(
         string memory _name,
         string memory _symbol,
         address _assetAddress,
         bool _is1155,
         bool _allowAllItems
-    ) public override virtual initializer {
+    ) external override virtual initializer {
         __Ownable_init();
         __ERC20_init(_name, _symbol);
         if (_assetAddress == address(0)) revert ZeroAddress();
@@ -79,59 +79,13 @@ contract FNFTCollection is
         setVaultFeatures(true /*enableMint*/, true /*enableRandomRedeem*/, true /*enableTargetRedeem*/, true /*enableRandomSwap*/, true /*enableTargetSwap*/);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(ERC1155ReceiverUpgradeable, IERC165) returns (bool) {
-        return interfaceId == type(IFNFTCollection).interfaceId ||
-                interfaceId == type(IERC165).interfaceId ||
-                super.supportsInterface(interfaceId);
-    }
-
-    function finalizeVault() external override virtual {
-        setManager(address(0));
-    }
-
-    function setVaultMetadata(
-        string calldata name_,
-        string calldata symbol_
-    ) external override virtual {
-        onlyPrivileged();
-        _setMetadata(name_, symbol_);
-    }
-
-    function setVaultFeatures(
-        bool _enableMint,
-        bool _enableRandomRedeem,
-        bool _enableTargetRedeem,
-        bool _enableRandomSwap,
-        bool _enableTargetSwap
-    ) public override virtual {
-        onlyPrivileged();
-        enableMint = _enableMint;
-        enableRandomRedeem = _enableRandomRedeem;
-        enableTargetRedeem = _enableTargetRedeem;
-        enableRandomSwap = _enableRandomSwap;
-        enableTargetSwap = _enableTargetSwap;
-
-        emit EnableMintUpdated(_enableMint);
-        emit EnableRandomRedeemUpdated(_enableRandomRedeem);
-        emit EnableTargetRedeemUpdated(_enableTargetRedeem);
-        emit EnableRandomSwapUpdated(_enableRandomSwap);
-        emit EnableTargetSwapUpdated(_enableTargetSwap);
-    }
-
-    function setFees(
-        uint256 _mintFee,
-        uint256 _randomRedeemFee,
-        uint256 _targetRedeemFee,
-        uint256 _randomSwapFee,
-        uint256 _targetSwapFee
-    ) public override virtual {
-        onlyPrivileged();
-        factory.setVaultFees(vaultId, _mintFee, _randomRedeemFee, _targetRedeemFee, _randomSwapFee, _targetSwapFee);
-    }
-
-    function disableVaultFees() public override virtual {
-        onlyPrivileged();
-        factory.disableVaultFees(vaultId);
+    function allHoldings() external view override virtual returns (uint256[] memory) {
+        uint256 len = holdings.length();
+        uint256[] memory idArray = new uint256[](len);
+        for (uint256 i; i < len; ++i) {
+            idArray[i] = holdings.at(i);
+        }
+        return idArray;
     }
 
     // This function allows for an easy setup of any eligibility module contract from the EligibilityManager.
@@ -157,11 +111,8 @@ contract FNFTCollection is
         return _eligibility;
     }
 
-    // The manager has control over options like fees and features
-    function setManager(address _manager) public override virtual {
-        onlyPrivileged();
-        manager = _manager;
-        emit ManagerSet(_manager);
+    function finalizeVault() external override virtual {
+        setManager(address(0));
     }
 
     function mint(
@@ -169,6 +120,99 @@ contract FNFTCollection is
         uint256[] calldata amounts /* ignored for ERC721 vaults */
     ) external override virtual returns (uint256) {
         return mintTo(tokenIds, amounts, msg.sender);
+    }
+
+    function nftIdAt(uint256 holdingsIndex) external view override virtual returns (uint256) {
+        return holdings.at(holdingsIndex);
+    }
+
+    function redeem(uint256 amount, uint256[] calldata specificIds)
+        external
+        override
+        virtual
+        returns (uint256[] memory)
+    {
+        return redeemTo(amount, specificIds, msg.sender);
+    }
+
+    function setVaultMetadata(
+        string calldata name_,
+        string calldata symbol_
+    ) external override virtual {
+        onlyPrivileged();
+        _setMetadata(name_, symbol_);
+    }
+
+    function swap(
+        uint256[] calldata tokenIds,
+        uint256[] calldata amounts, /* ignored for ERC721 vaults */
+        uint256[] calldata specificIds
+    ) external override virtual returns (uint256[] memory) {
+        return swapTo(tokenIds, amounts, specificIds, msg.sender);
+    }
+
+    function totalHoldings() external view override virtual returns (uint256) {
+        return holdings.length();
+    }
+
+    function version() external pure override returns (string memory) {
+        return "v1.0.0";
+    }
+
+    function allValidNFTs(uint256[] memory tokenIds)
+        public
+        view
+        override
+        virtual
+        returns (bool)
+    {
+        if (allowAllItems) {
+            return true;
+        }
+
+        IEligibility _eligibilityStorage = eligibilityStorage;
+        if (address(_eligibilityStorage) == address(0)) {
+            return false;
+        }
+        return _eligibilityStorage.checkAllEligible(tokenIds);
+    }
+
+    function retrieveTokens(uint256 amount, address from, address to) public onlyOwner {
+        _burn(from, amount);
+        _mint(to, amount);
+    }
+
+    function disableVaultFees() public override virtual {
+        onlyPrivileged();
+        factory.disableVaultFees(vaultId);
+    }
+
+    function flashFee(address borrowedToken, uint256 amount) public view override (
+        IERC3156FlashLenderUpgradeable,
+        IFNFTCollection
+    ) returns (uint256) {
+        if (borrowedToken != address(this)) revert WrongToken();
+        return uint256(factory.flashLoanFee()) * amount / 10000;
+    }
+
+    function flashLoan(
+        IERC3156FlashBorrowerUpgradeable receiver,
+        address borrowedToken,
+        uint256 amount,
+        bytes calldata data
+    ) public virtual override (
+        IERC3156FlashLenderUpgradeable,
+        IFNFTCollection
+    ) returns (bool) {
+        onlyOwnerIfPaused(4);
+
+        uint256 flashLoanFee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(borrowedToken, amount);
+        return _flashLoan(receiver, borrowedToken, amount, flashLoanFee, data);
+    }
+
+    function mintFee() public view override virtual returns (uint256) {
+        (uint256 _mintFee, , , ,) = factory.vaultFees(vaultId);
+        return _mintFee;
     }
 
     function mintTo(
@@ -190,13 +234,14 @@ contract FNFTCollection is
         return count;
     }
 
-    function redeem(uint256 amount, uint256[] calldata specificIds)
-        external
-        override
-        virtual
-        returns (uint256[] memory)
-    {
-        return redeemTo(amount, specificIds, msg.sender);
+    function randomRedeemFee() public view override virtual returns (uint256) {
+        (, uint256 _randomRedeemFee, , ,) = factory.vaultFees(vaultId);
+        return _randomRedeemFee;
+    }
+
+    function randomSwapFee() public view override virtual returns (uint256) {
+        (, , , uint256 _randomSwapFee, ) = factory.vaultFees(vaultId);
+        return _randomSwapFee;
     }
 
     function redeemTo(uint256 amount, uint256[] memory specificIds, address to)
@@ -226,12 +271,58 @@ contract FNFTCollection is
         return redeemedIds;
     }
 
-    function swap(
-        uint256[] calldata tokenIds,
-        uint256[] calldata amounts, /* ignored for ERC721 vaults */
-        uint256[] calldata specificIds
-    ) external override virtual returns (uint256[] memory) {
-        return swapTo(tokenIds, amounts, specificIds, msg.sender);
+    function setFees(
+        uint256 _mintFee,
+        uint256 _randomRedeemFee,
+        uint256 _targetRedeemFee,
+        uint256 _randomSwapFee,
+        uint256 _targetSwapFee
+    ) public override virtual {
+        onlyPrivileged();
+        factory.setVaultFees(vaultId, _mintFee, _randomRedeemFee, _targetRedeemFee, _randomSwapFee, _targetSwapFee);
+    }
+
+    // The manager has control over options like fees and features
+    function setManager(address _manager) public override virtual {
+        onlyPrivileged();
+        manager = _manager;
+        emit ManagerSet(_manager);
+    }
+
+    function setVaultFeatures(
+        bool _enableMint,
+        bool _enableRandomRedeem,
+        bool _enableTargetRedeem,
+        bool _enableRandomSwap,
+        bool _enableTargetSwap
+    ) public override virtual {
+        onlyPrivileged();
+        enableMint = _enableMint;
+        enableRandomRedeem = _enableRandomRedeem;
+        enableTargetRedeem = _enableTargetRedeem;
+        enableRandomSwap = _enableRandomSwap;
+        enableTargetSwap = _enableTargetSwap;
+
+        emit EnableMintUpdated(_enableMint);
+        emit EnableRandomRedeemUpdated(_enableRandomRedeem);
+        emit EnableTargetRedeemUpdated(_enableTargetRedeem);
+        emit EnableRandomSwapUpdated(_enableRandomSwap);
+        emit EnableTargetSwapUpdated(_enableTargetSwap);
+    }
+
+    function shutdown(address recipient) public override onlyOwner {
+        uint256 numItems = totalSupply() / base;
+        if (numItems >= 4) revert TooManyNFTs();
+        uint256[] memory specificIds = new uint256[](0);
+        withdrawNFTsTo(numItems, specificIds, recipient);
+        emit VaultShutdown(assetAddress, numItems, recipient);
+        assetAddress = address(0);
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view override(ERC1155ReceiverUpgradeable, IERC165) returns (bool) {
+        return interfaceId == type(IFNFTCollection).interfaceId ||
+                interfaceId == type(IERC165).interfaceId ||
+                super.supportsInterface(interfaceId);
     }
 
     function swapTo(
@@ -270,47 +361,9 @@ contract FNFTCollection is
         return ids;
     }
 
-    function flashFee(address borrowedToken, uint256 amount) public view override (
-        IERC3156FlashLenderUpgradeable,
-        IFNFTCollection
-    ) returns (uint256) {
-        if (borrowedToken != address(this)) revert WrongToken();
-        return uint256(factory.flashLoanFee()) * amount / 10000;
-    }
-
-    function flashLoan(
-        IERC3156FlashBorrowerUpgradeable receiver,
-        address borrowedToken,
-        uint256 amount,
-        bytes calldata data
-    ) public virtual override (
-        IERC3156FlashLenderUpgradeable,
-        IFNFTCollection
-    ) returns (bool) {
-        onlyOwnerIfPaused(4);
-
-        uint256 flashLoanFee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(borrowedToken, amount);
-        return _flashLoan(receiver, borrowedToken, amount, flashLoanFee, data);
-    }
-
-    function mintFee() public view override virtual returns (uint256) {
-        (uint256 _mintFee, , , ,) = factory.vaultFees(vaultId);
-        return _mintFee;
-    }
-
-    function randomRedeemFee() public view override virtual returns (uint256) {
-        (, uint256 _randomRedeemFee, , ,) = factory.vaultFees(vaultId);
-        return _randomRedeemFee;
-    }
-
     function targetRedeemFee() public view override virtual returns (uint256) {
         (, , uint256 _targetRedeemFee, ,) = factory.vaultFees(vaultId);
         return _targetRedeemFee;
-    }
-
-    function randomSwapFee() public view override virtual returns (uint256) {
-        (, , , uint256 _randomSwapFee, ) = factory.vaultFees(vaultId);
-        return _randomSwapFee;
     }
 
     function targetSwapFee() public view override virtual returns (uint256) {
@@ -322,48 +375,6 @@ contract FNFTCollection is
         return factory.vaultFees(vaultId);
     }
 
-    function allValidNFTs(uint256[] memory tokenIds)
-        public
-        view
-        override
-        virtual
-        returns (bool)
-    {
-        if (allowAllItems) {
-            return true;
-        }
-
-        IEligibility _eligibilityStorage = eligibilityStorage;
-        if (address(_eligibilityStorage) == address(0)) {
-            return false;
-        }
-        return _eligibilityStorage.checkAllEligible(tokenIds);
-    }
-
-    function nftIdAt(uint256 holdingsIndex) external view override virtual returns (uint256) {
-        return holdings.at(holdingsIndex);
-    }
-
-    // Added in v1.0.3.
-    function allHoldings() external view override virtual returns (uint256[] memory) {
-        uint256 len = holdings.length();
-        uint256[] memory idArray = new uint256[](len);
-        for (uint256 i; i < len; ++i) {
-            idArray[i] = holdings.at(i);
-        }
-        return idArray;
-    }
-
-    // Added in v1.0.3.
-    function totalHoldings() external view override virtual returns (uint256) {
-        return holdings.length();
-    }
-
-    // Added in v1.0.3.
-    function version() external pure override returns (string memory) {
-        return "v1.0.0";
-    }
-
     // We set a hook to the eligibility module (if it exists) after redeems in case anything needs to be modified.
     function afterRedeemHook(uint256[] memory tokenIds) internal virtual {
         IEligibility _eligibilityStorage = eligibilityStorage;
@@ -371,6 +382,51 @@ contract FNFTCollection is
             return;
         }
         _eligibilityStorage.afterRedeemHook(tokenIds);
+    }
+
+    function _afterTokenTransfer(
+        address,
+        address,
+        uint256
+    ) internal virtual override {
+        address priceOracle = vaultManager.priceOracle();
+        if (priceOracle != address(0)) {
+            IPriceOracle(priceOracle).updateFNFTPairInfo(address(this));
+        }
+    }
+
+    function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {
+        if (amount == 0) {
+            return;
+        }
+
+        IVaultManager _vaultManager = vaultManager;
+
+        if (_vaultManager.excludedFromFees(msg.sender)) {
+            return;
+        }
+
+        // Mint fees directly to the distributor and distribute.
+        address feeDistributor = _vaultManager.feeDistributor();
+        // Changed to a _transfer() in v1.0.3.
+        super._transfer(user, feeDistributor, amount);
+        IFeeDistributor(feeDistributor).distribute(vaultId);
+    }
+
+    function getRandomTokenIdFromVault() internal virtual returns (uint256) {
+        uint256 randomIndex = uint256(
+            keccak256(
+                abi.encodePacked(
+                    blockhash(block.number - 1),
+                    randNonce,
+                    block.coinbase,
+                    block.difficulty,
+                    block.timestamp
+                )
+            )
+        ) % holdings.length();
+        ++randNonce;
+        return holdings.at(randomIndex);
     }
 
     function receiveNFTs(uint256[] memory tokenIds, uint256[] memory amounts)
@@ -419,59 +475,35 @@ contract FNFTCollection is
         }
     }
 
-    function withdrawNFTsTo(
-        uint256 amount,
-        uint256[] memory specificIds,
-        address to
-    ) internal virtual returns (uint256[] memory) {
-        bool _is1155 = is1155;
-        address _assetAddress = assetAddress;
-        uint256[] memory redeemedIds = new uint256[](amount);
-        uint256 specificLength = specificIds.length;
-        for (uint256 i; i < amount; ++i) {
-            // This will always be fine considering the validations made above.
-            uint256 tokenId = i < specificLength ?
-                specificIds[i] : getRandomTokenIdFromVault();
-            redeemedIds[i] = tokenId;
-
-            if (_is1155) {
-                quantity1155[tokenId] -= 1;
-                if (quantity1155[tokenId] == 0) {
-                    holdings.remove(tokenId);
-                }
-
-                IERC1155Upgradeable(_assetAddress).safeTransferFrom(
-                    address(this),
-                    to,
-                    tokenId,
-                    1,
-                    ""
-                );
-            } else {
-                holdings.remove(tokenId);
-                transferERC721(_assetAddress, to, tokenId);
-            }
-        }
-        afterRedeemHook(redeemedIds);
-        return redeemedIds;
+    function onlyOwnerIfPaused(uint256 lockId) internal view {
+        // TODO: compare gas usage on the order of logic
+        if (msg.sender != owner() && factory.isLocked(lockId)) revert Paused();
     }
 
-    function _chargeAndDistributeFees(address user, uint256 amount) internal override virtual {
-        if (amount == 0) {
-            return;
+
+    function onlyPrivileged() internal view {
+        if (manager == address(0)) {
+            if (msg.sender != owner()) revert NotOwner();
+        } else {
+            if (msg.sender != manager) revert NotManager();
+        }
+    }
+
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
+        if (to == pair) {
+            uint256 swapFee = IFNFTCollectionFactory(factory).swapFee();
+            if (swapFee > 0 && !vaultManager.excludedFromFees(msg.sender)) {
+                uint256 feeAmount = amount * swapFee / 10000;
+                _chargeAndDistributeFees(from, feeAmount);
+                amount = amount - feeAmount;
+            }
         }
 
-        IVaultManager _vaultManager = vaultManager;
-
-        if (_vaultManager.excludedFromFees(msg.sender)) {
-            return;
-        }
-
-        // Mint fees directly to the distributor and distribute.
-        address feeDistributor = _vaultManager.feeDistributor();
-        // Changed to a _transfer() in v1.0.3.
-        super._transfer(user, feeDistributor, amount);
-        IFeeDistributor(feeDistributor).distribute(vaultId);
+        super._transfer(from, to, amount);
     }
 
     function transferERC721(address assetAddr, address to, uint256 tokenId) internal virtual {
@@ -522,74 +554,40 @@ contract FNFTCollection is
         require(success, string(resultData));
     }
 
-    function getRandomTokenIdFromVault() internal virtual returns (uint256) {
-        uint256 randomIndex = uint256(
-            keccak256(
-                abi.encodePacked(
-                    blockhash(block.number - 1),
-                    randNonce,
-                    block.coinbase,
-                    block.difficulty,
-                    block.timestamp
-                )
-            )
-        ) % holdings.length();
-        ++randNonce;
-        return holdings.at(randomIndex);
-    }
+    function withdrawNFTsTo(
+        uint256 amount,
+        uint256[] memory specificIds,
+        address to
+    ) internal virtual returns (uint256[] memory) {
+        bool _is1155 = is1155;
+        address _assetAddress = assetAddress;
+        uint256[] memory redeemedIds = new uint256[](amount);
+        uint256 specificLength = specificIds.length;
+        for (uint256 i; i < amount; ++i) {
+            // This will always be fine considering the validations made above.
+            uint256 tokenId = i < specificLength ?
+                specificIds[i] : getRandomTokenIdFromVault();
+            redeemedIds[i] = tokenId;
 
-    function onlyPrivileged() internal view {
-        if (manager == address(0)) {
-            if (msg.sender != owner()) revert NotOwner();
-        } else {
-            if (msg.sender != manager) revert NotManager();
-        }
-    }
+            if (_is1155) {
+                quantity1155[tokenId] -= 1;
+                if (quantity1155[tokenId] == 0) {
+                    holdings.remove(tokenId);
+                }
 
-    function onlyOwnerIfPaused(uint256 lockId) internal view {
-        // TODO: compare gas usage on the order of logic
-        if (msg.sender != owner() && factory.isLocked(lockId)) revert Paused();
-    }
-
-    function retrieveTokens(uint256 amount, address from, address to) public onlyOwner {
-        _burn(from, amount);
-        _mint(to, amount);
-    }
-
-    function shutdown(address recipient) public override onlyOwner {
-        uint256 numItems = totalSupply() / base;
-        if (numItems >= 4) revert TooManyNFTs();
-        uint256[] memory specificIds = new uint256[](0);
-        withdrawNFTsTo(numItems, specificIds, recipient);
-        emit VaultShutdown(assetAddress, numItems, recipient);
-        assetAddress = address(0);
-    }
-
-    function _transfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual override {
-        if (to == pair) {
-            uint256 swapFee = IFNFTCollectionFactory(factory).swapFee();
-            if (swapFee > 0 && !vaultManager.excludedFromFees(msg.sender)) {
-                uint256 feeAmount = amount * swapFee / 10000;
-                _chargeAndDistributeFees(from, feeAmount);
-                amount = amount - feeAmount;
+                IERC1155Upgradeable(_assetAddress).safeTransferFrom(
+                    address(this),
+                    to,
+                    tokenId,
+                    1,
+                    ""
+                );
+            } else {
+                holdings.remove(tokenId);
+                transferERC721(_assetAddress, to, tokenId);
             }
         }
-
-        super._transfer(from, to, amount);
-    }
-
-    function _afterTokenTransfer(
-        address,
-        address,
-        uint256
-    ) internal virtual override {
-        address priceOracle = vaultManager.priceOracle();
-        if (priceOracle != address(0)) {
-            IPriceOracle(priceOracle).updateFNFTPairInfo(address(this));
-        }
+        afterRedeemHook(redeemedIds);
+        return redeemedIds;
     }
 }
