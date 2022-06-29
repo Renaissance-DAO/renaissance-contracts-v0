@@ -14,47 +14,14 @@ contract CustomRouter is ICustomRouter {
     address public immutable override factory;
     address public immutable override WETH;
 
-    modifier ensure(uint deadline) {
-        if (deadline < block.timestamp) revert Expired();
-        _;
-    }
-
     constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
     }
 
-    receive() external payable {
-        assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
-    }
-
-    function _addLiquidity(
-        address tokenA,
-        address tokenB,
-        uint amountADesired,
-        uint amountBDesired,
-        uint amountAMin,
-        uint amountBMin
-    ) internal virtual returns (uint amountA, uint amountB) {
-        // create the pair if it doesn't exist yet
-        if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
-            IUniswapV2Factory(factory).createPair(tokenA, tokenB);
-        }
-        (uint reserveA, uint reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
-        if (reserveA == 0 && reserveB == 0) {
-            (amountA, amountB) = (amountADesired, amountBDesired);
-        } else {
-            uint amountBOptimal = UniswapV2Library.quote(amountADesired, reserveA, reserveB);
-            if (amountBOptimal <= amountBDesired) {
-                if (amountBOptimal < amountBMin) revert InsufficientB();
-                (amountA, amountB) = (amountADesired, amountBOptimal);
-            } else {
-                uint amountAOptimal = UniswapV2Library.quote(amountBDesired, reserveB, reserveA);
-                assert(amountAOptimal <= amountADesired);
-                if (amountAOptimal < amountAMin) revert InsufficientA();
-                (amountA, amountB) = (amountAOptimal, amountBDesired);
-            }
-        }
+    modifier ensure(uint deadline) {
+        if (deadline < block.timestamp) revert Expired();
+        _;
     }
 
     function addLiquidityETH(
@@ -80,6 +47,10 @@ contract CustomRouter is ICustomRouter {
         liquidity = IUniswapV2Pair(pair).mint(to);
         // refund dust eth, if any
         if (msg.value > amountETH) _safeTransferETH(msg.sender, msg.value - amountETH);
+    }
+
+    receive() external payable {
+        assert(msg.sender == WETH); // only accept ETH via fallback from the WETH contract
     }
 
     // **** REMOVE LIQUIDITY ****
@@ -121,6 +92,35 @@ contract CustomRouter is ICustomRouter {
         IERC20(token).safeTransfer(to, amountToken);
         IWETH(WETH).withdraw(amountETH);
         _safeTransferETH(to, amountETH);
+    }
+
+    function _addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint amountADesired,
+        uint amountBDesired,
+        uint amountAMin,
+        uint amountBMin
+    ) internal virtual returns (uint amountA, uint amountB) {
+        // create the pair if it doesn't exist yet
+        if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
+            IUniswapV2Factory(factory).createPair(tokenA, tokenB);
+        }
+        (uint reserveA, uint reserveB) = UniswapV2Library.getReserves(factory, tokenA, tokenB);
+        if (reserveA == 0 && reserveB == 0) {
+            (amountA, amountB) = (amountADesired, amountBDesired);
+        } else {
+            uint amountBOptimal = UniswapV2Library.quote(amountADesired, reserveA, reserveB);
+            if (amountBOptimal <= amountBDesired) {
+                if (amountBOptimal < amountBMin) revert InsufficientB();
+                (amountA, amountB) = (amountADesired, amountBOptimal);
+            } else {
+                uint amountAOptimal = UniswapV2Library.quote(amountBDesired, reserveB, reserveA);
+                assert(amountAOptimal <= amountADesired);
+                if (amountAOptimal < amountAMin) revert InsufficientA();
+                (amountA, amountB) = (amountAOptimal, amountBDesired);
+            }
+        }
     }
 
     /** @notice transfer ETH using call
