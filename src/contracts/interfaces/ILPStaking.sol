@@ -58,7 +58,7 @@ interface ILPStaking {
 
     function lockedLPBalance(uint256 vaultId, address who) external view returns (uint256);
 
-    function _rewardDistributionToken(StakingPool memory pool) external view returns (TimelockRewardDistributionTokenImpl);
+    function rewardDistributionToken(StakingPool memory pool) external view returns (TimelockRewardDistributionTokenImpl);
 
     function retrieveTokens(uint256 vaultId, uint256 amount, address from, address to) external;
 
