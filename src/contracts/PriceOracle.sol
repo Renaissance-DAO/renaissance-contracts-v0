@@ -16,18 +16,18 @@ import {IPriceOracle} from "./interfaces/IPriceOracle.sol";
 contract PriceOracle is IPriceOracle, OwnableUpgradeable {
     using FixedPoint for *;
 
-    uint256 public override period;
-    uint256 public override minimumPairInfoUpdate;
-
     // Map of pair address to PairInfo struct, which contains cumulative price, last block timestamps, and etc.
     mapping(address => PairInfo) private _getTwap;
 
-    address public immutable override WETH;
     IUniswapV2Factory public immutable override FACTORY;
+    address public immutable override WETH;
+
+    uint256 public override minimumPairInfoUpdate;
+    uint256 public override period;
 
     constructor(address _factory, address _weth) {
-        WETH = _weth;
         FACTORY = IUniswapV2Factory(_factory);
+        WETH = _weth;
     }
 
     function __PriceOracle_init() external override initializer {
@@ -35,48 +35,6 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
 
         period = 10 minutes;
         minimumPairInfoUpdate = 10;
-    }
-
-    // Set minimum period to wait for the next pair info update.
-    function setPeriod(uint256 _period) external override onlyOwner {
-        emit PeriodUpdated(period, _period);
-        period = _period;
-    }
-
-    // Set minimum pair info info update required to get FNFT-WETH TWAP price.
-    function setMinimumPairInfoUpdate(uint256 _minimumPairInfoUpdate) external override onlyOwner {
-        emit MinimumPairInfoUpdateUpdated(minimumPairInfoUpdate, _minimumPairInfoUpdate);
-        minimumPairInfoUpdate = _minimumPairInfoUpdate;
-    }
-
-    // Get pair address from factory. Returns address(0) if not found.
-    function getPairAddress(address _token0, address _token1) external view override returns (address) {
-        return _getPairAddress(_token0, _token1);
-    }
-
-    // Get pair info, which includes cumulative prices, last block timestamp, price average, and etc.
-    function getPairInfo(address _token0, address _token1) external view override returns (PairInfo memory pairInfo) {
-        address pairAddress = _getPairAddress(_token0, _token1);
-        pairInfo = _getTwap[pairAddress];
-    }
-
-    // Get pair info with uniswap v2 pair address.
-    function getPairInfo(address _pair) external view override returns (PairInfo memory pairInfo) {
-        pairInfo = _getTwap[_pair];
-    }
-
-    // Update pair info.
-    function updatePairInfo(address _token0, address _token1) external override {
-        _updatePairInfo(_token0, _token1);
-    }
-
-    // Update FNFT-WETH pair info.
-    function updateFNFTPairInfo(address _fnft) external override {
-        _updatePairInfo(_fnft, WETH);
-    }
-
-    function createFNFTPair(address _token0) external override returns (address) {
-        return _createPairAddress(_token0, WETH);
     }
 
     // Get TWAP price of a token.
@@ -91,6 +49,10 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
         amountOut = _calculatePrice(_token, _amountIn, pairInfo);
     }
 
+    function createFNFTPair(address _token0) external override returns (address) {
+        return _createPairAddress(_token0, WETH);
+    }
+
     // Get FNFT TWAP Price in ETH/WETH.
     // note this will always return 0 before update has been called successfully for the first time.
     function getFNFTPriceETH(address _fnft, uint256 _amountIn) external view override returns (uint256 amountOut) {
@@ -102,6 +64,66 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
         amountOut = _calculatePrice(_fnft, _amountIn, pairInfo);
     }
 
+    // Get pair address from factory. Returns address(0) if not found.
+    function getPairAddress(address _token0, address _token1) external view override returns (address) {
+        return _getPairAddress(_token0, _token1);
+    }
+
+    // Get pair info with uniswap v2 pair address.
+    function getPairInfo(address _pair) external view override returns (PairInfo memory pairInfo) {
+        pairInfo = _getTwap[_pair];
+    }
+
+    // Get pair info, which includes cumulative prices, last block timestamp, price average, and etc.
+    function getPairInfo(address _token0, address _token1) external view override returns (PairInfo memory pairInfo) {
+        address pairAddress = _getPairAddress(_token0, _token1);
+        pairInfo = _getTwap[pairAddress];
+    }
+
+    // Set minimum pair info info update required to get FNFT-WETH TWAP price.
+    function setMinimumPairInfoUpdate(uint256 _minimumPairInfoUpdate) external override onlyOwner {
+        emit MinimumPairInfoUpdateUpdated(minimumPairInfoUpdate, _minimumPairInfoUpdate);
+        minimumPairInfoUpdate = _minimumPairInfoUpdate;
+    }
+
+    // Set minimum period to wait for the next pair info update.
+    function setPeriod(uint256 _period) external override onlyOwner {
+        emit PeriodUpdated(period, _period);
+        period = _period;
+    }
+
+    // Update FNFT-WETH pair info.
+    function updateFNFTPairInfo(address _fnft) external override {
+        _updatePairInfo(_fnft, WETH);
+    }
+
+    // Update pair info.
+    function updatePairInfo(address _token0, address _token1) external override {
+        _updatePairInfo(_token0, _token1);
+    }
+
+    // Add pair info to price oracle.
+    function _addPairInfo(address _token0, address _token1) internal {
+        // Get predetermined pair address.
+        address pairAddress = _getPairAddress(_token0, _token1);
+        PairInfo storage pairInfo = _getTwap[pairAddress];
+        if (pairInfo.exists) revert PairInfoAlreadyExists();
+
+        // Get pair information for the given pair address.
+        IUniswapV2Pair pair = IUniswapV2Pair(pairAddress);
+
+        // Get last block timestamp from reserves.
+        (, , uint32 blockTimestampLast) = pair.getReserves();
+
+        // Initialize pairInfo for the two tokens.
+        pairInfo.token0 = pair.token0();
+        pairInfo.token1 = pair.token1();
+        pairInfo.price0CumulativeLast = pair.price0CumulativeLast(); // fetch the current accumulated price value (token1 / token0)
+        pairInfo.price1CumulativeLast = pair.price1CumulativeLast(); // fetch the current accumulated price value (token0 / token1)
+        pairInfo.blockTimestampLast = blockTimestampLast;
+        pairInfo.exists = true;
+    }
+
     // Calculate token twap price based on pair info and the amount in.
     function _calculatePrice(address _token, uint256 _amountIn, PairInfo memory _pairInfo) internal pure returns (uint256 amountOut) {
         if (_token == _pairInfo.token0) {
@@ -110,6 +132,16 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
             if (_token != _pairInfo.token1) revert InvalidToken();
             amountOut = _pairInfo.price1Average.mul(_amountIn).decode144();
         }
+    }
+
+    // Create pair address from uniswap pair factory.
+    function _createPairAddress(address _token0, address _token1) internal returns (address) {
+        return FACTORY.createPair(_token0, _token1);
+    }
+
+    // Get pair address from uniswap pair factory.
+    function _getPairAddress(address _token0, address _token1) internal view returns (address) {
+        return FACTORY.getPair(_token0, _token1);
     }
 
     // Update pair info of two token pair.
@@ -147,37 +179,5 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
                 _addPairInfo(_token0, _token1);
             }
         }
-    }
-
-    // Add pair info to price oracle.
-    function _addPairInfo(address _token0, address _token1) internal {
-        // Get predetermined pair address.
-        address pairAddress = _getPairAddress(_token0, _token1);
-        PairInfo storage pairInfo = _getTwap[pairAddress];
-        if (pairInfo.exists) revert PairInfoAlreadyExists();
-
-        // Get pair information for the given pair address.
-        IUniswapV2Pair pair = IUniswapV2Pair(pairAddress);
-
-        // Get last block timestamp from reserves.
-        (, , uint32 blockTimestampLast) = pair.getReserves();
-
-        // Initialize pairInfo for the two tokens.
-        pairInfo.token0 = pair.token0();
-        pairInfo.token1 = pair.token1();
-        pairInfo.price0CumulativeLast = pair.price0CumulativeLast(); // fetch the current accumulated price value (token1 / token0)
-        pairInfo.price1CumulativeLast = pair.price1CumulativeLast(); // fetch the current accumulated price value (token0 / token1)
-        pairInfo.blockTimestampLast = blockTimestampLast;
-        pairInfo.exists = true;
-    }
-
-    // Get pair address from uniswap pair factory.
-    function _getPairAddress(address _token0, address _token1) internal view returns (address) {
-        return FACTORY.getPair(_token0, _token1);
-    }
-
-    // Create pair address from uniswap pair factory.
-    function _createPairAddress(address _token0, address _token1) internal returns (address) {
-        return FACTORY.createPair(_token0, _token1);
     }
 }
