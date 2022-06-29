@@ -12,73 +12,59 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.so
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
-import "./interfaces/IStakingZap.sol";
-import "./interfaces/IWETH.sol";
-import "./interfaces/ILPStaking.sol";
-import "./interfaces/IInventoryStaking.sol";
-import "./interfaces/IFNFTCollection.sol";
-import "./interfaces/IVaultManager.sol";
 import "./interfaces/IFeeDistributor.sol";
+import "./interfaces/IFNFTCollection.sol";
+import "./interfaces/IInventoryStaking.sol";
+import "./interfaces/ILPStaking.sol";
+import "./interfaces/IStakingZap.sol";
 import "./interfaces/IUniswapV2Router.sol";
+import "./interfaces/IVaultManager.sol";
+import "./interfaces/IWETH.sol";
 
 contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC1155HolderUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
-  IWETH public immutable override WETH;
-  ILPStaking public override lpStaking;
   IInventoryStaking public override inventoryStaking;
-  IVaultManager public immutable override vaultManager;
+  ILPStaking public override lpStaking;
   IUniswapV2Router public immutable override router;
+  IVaultManager public immutable override vaultManager;
+  IWETH public immutable override WETH;
 
-  uint256 public override lpLockTime = 48 hours;
   uint256 public override inventoryLockTime = 7 days;
+  uint256 public override lpLockTime = 48 hours;
   uint256 constant BASE = 1e18;
 
   constructor(address _vaultManager, address _router) Ownable() ReentrancyGuard() {
-    vaultManager = IVaultManager(_vaultManager);
     router = IUniswapV2Router(_router);
+    vaultManager = IVaultManager(_vaultManager);
     WETH = IWETH(IUniswapV2Router(_router).WETH());
     IERC20Upgradeable(address(IUniswapV2Router(_router).WETH())).safeApprove(_router, type(uint256).max);
   }
 
-  function assignStakingContracts() public override {
-    if (address(lpStaking) != address(0) && address(inventoryStaking) != address(0)) revert NotZero();
-    IFeeDistributor feeDistributor = IFeeDistributor(IVaultManager(vaultManager).feeDistributor());
-    lpStaking = ILPStaking(feeDistributor.lpStaking());
-    inventoryStaking = IInventoryStaking(feeDistributor.inventoryStaking());
+  function addLiquidity721(
+    uint256 vaultId,
+    uint256[] calldata ids,
+    uint256 minWethIn,
+    uint256 wethIn
+  ) external override returns (uint256) {
+    return addLiquidity721To(vaultId, ids, minWethIn, wethIn, msg.sender);
   }
 
-  function setLPLockTime(uint256 _lpLockTime) external override onlyOwner {
-    if (_lpLockTime > 7 days) revert LockTooLong();
-    emit LPLockTimeUpdated(lpLockTime, _lpLockTime);
-    lpLockTime = _lpLockTime;
+  function addLiquidity721ETH(
+    uint256 vaultId,
+    uint256[] calldata ids,
+    uint256 minWethIn
+  ) external payable override returns (uint256) {
+    return addLiquidity721ETHTo(vaultId, ids, minWethIn, msg.sender);
   }
 
-  function setInventoryLockTime(uint256 _inventoryLockTime) external override onlyOwner {
-    if (_inventoryLockTime > 14 days) revert LockTooLong();
-    emit InventoryLockTimeUpdated(inventoryLockTime, _inventoryLockTime);
-    inventoryLockTime = _inventoryLockTime;
-  }
-
-  function provideInventory721(uint256 vaultId, uint256[] calldata tokenIds) external override {
-    uint256 count = tokenIds.length;
-    IFNFTCollection vault = IFNFTCollection(vaultManager.vault(vaultId));
-    inventoryStaking.timelockMintFor(vaultId, count*BASE, msg.sender, inventoryLockTime);
-    address xToken = inventoryStaking.vaultXToken(vaultId);
-    uint256 oldBal = IERC20Upgradeable(address(vault)).balanceOf(xToken);
-    uint256[] memory amounts = new uint256[](0);
-    address assetAddress = vault.assetAddress();
-    uint256 length = tokenIds.length;
-    for (uint256 i; i < length;) {
-      transferFromERC721(assetAddress, tokenIds[i], address(vault));
-      approveERC721(assetAddress, address(vault), tokenIds[i]);
-      unchecked {
-        ++i;
-      }
-    }
-    vault.mintTo(tokenIds, amounts, address(xToken));
-    uint256 newBal = IERC20Upgradeable(vault).balanceOf(xToken);
-    if (newBal != oldBal + count*BASE) revert IncorrectAmount();
+  function addLiquidity1155ETH(
+    uint256 vaultId,
+    uint256[] calldata ids,
+    uint256[] calldata amounts,
+    uint256 minEthIn
+  ) external payable override returns (uint256) {
+    return addLiquidity1155ETHTo(vaultId, ids, amounts, minEthIn, msg.sender);
   }
 
   function provideInventory1155(uint256 vaultId, uint256[] calldata tokenIds, uint256[] calldata amounts) external override {
@@ -103,42 +89,60 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     if (newBal != oldBal + count*BASE) revert IncorrectAmount();
   }
 
-  function addLiquidity721ETH(
-    uint256 vaultId,
-    uint256[] calldata ids,
-    uint256 minWethIn
-  ) external payable override returns (uint256) {
-    return addLiquidity721ETHTo(vaultId, ids, minWethIn, msg.sender);
+  function provideInventory721(uint256 vaultId, uint256[] calldata tokenIds) external override {
+    uint256 count = tokenIds.length;
+    IFNFTCollection vault = IFNFTCollection(vaultManager.vault(vaultId));
+    inventoryStaking.timelockMintFor(vaultId, count*BASE, msg.sender, inventoryLockTime);
+    address xToken = inventoryStaking.vaultXToken(vaultId);
+    uint256 oldBal = IERC20Upgradeable(address(vault)).balanceOf(xToken);
+    uint256[] memory amounts = new uint256[](0);
+    address assetAddress = vault.assetAddress();
+    uint256 length = tokenIds.length;
+    for (uint256 i; i < length;) {
+      transferFromERC721(assetAddress, tokenIds[i], address(vault));
+      approveERC721(assetAddress, address(vault), tokenIds[i]);
+      unchecked {
+        ++i;
+      }
+    }
+    vault.mintTo(tokenIds, amounts, address(xToken));
+    uint256 newBal = IERC20Upgradeable(vault).balanceOf(xToken);
+    if (newBal != oldBal + count*BASE) revert IncorrectAmount();
   }
 
-  function addLiquidity721ETHTo(
+  function rescue(address token) external override onlyOwner {
+    if (token == address(0)) {
+      (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
+      if (!success) revert CallFailed();
+    } else {
+      IERC20Upgradeable(token).safeTransfer(msg.sender, IERC20Upgradeable(token).balanceOf(address(this)));
+    }
+  }
+
+  function setInventoryLockTime(uint256 _inventoryLockTime) external override onlyOwner {
+    if (_inventoryLockTime > 14 days) revert LockTooLong();
+    emit InventoryLockTimeUpdated(inventoryLockTime, _inventoryLockTime);
+    inventoryLockTime = _inventoryLockTime;
+  }
+
+  function setLPLockTime(uint256 _lpLockTime) external override onlyOwner {
+    if (_lpLockTime > 7 days) revert LockTooLong();
+    emit LPLockTimeUpdated(lpLockTime, _lpLockTime);
+    lpLockTime = _lpLockTime;
+  }
+
+  receive() external payable {
+    if (msg.sender != address(WETH)) revert OnlyWETH();
+  }
+
+  function addLiquidity1155(
     uint256 vaultId,
     uint256[] memory ids,
+    uint256[] memory amounts,
     uint256 minWethIn,
-    address to
-  ) public payable override nonReentrant returns (uint256) {
-    if (to == address(0) || to == address(this)) revert InvalidDestination();
-    WETH.deposit{value: msg.value}();
-    (, uint256 amountEth, uint256 liquidity) = _addLiquidity721WETH(vaultId, ids, minWethIn, msg.value, to);
-
-    // Return extras.
-    uint256 remaining = msg.value - amountEth;
-    if (remaining != 0) {
-      WETH.withdraw(remaining);
-      (bool success, ) = payable(to).call{value: remaining}("");
-      if (!success) revert CallFailed();
-    }
-
-    return liquidity;
-  }
-
-  function addLiquidity1155ETH(
-    uint256 vaultId,
-    uint256[] calldata ids,
-    uint256[] calldata amounts,
-    uint256 minEthIn
-  ) external payable override returns (uint256) {
-    return addLiquidity1155ETHTo(vaultId, ids, amounts, minEthIn, msg.sender);
+    uint256 wethIn
+  ) public override returns (uint256) {
+    return addLiquidity1155To(vaultId, ids, amounts, minWethIn, wethIn, msg.sender);
   }
 
   function addLiquidity1155ETHTo(
@@ -164,15 +168,6 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     return liquidity;
   }
 
-  function addLiquidity721(
-    uint256 vaultId,
-    uint256[] calldata ids,
-    uint256 minWethIn,
-    uint256 wethIn
-  ) external override returns (uint256) {
-    return addLiquidity721To(vaultId, ids, minWethIn, wethIn, msg.sender);
-  }
-
   function addLiquidity721To(
     uint256 vaultId,
     uint256[] memory ids,
@@ -193,14 +188,25 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     return liquidity;
   }
 
-  function addLiquidity1155(
+  function addLiquidity721ETHTo(
     uint256 vaultId,
     uint256[] memory ids,
-    uint256[] memory amounts,
     uint256 minWethIn,
-    uint256 wethIn
-  ) public override returns (uint256) {
-    return addLiquidity1155To(vaultId, ids, amounts, minWethIn, wethIn, msg.sender);
+    address to
+  ) public payable override nonReentrant returns (uint256) {
+    if (to == address(0) || to == address(this)) revert InvalidDestination();
+    WETH.deposit{value: msg.value}();
+    (, uint256 amountEth, uint256 liquidity) = _addLiquidity721WETH(vaultId, ids, minWethIn, msg.value, to);
+
+    // Return extras.
+    uint256 remaining = msg.value - amountEth;
+    if (remaining != 0) {
+      WETH.withdraw(remaining);
+      (bool success, ) = payable(to).call{value: remaining}("");
+      if (!success) revert CallFailed();
+    }
+
+    return liquidity;
   }
 
   function addLiquidity1155To(
@@ -224,27 +230,11 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     return liquidity;
   }
 
-  function _addLiquidity721WETH(
-    uint256 vaultId,
-    uint256[] memory ids,
-    uint256 minWethIn,
-    uint256 wethIn,
-    address to
-  ) internal returns (uint256, uint256, uint256) {
-    if (!vaultManager.excludedFromFees(address(this))) revert NotExcluded();
-    address vault = vaultManager.vault(vaultId);
-
-    address assetAddress = IFNFTCollection(vault).assetAddress();
-    uint256 length = ids.length;
-    for (uint256 i; i < length; i++) {
-      transferFromERC721(assetAddress, ids[i], vault);
-      approveERC721(assetAddress, vault, ids[i]);
-    }
-    uint256[] memory emptyIds;
-    IFNFTCollection(vault).mint(ids, emptyIds);
-    uint256 balance = length * BASE; // We should not be experiencing fees.
-
-    return _addLiquidityAndLock(vaultId, vault, balance, minWethIn, wethIn, to);
+  function assignStakingContracts() public override {
+    if (address(lpStaking) != address(0) && address(inventoryStaking) != address(0)) revert NotZero();
+    IFeeDistributor feeDistributor = IFeeDistributor(IVaultManager(vaultManager).feeDistributor());
+    lpStaking = ILPStaking(feeDistributor.lpStaking());
+    inventoryStaking = IInventoryStaking(feeDistributor.inventoryStaking());
   }
 
   function _addLiquidity1155WETH(
@@ -264,6 +254,29 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
 
     uint256 count = IFNFTCollection(vault).mint(ids, amounts);
     uint256 balance = (count * BASE); // We should not be experiencing fees.
+
+    return _addLiquidityAndLock(vaultId, vault, balance, minWethIn, wethIn, to);
+  }
+
+  function _addLiquidity721WETH(
+    uint256 vaultId,
+    uint256[] memory ids,
+    uint256 minWethIn,
+    uint256 wethIn,
+    address to
+  ) internal returns (uint256, uint256, uint256) {
+    if (!vaultManager.excludedFromFees(address(this))) revert NotExcluded();
+    address vault = vaultManager.vault(vaultId);
+
+    address assetAddress = IFNFTCollection(vault).assetAddress();
+    uint256 length = ids.length;
+    for (uint256 i; i < length; i++) {
+      transferFromERC721(assetAddress, ids[i], vault);
+      approveERC721(assetAddress, vault, ids[i]);
+    }
+    uint256[] memory emptyIds;
+    IFNFTCollection(vault).mint(ids, emptyIds);
+    uint256 balance = length * BASE; // We should not be experiencing fees.
 
     return _addLiquidityAndLock(vaultId, vault, balance, minWethIn, wethIn, to);
   }
@@ -302,6 +315,37 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     uint256 lockEndTime = block.timestamp + lpLockTime;
     emit UserStaked(vaultId, minTokenIn, liquidity, lockEndTime, to);
     return (amountToken, amountEth, liquidity);
+  }
+
+  function approveERC721(address assetAddr, address to, uint256 tokenId) internal virtual {
+    address kitties = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
+    address punks = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
+    bytes memory data;
+    if (assetAddr == kitties) {
+        // Cryptokitties.
+        // data = abi.encodeWithSignature("approve(address,uint256)", to, tokenId);
+        // No longer needed to approve with pushing.
+        return;
+    } else if (assetAddr == punks) {
+        // CryptoPunks.
+        data = abi.encodeWithSignature("offerPunkForSaleToAddress(uint256,uint256,address)", tokenId, 0, to);
+    } else {
+      // No longer needed to approve with pushing.
+      return;
+    }
+    (bool success, bytes memory resultData) = address(assetAddr).call(data);
+    if (!success) revert CallFailedWithMessage(string(resultData));
+  }
+
+  // calculates the CREATE2 address for a pair without making any external calls
+  function pairFor(address tokenA, address tokenB) internal view returns (address pair) {
+    (address token0, address token1) = sortTokens(tokenA, tokenB);
+    pair = address(uint160(uint256(keccak256(abi.encodePacked(
+      hex'ff',
+      router.factory(),
+      keccak256(abi.encodePacked(token0, token1)),
+      hex'754e1d90e536e4c1df81b7f030f47b4ca80c87120e145c294f098c83a6cb5ace' // init code hash
+    )))));
   }
 
     // function removeLiquidity(
@@ -357,6 +401,13 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     return (amountToken, amountEth, liquidity);
   }
 
+  // returns sorted token addresses, used to handle return values from pairs sorted in this order
+  function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
+    if (tokenA == tokenB) revert IdenticalAddress();
+    (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+    if (token0 == address(0)) revert ZeroAddress();
+  }
+
   function transferFromERC721(address assetAddr, uint256 tokenId, address to) internal virtual {
     address kitties = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
     address punks = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
@@ -379,56 +430,5 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     }
     (bool success, bytes memory resultData) = address(assetAddr).call(data);
     if (!success) revert CallFailedWithMessage(string(resultData));
-  }
-
-  function approveERC721(address assetAddr, address to, uint256 tokenId) internal virtual {
-    address kitties = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
-    address punks = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
-    bytes memory data;
-    if (assetAddr == kitties) {
-        // Cryptokitties.
-        // data = abi.encodeWithSignature("approve(address,uint256)", to, tokenId);
-        // No longer needed to approve with pushing.
-        return;
-    } else if (assetAddr == punks) {
-        // CryptoPunks.
-        data = abi.encodeWithSignature("offerPunkForSaleToAddress(uint256,uint256,address)", tokenId, 0, to);
-    } else {
-      // No longer needed to approve with pushing.
-      return;
-    }
-    (bool success, bytes memory resultData) = address(assetAddr).call(data);
-    if (!success) revert CallFailedWithMessage(string(resultData));
-  }
-
-  // calculates the CREATE2 address for a pair without making any external calls
-  function pairFor(address tokenA, address tokenB) internal view returns (address pair) {
-    (address token0, address token1) = sortTokens(tokenA, tokenB);
-    pair = address(uint160(uint256(keccak256(abi.encodePacked(
-      hex'ff',
-      router.factory(),
-      keccak256(abi.encodePacked(token0, token1)),
-      hex'754e1d90e536e4c1df81b7f030f47b4ca80c87120e145c294f098c83a6cb5ace' // init code hash
-    )))));
-  }
-
-  // returns sorted token addresses, used to handle return values from pairs sorted in this order
-  function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
-    if (tokenA == tokenB) revert IdenticalAddress();
-    (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-    if (token0 == address(0)) revert ZeroAddress();
-  }
-
-  receive() external payable {
-    if (msg.sender != address(WETH)) revert OnlyWETH();
-  }
-
-  function rescue(address token) external override onlyOwner {
-    if (token == address(0)) {
-      (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
-      if (!success) revert CallFailed();
-    } else {
-      IERC20Upgradeable(token).safeTransfer(msg.sender, IERC20Upgradeable(token).balanceOf(address(this)));
-    }
   }
 }
