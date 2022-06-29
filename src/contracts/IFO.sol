@@ -51,7 +51,8 @@ contract IFO is IIFO, Initializable {
         bool _allowWhitelisting
     ) external override initializer {
         // set storage variables
-        if (_fnftAddress == address(0)) revert InvalidAddress();
+        if (_curator == address(0)) revert ZeroAddress();
+        if (_fnftAddress == address(0)) revert ZeroAddress();
         IFNFTSingle _fnft = IFNFTSingle(_fnftAddress);
         IERC20MetadataUpgradeable _fnftErc20 = IERC20MetadataUpgradeable(_fnftAddress);
         uint256 curatorSupply = _fnftErc20.balanceOf(_curator);
@@ -176,7 +177,7 @@ contract IFO is IIFO, Initializable {
     /// @notice approve FNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
     function approve() external override onlyCurator {
         address creatorUtilityContract = factory.creatorUtilityContract();
-        if (creatorUtilityContract == address(0)) revert InvalidAddress();
+        if (creatorUtilityContract == address(0)) revert ZeroAddress();
         IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(address(fnft));
         _fnft.approve(creatorUtilityContract, _fnft.totalSupply());
     }
@@ -294,7 +295,7 @@ contract IFO is IIFO, Initializable {
     *   @param _address: address of FNFT
     */
     function updateFNFTAddress(address _address) external override onlyGov {
-        if (_address == address(0)) revert InvalidAddress();
+        if (_address == address(0)) revert ZeroAddress();
         fnft = IFNFTSingle(_address);
     }
 

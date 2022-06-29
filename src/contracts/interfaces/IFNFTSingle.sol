@@ -151,4 +151,5 @@ interface IFNFTSingle  is IERC20Upgradeable {
     error AuctionNotLive();
     error NoTokens();
     error WrongToken();
+    error ZeroAddress();
 }

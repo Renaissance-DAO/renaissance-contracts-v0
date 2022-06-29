@@ -85,6 +85,9 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         uint256 _listPrice,
         uint256 _fee
     ) external override initializer {
+        if (_curator == address(0)) revert ZeroAddress();
+        if (_token == address(0)) revert ZeroAddress();
+
         // initialize inherited contracts
         __ERC20_init(_name, _symbol);
         __ERC721Holder_init();

@@ -96,7 +96,6 @@ interface IIFO {
 
     error NotGov();
     error NotCurator();
-    error InvalidAddress();
     error NotEnoughSupply();
     error InvalidAmountForSale();
     error InvalidPrice();
@@ -117,4 +116,5 @@ interface IIFO {
     error OverLimit();
     error NoLiquidityProvided();
     error FNFTLocked();
+    error ZeroAddress();
 }

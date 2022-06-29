@@ -161,12 +161,12 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         assertEq(ifo.duration(), 86400);
     }
 
-    function testCreateIFOInvalidAddress() public {
+    function testCreateIFOZeroAddress() public {
         uint256 balance = fnftSingle.balanceOf(address(this));
         uint256 totalSupply = fnftSingle.totalSupply();
         uint256 minimumDuration = ifoFactory.minimumDuration();
         fnftSingle.approve(address(ifoFactory), balance);
-        vm.expectRevert(IIFO.InvalidAddress.selector);
+        vm.expectRevert(IIFO.ZeroAddress.selector);
         ifoFactory.create(
             address(0), // wrong address
             balance, //amountForSale
@@ -351,7 +351,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     function testUpdateFNFTAddressZeroAddress() public {
         IFO ifo = createValidIFO();
 
-        vm.expectRevert(IIFO.InvalidAddress.selector);
+        vm.expectRevert(IIFO.ZeroAddress.selector);
         ifo.updateFNFTAddress(address(0));
     }
 
@@ -1016,7 +1016,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     function testManualApproveUtilityContractZeroAddress() public {
         IFO ifo = createValidIFO();
 
-        vm.expectRevert(IIFO.InvalidAddress.selector);
+        vm.expectRevert(IIFO.ZeroAddress.selector);
         ifo.approve();
     }
 

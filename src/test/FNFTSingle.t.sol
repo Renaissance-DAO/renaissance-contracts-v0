@@ -95,6 +95,21 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         ));
     }
 
+    function testInitializeZeroAddress() public {
+        uint256 maxCuratorFee = fnftSingleFactory.maxCuratorFee();
+        token.mint(address(this), 2);
+        vm.expectRevert(IFNFTSingle.ZeroAddress.selector);
+        fnftSingle = FNFTSingle(fnftSingleFactory.createVault(
+            "Doodles",
+            "DOODLES",
+            address(0),
+            2,
+            100 ether, // supply
+            1 ether, // list price
+            maxCuratorFee
+        ));
+    }
+
     function testTransferBetweenUsers() public {
         console.log("this balance", fnftSingle.balanceOf(address(this)) / 1e18);
         console.log("this reserve price", fnftSingle.userReservePrice(address(this)) / 1e18);
