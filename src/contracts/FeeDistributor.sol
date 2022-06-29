@@ -15,18 +15,18 @@ import "./util/Pausable.sol";
 contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
-  bool public override distributionPaused;
+  FeeReceiver[] public override feeReceivers;
 
-  IVaultManager public override vaultManager;
-  ILPStaking public override lpStaking;
   IInventoryStaking public override inventoryStaking;
+  ILPStaking public override lpStaking;
   address public override treasury;
+  IVaultManager public override vaultManager;
 
   // Total allocation points per vault.
   uint256 public override allocTotal;
-  FeeReceiver[] public override feeReceivers;
+  bool public override distributionPaused;
 
-  function __FeeDistributor_init(address _vaultManager, address _lpStaking, address _treasury) public override initializer {
+  function __FeeDistributor_init(address _vaultManager, address _lpStaking, address _treasury) external override initializer {
     __Pausable_init();
 
     vaultManager = IVaultManager(_vaultManager);
@@ -35,6 +35,10 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     setLPStakingAddress(_lpStaking);
 
     _addReceiver(0.8 ether, _lpStaking, true);
+  }
+
+  function addReceiver(uint256 _allocPoint, address _receiver, bool _isContract) external override virtual onlyOwner  {
+    _addReceiver(_allocPoint, _receiver, _isContract);
   }
 
   function distribute(uint256 vaultId) external override virtual nonReentrant {
@@ -72,10 +76,6 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     }
   }
 
-  function addReceiver(uint256 _allocPoint, address _receiver, bool _isContract) external override virtual onlyOwner  {
-    _addReceiver(_allocPoint, _receiver, _isContract);
-  }
-
   function initializeVaultReceivers(uint256 _vaultId) external override {
     if (msg.sender != address(vaultManager)) revert CallerIsNotVaultManager();
     lpStaking.addPoolForVault(_vaultId);
@@ -84,21 +84,9 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
       _inventoryStaking.deployXTokenForVault(_vaultId);
   }
 
-  function changeReceiverAlloc(uint256 _receiverIdx, uint256 _allocPoint) public override virtual onlyOwner {
-    if(_receiverIdx >= feeReceivers.length) revert OutOfBounds();
-    FeeReceiver storage feeReceiver = feeReceivers[_receiverIdx];
-    allocTotal -= feeReceiver.allocPoint;
-    feeReceiver.allocPoint = _allocPoint;
-    allocTotal += _allocPoint;
-    emit FeeReceiverAllocUpdated(feeReceiver.receiver, _allocPoint);
-  }
-
-  function changeReceiverAddress(uint256 _receiverIdx, address _address, bool _isContract) public override virtual onlyOwner {
-    FeeReceiver storage feeReceiver = feeReceivers[_receiverIdx];
-    address oldReceiver = feeReceiver.receiver;
-    feeReceiver.receiver = _address;
-    feeReceiver.isContract = _isContract;
-    emit FeeReceiverAddressUpdated(oldReceiver, _address);
+  function pauseFeeDistribution(bool _pause) external override onlyOwner {
+    distributionPaused = _pause;
+    emit DistributionPaused(_pause);
   }
 
   function removeReceiver(uint256 _receiverIdx) external override virtual onlyOwner {
@@ -111,10 +99,31 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     feeReceivers.pop();
   }
 
-  function setTreasuryAddress(address _treasury) public override onlyOwner {
-    if (_treasury == address(0)) revert ZeroAddress();
-    treasury = _treasury;
-    emit TreasuryAddressUpdated(_treasury);
+  function rescueTokens(address _address) external override onlyOwner {
+    uint256 balance = IERC20Upgradeable(_address).balanceOf(address(this));
+    IERC20Upgradeable(_address).safeTransfer(msg.sender, balance);
+  }
+
+  function changeReceiverAddress(uint256 _receiverIdx, address _address, bool _isContract) public override virtual onlyOwner {
+    FeeReceiver storage feeReceiver = feeReceivers[_receiverIdx];
+    address oldReceiver = feeReceiver.receiver;
+    feeReceiver.receiver = _address;
+    feeReceiver.isContract = _isContract;
+    emit FeeReceiverAddressUpdated(oldReceiver, _address);
+  }
+
+  function changeReceiverAlloc(uint256 _receiverIdx, uint256 _allocPoint) public override virtual onlyOwner {
+    if(_receiverIdx >= feeReceivers.length) revert OutOfBounds();
+    FeeReceiver storage feeReceiver = feeReceivers[_receiverIdx];
+    allocTotal -= feeReceiver.allocPoint;
+    feeReceiver.allocPoint = _allocPoint;
+    allocTotal += _allocPoint;
+    emit FeeReceiverAllocUpdated(feeReceiver.receiver, _allocPoint);
+  }
+
+  function setInventoryStakingAddress(address _inventoryStaking) public override onlyOwner {
+    inventoryStaking = IInventoryStaking(_inventoryStaking);
+    emit InventoryStakingAddressUpdated(_inventoryStaking);
   }
 
   function setLPStakingAddress(address _lpStaking) public override onlyOwner {
@@ -123,19 +132,10 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     emit LPStakingAddressUpdated(_lpStaking);
   }
 
-  function setInventoryStakingAddress(address _inventoryStaking) public override onlyOwner {
-    inventoryStaking = IInventoryStaking(_inventoryStaking);
-    emit InventoryStakingAddressUpdated(_inventoryStaking);
-  }
-
-  function pauseFeeDistribution(bool _pause) external override onlyOwner {
-    distributionPaused = _pause;
-    emit DistributionPaused(_pause);
-  }
-
-  function rescueTokens(address _address) external override onlyOwner {
-    uint256 balance = IERC20Upgradeable(_address).balanceOf(address(this));
-    IERC20Upgradeable(_address).safeTransfer(msg.sender, balance);
+  function setTreasuryAddress(address _treasury) public override onlyOwner {
+    if (_treasury == address(0)) revert ZeroAddress();
+    treasury = _treasury;
+    emit TreasuryAddressUpdated(_treasury);
   }
 
   function _addReceiver(uint256 _allocPoint, address _receiver, bool _isContract) internal virtual {
