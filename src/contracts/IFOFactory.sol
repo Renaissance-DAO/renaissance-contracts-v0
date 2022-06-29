@@ -7,33 +7,34 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./IFO.sol";
 import "./interfaces/IIFOFactory.sol";
-import "./proxy/BeaconUpgradeable.sol";
 import "./proxy/BeaconProxy.sol";
+import "./proxy/BeaconUpgradeable.sol";
 
 contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeable {
     /// @notice the mapping of FNFT to IFO address
     mapping(address => address) public override getIFO;
 
-    uint256 public override minimumDuration;
-    uint256 public override maximumDuration;
-    uint256 public override governanceFee;
-    /// @notice 10% fee is max
-    uint256 public constant MAX_GOV_FEE = 1000;
     address public override creatorUtilityContract;
-    /// @notice the boolean whether creator should have access to the creator's FNFT shares after IFO
-    bool public override creatorIFOLock;
     /// @notice the address who receives ifo fees
     address payable public override feeReceiver;
+    /// @notice the boolean whether creator should have access to the creator's FNFT shares after IFO
+    bool public override creatorIFOLock;
+
+    uint256 public override governanceFee;
+    uint256 public override maximumDuration;
+    uint256 public override minimumDuration;
+    /// @notice 10% fee is max
+    uint256 public constant MAX_GOV_FEE = 1000;
 
     function __IFOFactory_init() external override initializer {
         __Ownable_init();
         __Pausable_init();
         __BeaconUpgradeable__init(address(new IFO()));
 
-        minimumDuration = 86400; // 1 day;
         feeReceiver = payable(msg.sender);
-        maximumDuration = 7776000; // 90 days;
         governanceFee = 200;
+        maximumDuration = 7776000; // 90 days;
+        minimumDuration = 86400; // 1 day;
     }
 
     /// @notice the function to create an IFO
@@ -76,30 +77,20 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         _pause();
     }
 
-    function unpause() external override onlyOwner {
-        _unpause();
-    }
-
     function setCreatorIFOLock(bool _creatorIFOLock) external override onlyOwner {
         emit CreatorIFOLockUpdated(creatorIFOLock, _creatorIFOLock);
         creatorIFOLock = _creatorIFOLock;
     }
 
-    function setMinimumDuration(uint256 _minimumDuration) external override onlyOwner {
-        if (_minimumDuration > maximumDuration) revert InvalidDuration();
-        emit MinimumDurationUpdated(minimumDuration, _minimumDuration);
-        minimumDuration = _minimumDuration;
-    }
-
-    function setMaximumDuration(uint256 _maximumDuration) external override onlyOwner {
-        if (minimumDuration > _maximumDuration) revert InvalidDuration();
-        emit MaximumDurationUpdated(maximumDuration, _maximumDuration);
-        maximumDuration = _maximumDuration;
-    }
-
     function setCreatorUtilityContract(address _creatorUtilityContract) external override onlyOwner {
         emit CreatorUtilityContractUpdated(creatorUtilityContract, _creatorUtilityContract);
         creatorUtilityContract = _creatorUtilityContract;
+    }
+
+    function setFeeReceiver(address payable _feeReceiver) external override onlyOwner {
+        if (_feeReceiver == address(0)) revert ZeroAddressDisallowed();
+        emit FeeReceiverUpdated(feeReceiver, _feeReceiver);
+        feeReceiver = _feeReceiver;
     }
 
     function setGovernanceFee(uint256 _governanceFee) external override onlyOwner {
@@ -108,9 +99,19 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         governanceFee = _governanceFee;
     }
 
-    function setFeeReceiver(address payable _feeReceiver) external override onlyOwner {
-        if (_feeReceiver == address(0)) revert ZeroAddressDisallowed();
-        emit FeeReceiverUpdated(feeReceiver, _feeReceiver);
-        feeReceiver = _feeReceiver;
+    function setMaximumDuration(uint256 _maximumDuration) external override onlyOwner {
+        if (minimumDuration > _maximumDuration) revert InvalidDuration();
+        emit MaximumDurationUpdated(maximumDuration, _maximumDuration);
+        maximumDuration = _maximumDuration;
+    }
+
+    function setMinimumDuration(uint256 _minimumDuration) external override onlyOwner {
+        if (_minimumDuration > maximumDuration) revert InvalidDuration();
+        emit MinimumDurationUpdated(minimumDuration, _minimumDuration);
+        minimumDuration = _minimumDuration;
+    }
+
+    function unpause() external override onlyOwner {
+        _unpause();
     }
 }
