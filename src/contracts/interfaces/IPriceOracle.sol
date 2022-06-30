@@ -26,7 +26,7 @@ interface IPriceOracle {
 
     function WETH() external view returns (address);
 
-    function FACTORY() external view returns (IUniswapV2Factory);
+    function factory() external view returns (IUniswapV2Factory);
 
     function __PriceOracle_init() external;
 

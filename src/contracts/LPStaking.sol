@@ -14,8 +14,6 @@ import "./interfaces/IVaultManager.sol";
 import "./token/TimelockRewardDistributionTokenImpl.sol";
 import "./util/Pausable.sol";
 
-// Author: 0xKiwi.
-
 // Pausing codes for LP staking are:
 // 10: Deposit
 
@@ -90,14 +88,14 @@ contract LPStaking is ILPStaking, Pausable {
     function emergencyExit(address _stakingToken, address _rewardToken) external override {
         StakingPool memory pool = StakingPool(_stakingToken, _rewardToken);
         TimelockRewardDistributionTokenImpl dist = rewardDistributionToken(pool);
-        if (!isContract(address(dist))) revert NotAPool();
+        if (!_isContract(address(dist))) revert NotAPool();
         _withdraw(pool, dist.balanceOf(msg.sender), msg.sender);
     }
 
     function emergencyExitAndClaim(address _stakingToken, address _rewardToken) external override {
         StakingPool memory pool = StakingPool(_stakingToken, _rewardToken);
         TimelockRewardDistributionTokenImpl dist = rewardDistributionToken(pool);
-        if (!isContract(address(dist))) revert NotAPool();
+        if (!_isContract(address(dist))) revert NotAPool();
         _claimRewards(pool, msg.sender);
         _withdraw(pool, dist.balanceOf(msg.sender), msg.sender);
     }
@@ -133,7 +131,7 @@ contract LPStaking is ILPStaking, Pausable {
         TimelockRewardDistributionTokenImpl rewardDistToken = rewardDistributionToken(pool);
         // Don't distribute rewards unless there are people to distribute to.
         // Also added here if the distribution token is not deployed, just forfeit rewards for now.
-        if (!isContract(address(rewardDistToken)) || rewardDistToken.totalSupply() == 0) {
+        if (!_isContract(address(rewardDistToken)) || rewardDistToken.totalSupply() == 0) {
             return false;
         }
         // We "pull" to the dividend tokens so the vault only needs to approve this contract.
@@ -180,7 +178,7 @@ contract LPStaking is ILPStaking, Pausable {
 
         // If the pool is already deployed, ignore the update.
         address addr = address(rewardDistributionToken(newPool));
-        if (isContract(addr)) {
+        if (_isContract(addr)) {
             return;
         }
         address newRewardDistToken = _deployDividendToken(newPool);
@@ -206,7 +204,7 @@ contract LPStaking is ILPStaking, Pausable {
     function balanceOf(uint256 vaultId, address addr) public view override returns (uint256) {
         StakingPool memory pool = vaultStakingInfo[vaultId];
         TimelockRewardDistributionTokenImpl dist = rewardDistributionToken(pool);
-        if (!isContract(address(dist))) revert NotAPool();
+        if (!_isContract(address(dist))) revert NotAPool();
         return dist.balanceOf(addr);
     }
 
@@ -248,7 +246,7 @@ contract LPStaking is ILPStaking, Pausable {
         return rewardDistToken;
     }
 
-    function isContract(address account) internal view returns (bool) {
+    function _isContract(address account) internal view returns (bool) {
         // This method relies on extcodesize, which returns 0 for contracts in
         // construction, since the code is only stored at the end of the
         // constructor execution.

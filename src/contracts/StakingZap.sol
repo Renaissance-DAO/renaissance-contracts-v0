@@ -24,19 +24,21 @@ import "./interfaces/IWETH.sol";
 contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgradeable, ERC1155HolderUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
+  uint256 constant BASE = 1e18;
+
+  IUniswapV2Router public immutable override ROUTER;
+  IVaultManager public immutable override VAULT_MANAGER;
+  IWETH public immutable override WETH;
+
   IInventoryStaking public override inventoryStaking;
   ILPStaking public override lpStaking;
-  IUniswapV2Router public immutable override router;
-  IVaultManager public immutable override vaultManager;
-  IWETH public immutable override WETH;
 
   uint256 public override inventoryLockTime = 7 days;
   uint256 public override lpLockTime = 48 hours;
-  uint256 constant BASE = 1e18;
 
   constructor(address _vaultManager, address _router) Ownable() ReentrancyGuard() {
-    router = IUniswapV2Router(_router);
-    vaultManager = IVaultManager(_vaultManager);
+    ROUTER = IUniswapV2Router(_router);
+    VAULT_MANAGER = IVaultManager(_vaultManager);
     WETH = IWETH(IUniswapV2Router(_router).WETH());
     IERC20Upgradeable(address(IUniswapV2Router(_router).WETH())).safeApprove(_router, type(uint256).max);
   }
@@ -77,7 +79,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
         ++i;
       }
     }
-    IFNFTCollection vault = IFNFTCollection(vaultManager.vault(vaultId));
+    IFNFTCollection vault = IFNFTCollection(VAULT_MANAGER.vault(vaultId));
     inventoryStaking.timelockMintFor(vaultId, count*BASE, msg.sender, inventoryLockTime);
     address xToken = inventoryStaking.vaultXToken(vaultId);
     uint256 oldBal = IERC20Upgradeable(vault).balanceOf(address(xToken));
@@ -91,7 +93,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
 
   function provideInventory721(uint256 vaultId, uint256[] calldata tokenIds) external override {
     uint256 count = tokenIds.length;
-    IFNFTCollection vault = IFNFTCollection(vaultManager.vault(vaultId));
+    IFNFTCollection vault = IFNFTCollection(VAULT_MANAGER.vault(vaultId));
     inventoryStaking.timelockMintFor(vaultId, count*BASE, msg.sender, inventoryLockTime);
     address xToken = inventoryStaking.vaultXToken(vaultId);
     uint256 oldBal = IERC20Upgradeable(address(vault)).balanceOf(xToken);
@@ -99,8 +101,8 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     address assetAddress = vault.assetAddress();
     uint256 length = tokenIds.length;
     for (uint256 i; i < length;) {
-      transferFromERC721(assetAddress, tokenIds[i], address(vault));
-      approveERC721(assetAddress, address(vault), tokenIds[i]);
+      _transferFromERC721(assetAddress, tokenIds[i], address(vault));
+      _approveERC721(assetAddress, address(vault), tokenIds[i]);
       unchecked {
         ++i;
       }
@@ -232,7 +234,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
 
   function assignStakingContracts() public override {
     if (address(lpStaking) != address(0) && address(inventoryStaking) != address(0)) revert NotZero();
-    IFeeDistributor feeDistributor = IFeeDistributor(IVaultManager(vaultManager).feeDistributor());
+    IFeeDistributor feeDistributor = IFeeDistributor(IVaultManager(VAULT_MANAGER).feeDistributor());
     lpStaking = ILPStaking(feeDistributor.lpStaking());
     inventoryStaking = IInventoryStaking(feeDistributor.inventoryStaking());
   }
@@ -245,8 +247,8 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     uint256 wethIn,
     address to
   ) internal returns (uint256, uint256, uint256) {
-    if (!vaultManager.excludedFromFees(address(this))) revert NotExcluded();
-    address vault = vaultManager.vault(vaultId);
+    if (!VAULT_MANAGER.excludedFromFees(address(this))) revert NotExcluded();
+    address vault = VAULT_MANAGER.vault(vaultId);
 
     address assetAddress = IFNFTCollection(vault).assetAddress();
     IERC1155Upgradeable(assetAddress).safeBatchTransferFrom(msg.sender, address(this), ids, amounts, "");
@@ -265,14 +267,14 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     uint256 wethIn,
     address to
   ) internal returns (uint256, uint256, uint256) {
-    if (!vaultManager.excludedFromFees(address(this))) revert NotExcluded();
-    address vault = vaultManager.vault(vaultId);
+    if (!VAULT_MANAGER.excludedFromFees(address(this))) revert NotExcluded();
+    address vault = VAULT_MANAGER.vault(vaultId);
 
     address assetAddress = IFNFTCollection(vault).assetAddress();
     uint256 length = ids.length;
     for (uint256 i; i < length; i++) {
-      transferFromERC721(assetAddress, ids[i], vault);
-      approveERC721(assetAddress, vault, ids[i]);
+      _transferFromERC721(assetAddress, ids[i], vault);
+      _approveERC721(assetAddress, vault, ids[i]);
     }
     uint256[] memory emptyIds;
     IFNFTCollection(vault).mint(ids, emptyIds);
@@ -290,8 +292,8 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     address to
   ) internal returns (uint256, uint256, uint256) {
     // Provide liquidity.
-    IERC20Upgradeable(vault).safeApprove(address(router), minTokenIn);
-    (uint256 amountToken, uint256 amountEth, uint256 liquidity) = router.addLiquidity(
+    IERC20Upgradeable(vault).safeApprove(address(ROUTER), minTokenIn);
+    (uint256 amountToken, uint256 amountEth, uint256 liquidity) = ROUTER.addLiquidity(
       address(vault),
       address(WETH),
       minTokenIn,
@@ -303,7 +305,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     );
 
     // Stake in LP rewards contract
-    address lpToken = pairFor(vault, address(WETH));
+    address lpToken = _pairFor(vault, address(WETH));
     IERC20Upgradeable(lpToken).safeApprove(address(lpStaking), liquidity);
     lpStaking.timelockDepositFor(vaultId, to, liquidity, lpLockTime);
 
@@ -317,7 +319,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     return (amountToken, amountEth, liquidity);
   }
 
-  function approveERC721(address assetAddr, address to, uint256 tokenId) internal virtual {
+  function _approveERC721(address assetAddr, address to, uint256 tokenId) internal virtual {
     address kitties = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
     address punks = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
     bytes memory data;
@@ -338,11 +340,11 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
   }
 
   // calculates the CREATE2 address for a pair without making any external calls
-  function pairFor(address tokenA, address tokenB) internal view returns (address pair) {
-    (address token0, address token1) = sortTokens(tokenA, tokenB);
+  function _pairFor(address tokenA, address tokenB) internal view returns (address pair) {
+    (address token0, address token1) = _sortTokens(tokenA, tokenB);
     pair = address(uint160(uint256(keccak256(abi.encodePacked(
       hex'ff',
-      router.factory(),
+      ROUTER.factory(),
       keccak256(abi.encodePacked(token0, token1)),
       hex'754e1d90e536e4c1df81b7f030f47b4ca80c87120e145c294f098c83a6cb5ace' // init code hash
     )))));
@@ -374,8 +376,8 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     address to
   ) internal returns (uint256, uint256, uint256) {
     // Provide liquidity.
-    IERC20Upgradeable(vault).safeApprove(address(router), minTokenIn);
-    (uint256 amountToken, uint256 amountEth, uint256 liquidity) = router.addLiquidity(
+    IERC20Upgradeable(vault).safeApprove(address(ROUTER), minTokenIn);
+    (uint256 amountToken, uint256 amountEth, uint256 liquidity) = ROUTER.addLiquidity(
       address(vault),
       address(WETH),
       minTokenIn,
@@ -387,7 +389,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     );
 
     // Stake in LP rewards contract
-    address lpToken = pairFor(vault, address(WETH));
+    address lpToken = _pairFor(vault, address(WETH));
     IERC20Upgradeable(lpToken).safeApprove(address(lpStaking), liquidity);
     lpStaking.timelockDepositFor(vaultId, to, liquidity, lpLockTime);
 
@@ -402,13 +404,13 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
   }
 
   // returns sorted token addresses, used to handle return values from pairs sorted in this order
-  function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
+  function _sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
     if (tokenA == tokenB) revert IdenticalAddress();
     (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
     if (token0 == address(0)) revert ZeroAddress();
   }
 
-  function transferFromERC721(address assetAddr, uint256 tokenId, address to) internal virtual {
+  function _transferFromERC721(address assetAddr, uint256 tokenId, address to) internal virtual {
     address kitties = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
     address punks = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
     bytes memory data;

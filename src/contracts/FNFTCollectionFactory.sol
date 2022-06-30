@@ -50,7 +50,7 @@ contract FNFTCollectionFactory is
         onlyOwnerIfPaused(0);
         if (childImplementation() == address(0)) revert ZeroAddress();
         IVaultManager _vaultManager = vaultManager;
-        address fnftCollection = deployVault(_name, _symbol, _assetAddress, is1155, allowAllItems);
+        address fnftCollection = _deployVault(_name, _symbol, _assetAddress, is1155, allowAllItems);
         uint vaultId = _vaultManager.addVault(fnftCollection);
         emit VaultCreated(vaultId, fnftCollection, _assetAddress);
         return fnftCollection;
@@ -152,7 +152,7 @@ contract FNFTCollectionFactory is
         emit VaultFeesUpdated(vaultId, _mintFee, _randomRedeemFee, _targetRedeemFee, _randomSwapFee, _targetSwapFee);
     }
 
-    function deployVault(
+    function _deployVault(
         string memory name,
         string memory symbol,
         address _assetAddress,

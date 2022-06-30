@@ -16,17 +16,17 @@ import "./libraries/math/FixedPoint.sol";
 contract PriceOracle is IPriceOracle, OwnableUpgradeable {
     using FixedPoint for *;
 
+    IUniswapV2Factory public immutable override factory;
+    address public immutable override WETH;
+
     // Map of pair address to PairInfo struct, which contains cumulative price, last block timestamps, and etc.
     mapping(address => PairInfo) private _getTwap;
-
-    IUniswapV2Factory public immutable override FACTORY;
-    address public immutable override WETH;
 
     uint256 public override minimumPairInfoUpdate;
     uint256 public override period;
 
     constructor(address _factory, address _weth) {
-        FACTORY = IUniswapV2Factory(_factory);
+        factory = IUniswapV2Factory(_factory);
         WETH = _weth;
     }
 
@@ -136,12 +136,12 @@ contract PriceOracle is IPriceOracle, OwnableUpgradeable {
 
     // Create pair address from uniswap pair factory.
     function _createPairAddress(address _token0, address _token1) internal returns (address) {
-        return FACTORY.createPair(_token0, _token1);
+        return factory.createPair(_token0, _token1);
     }
 
     // Get pair address from uniswap pair factory.
     function _getPairAddress(address _token0, address _token1) internal view returns (address) {
-        return FACTORY.getPair(_token0, _token1);
+        return factory.getPair(_token0, _token1);
     }
 
     // Update pair info of two token pair.

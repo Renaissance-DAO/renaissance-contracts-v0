@@ -11,6 +11,9 @@ import "./proxy/BeaconProxy.sol";
 import "./proxy/BeaconUpgradeable.sol";
 
 contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, BeaconUpgradeable {
+    /// @notice 10% fee is max
+    uint256 public constant MAX_GOV_FEE = 1000;
+
     /// @notice the mapping of FNFT to IFO address
     mapping(address => address) public override getIFO;
 
@@ -23,8 +26,6 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
     uint256 public override governanceFee;
     uint256 public override maximumDuration;
     uint256 public override minimumDuration;
-    /// @notice 10% fee is max
-    uint256 public constant MAX_GOV_FEE = 1000;
 
     function __IFOFactory_init() external override initializer {
         __Ownable_init();

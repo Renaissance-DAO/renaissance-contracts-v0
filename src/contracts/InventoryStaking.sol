@@ -27,7 +27,7 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
 
     // Small locktime to prevent flash deposits.
     uint256 internal constant DEFAULT_LOCKTIME = 2;
-    bytes internal constant beaconCode = type(Create2BeaconProxy).creationCode;
+    bytes internal constant BEACON_CODE = type(Create2BeaconProxy).creationCode;
 
     IVaultManager public override vaultManager;
     ITimelockExcludeList public override timelockExcludeList;
@@ -78,7 +78,7 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
 
         // Don't distribute rewards unless there are people to distribute to.
         // Also added here if the distribution token is not deployed, just forfeit rewards for now.
-        if (!isContract(deployedXToken) || XTokenUpgradeable(deployedXToken).totalSupply() == 0) {
+        if (!_isContract(deployedXToken) || XTokenUpgradeable(deployedXToken).totalSupply() == 0) {
             return false;
         }
         // We "pull" to the dividend tokens so the fee distributor only needs to approve this contract.
@@ -128,7 +128,7 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
    function xTokenShareValue(uint256 vaultId) external view virtual override returns (uint256) {
         IERC20Upgradeable baseToken = IERC20Upgradeable(vaultManager.vault(vaultId));
         XTokenUpgradeable xToken = XTokenUpgradeable(xTokenAddr(address(baseToken)));
-        if (!isContract(address(xToken))) revert XTokenNotDeployed();
+        if (!_isContract(address(xToken))) revert XTokenNotDeployed();
 
         uint256 multiplier = 10 ** 18;
         return xToken.totalSupply() > 0
@@ -140,7 +140,7 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
         address baseToken = vaultManager.vault(vaultId);
         address deployedXToken = xTokenAddr(address(baseToken));
 
-        if (isContract(deployedXToken)) {
+        if (_isContract(deployedXToken)) {
             return;
         }
 
@@ -151,7 +151,7 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
     function vaultXToken(uint256 vaultId) public view virtual override returns (address) {
         address baseToken = vaultManager.vault(vaultId);
         address xToken = xTokenAddr(baseToken);
-        if (!isContract(xToken)) revert XTokenNotDeployed();
+        if (!_isContract(xToken)) revert XTokenNotDeployed();
         return xToken;
     }
 
@@ -166,12 +166,12 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
         string memory symbol = IERC20Metadata(baseToken).symbol();
         symbol = string(abi.encodePacked("x", symbol));
         bytes32 salt = keccak256(abi.encodePacked(baseToken));
-        address deployedXToken = Create2.deploy(0, salt, beaconCode);
+        address deployedXToken = Create2.deploy(0, salt, BEACON_CODE);
         XTokenUpgradeable(deployedXToken).__XToken_init(baseToken, symbol, symbol);
         return deployedXToken;
     }
 
-    function isContract(address account) internal view returns (bool) {
+    function _isContract(address account) internal view returns (bool) {
         // This method relies on extcodesize, which returns 0 for contracts in
         // construction, since the code is only stored at the end of the
         // constructor execution.

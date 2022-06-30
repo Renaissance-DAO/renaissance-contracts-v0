@@ -46,7 +46,7 @@ contract StakingTokenProvider is IStakingTokenProvider, OwnableUpgradeable {
   }
 
   function pairForVaultToken(address _vaultToken, address _pairedToken) external view override returns (address) {
-    return pairFor(uniLikeExchange, _vaultToken, _pairedToken);
+    return _pairFor(uniLikeExchange, _vaultToken, _pairedToken);
   }
 
   function setDefaultPairedToken(address _defaultPairedToken, string calldata _defaultPrefix) external override onlyOwner {
@@ -67,12 +67,12 @@ contract StakingTokenProvider is IStakingTokenProvider, OwnableUpgradeable {
     if (_pairedToken == address(0)) {
       _pairedToken = defaultPairedToken;
     }
-    return pairFor(uniLikeExchange, _vaultToken, _pairedToken);
+    return _pairFor(uniLikeExchange, _vaultToken, _pairedToken);
   }
 
   // calculates the CREATE2 address for a pair without making any external calls
-  function pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
-      (address token0, address token1) = sortTokens(tokenA, tokenB);
+  function _pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
+      (address token0, address token1) = _sortTokens(tokenA, tokenB);
       pair = address(uint160(uint256(keccak256(abi.encodePacked(
               hex'ff',
               factory,
@@ -82,7 +82,7 @@ contract StakingTokenProvider is IStakingTokenProvider, OwnableUpgradeable {
   }
 
   // returns sorted token addresses, used to handle return values from pairs sorted in this order
-  function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
+  function _sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
       if (tokenA == tokenB) revert IdenticalAddress();
       (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
       if (token0 == address(0)) revert ZeroAddress();

@@ -89,7 +89,7 @@ contract FNFTSingleFactory is
         uint256 _listPrice,
         uint256 _fee
     ) external override whenNotPaused returns (address) {
-        address fnftSingle = deployVault(
+        address fnftSingle = _deployVault(
             _name,
             _symbol,
             _nft,
@@ -186,7 +186,7 @@ contract FNFTSingleFactory is
         paused() ? _unpause() : _pause();
     }
 
-    function deployVault(
+    function _deployVault(
         string memory _name,
         string memory _symbol,
         address _nft,

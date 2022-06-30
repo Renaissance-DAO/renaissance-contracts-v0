@@ -34,7 +34,7 @@ contract FNFTCollection is
 {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.UintSet;
 
-    uint256 constant base = 10**18;
+    uint256 public constant BASE = 10**18;
 
     mapping(uint256 => uint256) public override quantity1155;
     EnumerableSetUpgradeable.UintSet internal holdings;
@@ -95,7 +95,7 @@ contract FNFTCollection is
         uint256 moduleIndex,
         bytes calldata initData
     ) external override virtual returns (address) {
-        onlyPrivileged();
+        _onlyPrivileged();
         if (address(eligibilityStorage) != address(0)) revert EligibilityAlreadySet();
         IEligibilityManager eligManager = IEligibilityManager(
             factory.eligibilityManager()
@@ -139,7 +139,7 @@ contract FNFTCollection is
         string calldata name_,
         string calldata symbol_
     ) external override virtual {
-        onlyPrivileged();
+        _onlyPrivileged();
         _setMetadata(name_, symbol_);
     }
 
@@ -183,7 +183,7 @@ contract FNFTCollection is
     }
 
     function disableVaultFees() public override virtual {
-        onlyPrivileged();
+        _onlyPrivileged();
         factory.disableVaultFees(vaultId);
     }
 
@@ -204,7 +204,7 @@ contract FNFTCollection is
         IERC3156FlashLenderUpgradeable,
         IFNFTCollection
     ) returns (bool) {
-        onlyOwnerIfPaused(4);
+        _onlyOwnerIfPaused(4);
 
         uint256 flashLoanFee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(borrowedToken, amount);
         return _flashLoan(receiver, borrowedToken, amount, flashLoanFee, data);
@@ -220,13 +220,13 @@ contract FNFTCollection is
         uint256[] memory amounts, /* ignored for ERC721 vaults */
         address to
     ) public override virtual nonReentrant returns (uint256) {
-        onlyOwnerIfPaused(1);
+        _onlyOwnerIfPaused(1);
         if (!enableMint) revert MintDisabled();
         // Take the NFTs.
-        uint256 count = receiveNFTs(tokenIds, amounts);
+        uint256 count = _receiveNFTs(tokenIds, amounts);
 
         // Mint to the user.
-        _mint(to, base * count);
+        _mint(to, BASE * count);
         uint256 totalFee = mintFee() * count;
         _chargeAndDistributeFees(to, totalFee);
 
@@ -251,12 +251,12 @@ contract FNFTCollection is
         nonReentrant
         returns (uint256[] memory)
     {
-        onlyOwnerIfPaused(2);
+        _onlyOwnerIfPaused(2);
         if (amount != specificIds.length && !enableRandomRedeem) revert RandomRedeemDisabled();
         if (specificIds.length != 0 && !enableTargetRedeem) revert TargetRedeemDisabled();
 
         // We burn all from sender and mint to fee receiver to reduce costs.
-        _burn(msg.sender, base * amount);
+        _burn(msg.sender, BASE * amount);
 
         // Pay the tokens + toll.
         (, uint256 _randomRedeemFee, uint256 _targetRedeemFee, ,) = vaultFees();
@@ -266,7 +266,7 @@ contract FNFTCollection is
         _chargeAndDistributeFees(msg.sender, totalFee);
 
         // Withdraw from vault.
-        uint256[] memory redeemedIds = withdrawNFTsTo(amount, specificIds, to);
+        uint256[] memory redeemedIds = _withdrawNFTsTo(amount, specificIds, to);
         emit Redeemed(redeemedIds, specificIds, to);
         return redeemedIds;
     }
@@ -278,13 +278,13 @@ contract FNFTCollection is
         uint256 _randomSwapFee,
         uint256 _targetSwapFee
     ) public override virtual {
-        onlyPrivileged();
+        _onlyPrivileged();
         factory.setVaultFees(vaultId, _mintFee, _randomRedeemFee, _targetRedeemFee, _randomSwapFee, _targetSwapFee);
     }
 
     // The manager has control over options like fees and features
     function setManager(address _manager) public override virtual {
-        onlyPrivileged();
+        _onlyPrivileged();
         manager = _manager;
         emit ManagerSet(_manager);
     }
@@ -296,7 +296,7 @@ contract FNFTCollection is
         bool _enableRandomSwap,
         bool _enableTargetSwap
     ) public override virtual {
-        onlyPrivileged();
+        _onlyPrivileged();
         enableMint = _enableMint;
         enableRandomRedeem = _enableRandomRedeem;
         enableTargetRedeem = _enableTargetRedeem;
@@ -311,10 +311,10 @@ contract FNFTCollection is
     }
 
     function shutdown(address recipient) public override onlyOwner {
-        uint256 numItems = totalSupply() / base;
+        uint256 numItems = totalSupply() / BASE;
         if (numItems >= 4) revert TooManyNFTs();
         uint256[] memory specificIds = new uint256[](0);
-        withdrawNFTsTo(numItems, specificIds, recipient);
+        _withdrawNFTsTo(numItems, specificIds, recipient);
         emit VaultShutdown(assetAddress, numItems, recipient);
         assetAddress = address(0);
     }
@@ -331,7 +331,7 @@ contract FNFTCollection is
         uint256[] memory specificIds,
         address to
     ) public override virtual nonReentrant returns (uint256[] memory) {
-        onlyOwnerIfPaused(3);
+        _onlyOwnerIfPaused(3);
         uint256 count;
         if (is1155) {
             for (uint256 i; i < tokenIds.length; ++i) {
@@ -353,9 +353,9 @@ contract FNFTCollection is
         _chargeAndDistributeFees(msg.sender, totalFee);
 
         // Give the NFTs first, so the user wont get the same thing back, just to be nice.
-        uint256[] memory ids = withdrawNFTsTo(count, specificIds, to);
+        uint256[] memory ids = _withdrawNFTsTo(count, specificIds, to);
 
-        receiveNFTs(tokenIds, amounts);
+        _receiveNFTs(tokenIds, amounts);
 
         emit Swapped(tokenIds, amounts, specificIds, ids, to);
         return ids;
@@ -376,7 +376,7 @@ contract FNFTCollection is
     }
 
     // We set a hook to the eligibility module (if it exists) after redeems in case anything needs to be modified.
-    function afterRedeemHook(uint256[] memory tokenIds) internal virtual {
+    function _afterRedeemHook(uint256[] memory tokenIds) internal virtual {
         IEligibility _eligibilityStorage = eligibilityStorage;
         if (address(_eligibilityStorage) == address(0)) {
             return;
@@ -413,7 +413,7 @@ contract FNFTCollection is
         IFeeDistributor(feeDistributor).distribute(vaultId);
     }
 
-    function getRandomTokenIdFromVault() internal virtual returns (uint256) {
+    function _getRandomTokenIdFromVault() internal virtual returns (uint256) {
         uint256 randomIndex = uint256(
             keccak256(
                 abi.encodePacked(
@@ -429,7 +429,7 @@ contract FNFTCollection is
         return holdings.at(randomIndex);
     }
 
-    function receiveNFTs(uint256[] memory tokenIds, uint256[] memory amounts)
+    function _receiveNFTs(uint256[] memory tokenIds, uint256[] memory amounts)
         internal
         virtual
         returns (uint256)
@@ -468,20 +468,20 @@ contract FNFTCollection is
                 //      - If so, we reject. This means the NFT has already been claimed for.
                 //      - If not, it means we have not yet accounted for this NFT, so we continue.
                 //   -If not, we "pull" it from the msg.sender and add to holdings.
-                transferFromERC721(_assetAddress, tokenId);
+                _transferFromERC721(_assetAddress, tokenId);
                 holdings.add(tokenId);
             }
             return length;
         }
     }
 
-    function onlyOwnerIfPaused(uint256 lockId) internal view {
+    function _onlyOwnerIfPaused(uint256 lockId) internal view {
         // TODO: compare gas usage on the order of logic
         if (msg.sender != owner() && factory.isLocked(lockId)) revert Paused();
     }
 
 
-    function onlyPrivileged() internal view {
+    function _onlyPrivileged() internal view {
         if (manager == address(0)) {
             if (msg.sender != owner()) revert NotOwner();
         } else {
@@ -506,7 +506,7 @@ contract FNFTCollection is
         super._transfer(from, to, amount);
     }
 
-    function transferERC721(address assetAddr, address to, uint256 tokenId) internal virtual {
+    function _transferERC721(address assetAddr, address to, uint256 tokenId) internal virtual {
         address kitties = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
         address punks = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
         bytes memory data;
@@ -524,7 +524,7 @@ contract FNFTCollection is
         require(success, string(returnData));
     }
 
-    function transferFromERC721(address assetAddr, uint256 tokenId) internal virtual {
+    function _transferFromERC721(address assetAddr, uint256 tokenId) internal virtual {
         address kitties = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
         address punks = 0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB;
         bytes memory data;
@@ -554,7 +554,7 @@ contract FNFTCollection is
         require(success, string(resultData));
     }
 
-    function withdrawNFTsTo(
+    function _withdrawNFTsTo(
         uint256 amount,
         uint256[] memory specificIds,
         address to
@@ -566,7 +566,7 @@ contract FNFTCollection is
         for (uint256 i; i < amount; ++i) {
             // This will always be fine considering the validations made above.
             uint256 tokenId = i < specificLength ?
-                specificIds[i] : getRandomTokenIdFromVault();
+                specificIds[i] : _getRandomTokenIdFromVault();
             redeemedIds[i] = tokenId;
 
             if (_is1155) {
@@ -584,10 +584,10 @@ contract FNFTCollection is
                 );
             } else {
                 holdings.remove(tokenId);
-                transferERC721(_assetAddress, to, tokenId);
+                _transferERC721(_assetAddress, to, tokenId);
             }
         }
-        afterRedeemHook(redeemedIds);
+        _afterRedeemHook(redeemedIds);
         return redeemedIds;
     }
 }
