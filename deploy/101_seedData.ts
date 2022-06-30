@@ -424,7 +424,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO3Address = await IFOFactory.getIFO(fnftSingle3Address)
+  const IFO3Address = await IFOFactory.ifos(fnftSingle3Address)
 
   // NFT4 IFO
   await IFOFactory.create(
@@ -435,7 +435,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO4Address = await IFOFactory.getIFO(fnftSingle4Address);
+  const IFO4Address = await IFOFactory.ifos(fnftSingle4Address);
 
   // NFT5 IFO
   await IFOFactory.create(
@@ -446,7 +446,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     86400, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO5Address = await IFOFactory.getIFO(fnftSingle5Address);
+  const IFO5Address = await IFOFactory.ifos(fnftSingle5Address);
 
   // NFT6 IFO
   await IFOFactory.create(
@@ -457,7 +457,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO6Address = await IFOFactory.getIFO(fnftSingle6Address)
+  const IFO6Address = await IFOFactory.ifos(fnftSingle6Address)
 
   // NFT7 IFO
   await IFOFactory.create(
@@ -468,7 +468,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO7Address = await IFOFactory.getIFO(fnftSingle7Address)
+  const IFO7Address = await IFOFactory.ifos(fnftSingle7Address)
 
   // NFT8 IFO
   await IFOFactory.create(
@@ -479,7 +479,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO8Address = await IFOFactory.getIFO(fnftSingle8Address);
+  const IFO8Address = await IFOFactory.ifos(fnftSingle8Address);
 
   // NFT9 IFO
   await IFOFactory.create(
@@ -490,7 +490,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO9Address = await IFOFactory.getIFO(fnftSingle9Address);
+  const IFO9Address = await IFOFactory.ifos(fnftSingle9Address);
 
   // NFT10 IFO
   await IFOFactory.create(
@@ -501,7 +501,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO10Address = await IFOFactory.getIFO(fnftSingle10Address);
+  const IFO10Address = await IFOFactory.ifos(fnftSingle10Address);
 
   // NFT11 No IFO
 
@@ -514,7 +514,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO12Address = await IFOFactory.getIFO(fnftSingle12Address);
+  const IFO12Address = await IFOFactory.ifos(fnftSingle12Address);
 
   // NFT13 IFO
   await IFOFactory.create(
@@ -525,7 +525,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO13Address = await IFOFactory.getIFO(fnftSingle13Address);
+  const IFO13Address = await IFOFactory.ifos(fnftSingle13Address);
 
 
   // start IFOs

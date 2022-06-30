@@ -93,7 +93,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
-        ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        ifo = IFO(ifoFactory.ifos(address(fnftSingle)));
     }
 
     function createValidFNFTCollectionIFO() private returns(IFO ifo) {
@@ -107,7 +107,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
-        ifo = IFO(ifoFactory.getIFO(address(fnftCollection)));
+        ifo = IFO(ifoFactory.ifos(address(fnftCollection)));
     }
 
     function createValidAllowWhitelistIFO() private returns(IFO ifo) {
@@ -121,7 +121,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             true // allow whitelist
         );
-        ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        ifo = IFO(ifoFactory.ifos(address(fnftSingle)));
     }
 
     function createValidIFOWith3EthCap() private returns(IFO ifo) {
@@ -136,7 +136,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
-        ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        ifo = IFO(ifoFactory.ifos(address(fnftSingle)));
     }
 
     function testPause() public {
@@ -339,7 +339,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
-        IFO ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        IFO ifo = IFO(ifoFactory.ifos(address(fnftSingle)));
 
         vm.stopPrank();
 
@@ -371,7 +371,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             false // allow whitelist
         );
-        IFO ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        IFO ifo = IFO(ifoFactory.ifos(address(fnftSingle)));
 
         vm.expectRevert(IIFO.NotGov.selector);
         ifo.updateFNFTAddress(address(user1));
@@ -798,7 +798,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             0, //sale duration
             false // allow whitelist
         );
-        IFO ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        IFO ifo = IFO(ifoFactory.ifos(address(fnftSingle)));
 
         ifoFactory.setFeeReceiver(payable(address(user1)));
 
@@ -1172,7 +1172,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             true // allow whitelist
         );
-        IFO ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        IFO ifo = IFO(ifoFactory.ifos(address(fnftSingle)));
 
         ifo.start();
 
@@ -1192,7 +1192,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             ifoFactory.minimumDuration(), //sale duration
             true // allow whitelist
         );
-        IFO ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        IFO ifo = IFO(ifoFactory.ifos(address(fnftSingle)));
         ifo.addWhitelist(address(this));
 
         ifo.start();

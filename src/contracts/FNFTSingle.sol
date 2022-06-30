@@ -519,7 +519,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     }
 
     function _getQuorum() internal view returns (uint256) {
-        IIFO ifo = IIFO(IIFOFactory(vaultManager.ifoFactory()).getIFO(address(this)));
+        IIFO ifo = IIFO(IIFOFactory(vaultManager.ifoFactory()).ifos(address(this)));
         if (address(ifo) != address(0) && ifo.ended() && ifo.fnftLocked()) {
             return votingTokens * 10000 / (totalSupply() - ifo.lockedSupply());
         } else {

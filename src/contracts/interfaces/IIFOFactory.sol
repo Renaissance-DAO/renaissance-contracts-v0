@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 interface IIFOFactory {
-    function getIFO(address) external view returns (address);
+    function ifos(address) external view returns (address);
 
     function minimumDuration() external view returns (uint256);
 

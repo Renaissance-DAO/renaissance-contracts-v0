@@ -15,7 +15,7 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
     uint256 public constant MAX_GOV_FEE = 1000;
 
     /// @notice the mapping of FNFT to IFO address
-    mapping(address => address) public override getIFO;
+    mapping(address => address) public override ifos;
 
     address public override creatorUtilityContract;
     /// @notice the address who receives ifo fees
@@ -65,7 +65,7 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
         );
 
         address _ifo = address(new BeaconProxy(address(this), _initializationCalldata));
-        getIFO[_fnft] = _ifo;
+        ifos[_fnft] = _ifo;
 
         IERC20(_fnft).transferFrom(msg.sender, _ifo, IERC20(_fnft).balanceOf(msg.sender));
 

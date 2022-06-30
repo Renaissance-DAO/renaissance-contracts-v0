@@ -568,7 +568,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
             false // allow whitelist
         );
 
-        IFO ifo = IFO(ifoFactory.getIFO(address(fnftSingle)));
+        IFO ifo = IFO(ifoFactory.ifos(address(fnftSingle)));
         ifoFactory.setCreatorIFOLock(true);
 
         ifo.start();
