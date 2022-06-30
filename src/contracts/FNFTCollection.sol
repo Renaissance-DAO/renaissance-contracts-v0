@@ -34,7 +34,7 @@ contract FNFTCollection is
 {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.UintSet;
 
-    uint256 public constant BASE = 10**18;
+    uint256 constant BASE = 10**18;
 
     mapping(uint256 => uint256) public override quantity1155;
     EnumerableSetUpgradeable.UintSet internal holdings;
