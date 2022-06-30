@@ -1,7 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./IFNFTSingle.sol";
+import "./IFNFT.sol";
 import "./IIFOFactory.sol";
 
 interface IIFO {
@@ -14,7 +14,7 @@ interface IIFO {
 
     function factory() external view returns (IIFOFactory);
 
-    function fnft() external view returns (IFNFTSingle);
+    function fnft() external view returns (IFNFT);
 
     function amountForSale() external view returns (uint256);
 

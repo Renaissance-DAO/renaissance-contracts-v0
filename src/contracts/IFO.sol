@@ -4,8 +4,8 @@ pragma solidity 0.8.13;
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 
+import "./interfaces/IFNFT.sol";
 import "./interfaces/IFNFTSingle.sol";
 import "./interfaces/IIFO.sol";
 import "./interfaces/IIFOFactory.sol";
@@ -15,7 +15,7 @@ contract IFO is IIFO, Initializable {
     mapping(address => bool) public override whitelisted; // True if user is whitelisted
 
     IIFOFactory public override factory;
-    IFNFTSingle public override fnft; // FNFT the ifo contract sells
+    IFNFT public override fnft; // FNFT the ifo contract sells
     address public override curator;
 
     bool public override allowWhitelisting; // whether the ifo operates through WL
@@ -53,18 +53,16 @@ contract IFO is IIFO, Initializable {
         // set storage variables
         if (_curator == address(0)) revert ZeroAddress();
         if (_fnftAddress == address(0)) revert ZeroAddress();
-        IFNFTSingle _fnft = IFNFTSingle(_fnftAddress);
-        IERC20MetadataUpgradeable _fnftErc20 = IERC20MetadataUpgradeable(_fnftAddress);
-        uint256 curatorSupply = _fnftErc20.balanceOf(_curator);
-        uint256 totalSupply = _fnftErc20.totalSupply();
-        bool isSingle = IERC165(_fnftAddress).supportsInterface(type(IFNFTSingle).interfaceId);
+        IFNFT _fnft = IFNFT(_fnftAddress);
+        uint256 curatorSupply = _fnft.balanceOf(_curator);
+        uint256 totalSupply = _fnft.totalSupply();
         IIFOFactory _factory = IIFOFactory(msg.sender);
         // make sure curator holds 100% of the FNFT before IFO (May change if DAO takes fee on fractionalize)
-        if (isSingle) {
+        if (IERC165(_fnftAddress).supportsInterface(type(IFNFTSingle).interfaceId)) {
             // reject if MC of IFO greater than reserve price set by curator. Protects the initial investors
             //if the requested price of the tokens here is greater than the implied value of each token from the initial reserve, revert
             if (curatorSupply < totalSupply) revert NotEnoughSupply();
-            if (_price * totalSupply / (10 ** _fnftErc20.decimals()) > IFNFTSingle(_fnftAddress).initialReserve()) revert InvalidReservePrice();
+            if (_price * totalSupply / (10 ** _fnft.decimals()) > IFNFTSingle(_fnftAddress).initialReserve()) revert InvalidReservePrice();
         } else {
             //0.5 ether is the maximum (50%) mint fee for collection.
             if (totalSupply == 0 || curatorSupply < totalSupply / 2) revert NotEnoughSupply();
@@ -89,7 +87,7 @@ contract IFO is IIFO, Initializable {
         /// @notice approve FNFT usage by creator utility contract, to deploy LP pool or stake if IFOLock enabled
         address creatorUtilityContract = IIFOFactory(msg.sender).creatorUtilityContract();
         if (creatorUtilityContract != address(0)) {
-            _fnftErc20.approve(creatorUtilityContract, totalSupply);
+            _fnft.approve(creatorUtilityContract, totalSupply);
         }
     }
 
@@ -148,18 +146,17 @@ contract IFO is IIFO, Initializable {
     /// @notice withdraws FNFT from sale only after IFO. Can only withdraw after NFT redemption if IFOLock enabled
     function adminWithdrawFNFT() external override checkDeadline onlyCurator {
         if (!ended) revert SaleActive();
-        address fnftAddress = address(fnft);
-        if (IERC165(fnftAddress).supportsInterface(type(IFNFTSingle).interfaceId) &&
-            IFNFTSingle(fnftAddress).auctionState() != IFNFTSingle.State.Ended && _fnftLocked()) {
+        IFNFT _fnft = fnft;
+        if (IERC165(address(_fnft)).supportsInterface(type(IFNFTSingle).interfaceId) &&
+            IFNFTSingle(address(_fnft)).auctionState() != IFNFTSingle.State.Ended && _fnftLocked()) {
             revert FNFTLocked();
         }
 
-        IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(fnftAddress);
         uint256 balance = _fnft.balanceOf(address(this));
         lockedSupply -= balance;
         _fnft.transfer(msg.sender, balance);
 
-        emit AdminFNFTWithdrawn(fnftAddress, balance);
+        emit AdminFNFTWithdrawn(address(_fnft), balance);
     }
 
     /// @notice withdraws ETH from sale only after IFO over
@@ -178,7 +175,7 @@ contract IFO is IIFO, Initializable {
     function approve() external override onlyCurator {
         address creatorUtilityContract = factory.creatorUtilityContract();
         if (creatorUtilityContract == address(0)) revert ZeroAddress();
-        IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(address(fnft));
+        IFNFT _fnft = fnft;
         _fnft.approve(creatorUtilityContract, _fnft.totalSupply());
     }
 
@@ -192,10 +189,10 @@ contract IFO is IIFO, Initializable {
 
         UserInfo storage user = userInfo[msg.sender];
 
-        address fnftAddress = address(fnft);
+        IFNFT _fnft = fnft;
 
         // FNFT to mint for msg.value
-        uint256 payout = msg.value * (10 ** IERC20MetadataUpgradeable(fnftAddress).decimals()) / price;
+        uint256 payout = msg.value * (10 ** _fnft.decimals()) / price;
 
         if (user.amount + payout > cap) revert OverLimit();
 
@@ -212,14 +209,14 @@ contract IFO is IIFO, Initializable {
         totalRaised += msg.value;
         profitRaised += profit;
 
-        IERC20MetadataUpgradeable(fnftAddress).transfer(msg.sender, payout);
+        _fnft.transfer(msg.sender, payout);
         _safeTransferETH(govAddress, fee);
 
         emit FNFTSold(msg.sender, msg.value, payout);
     }
 
     function emergencyWithdrawFNFT() external override onlyGov {
-        IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(address(fnft));
+        IFNFT _fnft = fnft;
         uint256 balance = _fnft.balanceOf(address(this));
         lockedSupply = 0;
         _fnft.transfer(curator, balance);
@@ -237,7 +234,7 @@ contract IFO is IIFO, Initializable {
         if (ended) revert SaleAlreadyEnded();
 
         ended = true;
-        lockedSupply = IERC20MetadataUpgradeable(address(fnft)).balanceOf(address(this));
+        lockedSupply = fnft.balanceOf(address(this));
         emit SaleEnded();
     }
 
@@ -265,7 +262,7 @@ contract IFO is IIFO, Initializable {
     function start() external override onlyCurator {
         if (started) revert SaleAlreadyStarted();
         if (ended) revert SaleAlreadyEnded();
-        IERC20MetadataUpgradeable _fnft = IERC20MetadataUpgradeable(address(fnft));
+        IFNFT _fnft = fnft;
         if (_fnft.balanceOf(address(this)) < _fnft.totalSupply()) revert NotEnoughSupply();
 
         startBlock = block.number;
@@ -296,7 +293,7 @@ contract IFO is IIFO, Initializable {
     */
     function updateFNFTAddress(address _address) external override onlyGov {
         if (_address == address(0)) revert ZeroAddress();
-        fnft = IFNFTSingle(_address);
+        fnft = IFNFT(_address);
     }
 
     function _fnftLocked() internal view returns(bool) {
