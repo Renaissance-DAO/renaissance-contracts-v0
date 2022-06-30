@@ -15,9 +15,9 @@ interface IStakingZap {
 
     function inventoryStaking() external returns(IInventoryStaking);
 
-    function VAULT_MANAGER() external returns(IVaultManager);
+    function vaultManager() external returns(IVaultManager);
 
-    function ROUTER() external returns(IUniswapV2Router);
+    function router() external returns(IUniswapV2Router);
 
     function lpLockTime() external returns(uint256);
 
