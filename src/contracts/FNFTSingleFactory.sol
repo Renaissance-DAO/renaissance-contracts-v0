@@ -115,6 +115,7 @@ contract FNFTSingleFactory is
         if (_governanceFee > 1000) revert FeeTooHigh();
         if (_swapFee > 500) revert FeeTooHigh();
         if (_flashLoanFee > 500) revert FeeTooHigh();
+        if (_maxCuratorFee > 2000) revert FeeTooHigh();
 
         governanceFee = _governanceFee;
         maxCuratorFee = _maxCuratorFee;
@@ -142,6 +143,8 @@ contract FNFTSingleFactory is
 
         if (_minBidIncrease > 1000 || _minBidIncrease < 100) revert MinBidIncreaseOutOfBounds();
         if (_minVotePercentage > 10000) revert MinVotePercentageTooHigh();
+
+        if (_instantBuyMultiplier < 10) revert MultiplierTooLow();
 
         maxAuctionLength = _maxAuctionLength;
         minAuctionLength = _minAuctionLength;
