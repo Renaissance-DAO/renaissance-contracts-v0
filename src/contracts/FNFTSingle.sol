@@ -298,7 +298,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         _claimCuratorFees();
 
         curatorFee = _curatorFee;
-        emit CuratorFeeUpdated(curatorFee);
+        emit CuratorFeeUpdated(_curatorFee);
     }
 
     /// @notice a function for an end user to update their desired sale price
