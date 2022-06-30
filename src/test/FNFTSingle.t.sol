@@ -304,7 +304,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function testUpdateFee() public {
         fnftSingle.updateFee(250);
-        assertEq(fnftSingle.fee(), 250);
+        assertEq(fnftSingle.curatorFee(), 250);
     }
 
     function testUpdateFeeCanNotRaise() public {
@@ -317,7 +317,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         // gov fee is 1%
         // we should increase total supply by 6%
         vm.warp(block.timestamp + 31536000 seconds);
-        fnftSingle.claimFees();
+        fnftSingle.claimCuratorFees();
         assertTrue(fnftSingle.totalSupply() == 105999999999949936000);
     }
 

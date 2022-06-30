@@ -17,19 +17,30 @@ interface IFNFTCollectionFactory is IBeacon {
 
   // Read functions.
   function vaultManager() external view returns (IVaultManager);
+
   function eligibilityManager() external view returns (address);
+
   function isLocked(uint256 lockId) external view returns (bool);
+
   function factoryMintFee() external view returns (uint64);
+
   function factoryRandomRedeemFee() external view returns (uint64);
+
   function factoryTargetRedeemFee() external view returns (uint64);
+
   function factoryRandomSwapFee() external view returns (uint64);
+
   function factoryTargetSwapFee() external view returns (uint64);
+
   function swapFee() external view returns (uint256);
+
   function vaultFees(uint256 vaultId) external view returns (uint256, uint256, uint256, uint256, uint256);
+
   function flashLoanFee() external view returns (uint256);
 
   // Write functions.
   function __FNFTCollectionFactory_init(address _vaultManager) external;
+
   function createVault(
       string calldata _name,
       string calldata _symbol,
@@ -37,7 +48,9 @@ interface IFNFTCollectionFactory is IBeacon {
       bool is1155,
       bool allowAllItems
   ) external returns (address);
+
   function setEligibilityManager(address _eligibilityManager) external;
+
   function setSwapFee(uint256 _swapFee) external;
 
   function setFactoryFees(
@@ -47,6 +60,7 @@ interface IFNFTCollectionFactory is IBeacon {
     uint256 _factoryRandomSwapFee,
     uint256 _factoryTargetSwapFee
   ) external;
+
   function setVaultFees(
       uint256 vaultId,
       uint256 _mintFee,
@@ -55,7 +69,9 @@ interface IFNFTCollectionFactory is IBeacon {
       uint256 _randomSwapFee,
       uint256 _targetSwapFee
   ) external;
+
   function disableVaultFees(uint256 vaultId) external;
+
   function setFlashLoanFee(uint256 _flashLoanFee) external;
 
   event FeeDistributorUpdated(address oldFeeDistributor, address newFeeDistributor);

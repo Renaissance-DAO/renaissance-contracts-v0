@@ -53,7 +53,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     uint256 public override auctionLength;
 
     /// @notice the AUM fee paid to the curator yearly. 3 decimals. ie. 100 = 10%
-    uint256 public override fee;
+    uint256 public override curatorFee;
 
     /// @notice the ERC721 token id of the nft's token
     uint256 public override tokenId;
@@ -83,7 +83,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         uint256 _tokenId,
         uint256 _supply,
         uint256 _listPrice,
-        uint256 _fee
+        uint256 _curatorFee
     ) external override initializer {
         if (_curator == address(0)) revert ZeroAddress();
         if (_token == address(0)) revert ZeroAddress();
@@ -95,7 +95,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         IFNFTSingleFactory _factory = IFNFTSingleFactory(msg.sender);
         IVaultManager _vaultManager = IVaultManager(_factory.vaultManager());
 
-        if (_fee > _factory.maxCuratorFee()) revert FeeTooHigh();
+        if (_curatorFee > _factory.maxCuratorFee()) revert FeeTooHigh();
 
         // set storage variables
         factory = address(_factory);
@@ -105,7 +105,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         tokenId = _tokenId;
         auctionLength = 3 days;
         curator = _curator;
-        fee = _fee;
+        curatorFee = _curatorFee;
         lastClaimed = block.timestamp;
         userReservePrice[_curator] = _listPrice;
         initialReserve = _listPrice;
@@ -158,8 +158,8 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     }
 
     /// @notice external function to claim fees for the curator and governance
-    function claimFees() external override {
-        _claimFees();
+    function claimCuratorFees() external override {
+        _claimCuratorFees();
     }
 
     function buyItNow() external payable override {
@@ -168,7 +168,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         if (price == 0) revert PriceTooLow();
         if (msg.value < price) revert NotEnoughETH();
 
-        _claimFees();
+        _claimCuratorFees();
 
         // deposit weth
         IWETH(vaultManager.WETH()).deposit{value: msg.value}();
@@ -186,7 +186,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         if (auctionState != State.Live) revert AuctionNotLive();
         if (block.timestamp < auctionEnd) revert AuctionNotEnded();
 
-        _claimFees();
+        _claimCuratorFees();
 
         // transfer erc721 to winner
         IERC721(token).transferFrom(address(this), winning, tokenId);
@@ -290,15 +290,15 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     }
 
     /// @notice allow the curator to change their fee
-    /// @param _fee the new fee
-    function updateFee(uint256 _fee) external override onlyCurator {
-        if (_fee >= fee) revert CanNotRaise();
-        if (_fee > IFNFTSingleFactory(factory).maxCuratorFee()) revert FeeTooHigh();
+    /// @param _curatorFee the new fee
+    function updateFee(uint256 _curatorFee) external override onlyCurator {
+        if (_curatorFee >= curatorFee) revert CanNotRaise();
+        if (_curatorFee > IFNFTSingleFactory(factory).maxCuratorFee()) revert FeeTooHigh();
 
-        _claimFees();
+        _claimCuratorFees();
 
-        fee = _fee;
-        emit CuratorFeeUpdated(fee);
+        curatorFee = _curatorFee;
+        emit CuratorFeeUpdated(curatorFee);
     }
 
     /// @notice a function for an end user to update their desired sale price
@@ -452,11 +452,11 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     }
 
     /// @dev interal fuction to calculate and mint fees
-    function _claimFees() internal {
+    function _claimCuratorFees() internal {
         if (auctionState == State.Ended) revert AuctionEnded();
 
         // get how much in fees the curator would make in a year
-        uint256 currentAnnualFee = (fee * totalSupply()) / 10000;
+        uint256 currentAnnualFee = (curatorFee * totalSupply()) / 10000;
         // get how much that is per second;
         uint256 feePerSecond = currentAnnualFee / 31536000;
         // get how many seconds they are eligible to claim
@@ -475,11 +475,11 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
         if (curator != address(0)) {
             _mint(curator, curatorMint);
-            emit FeeClaimed(curatorMint);
+            emit CuratorFeeClaimed(curatorMint);
         }
         if (govAddress != address(0)) {
             _mint(govAddress, govMint);
-            emit FeeClaimed(govMint);
+            emit CuratorFeeClaimed(govMint);
         }
     }
 

@@ -286,7 +286,7 @@ contract FNFTCollection is
     function setCurator(address _curator) public override virtual {
         _onlyPrivileged();
         curator = _curator;
-        emit CuratorSet(_curator);
+        emit CuratorUpdated(_curator);
     }
 
     function setVaultFeatures(

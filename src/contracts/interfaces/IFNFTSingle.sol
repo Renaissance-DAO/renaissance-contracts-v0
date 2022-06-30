@@ -43,7 +43,7 @@ interface IFNFTSingle  is IERC20Upgradeable {
 
     function curator() external returns (address);
 
-    function fee() external returns (uint256);
+    function curatorFee() external returns (uint256);
 
     function lastClaimed() external returns (uint256);
 
@@ -61,7 +61,7 @@ interface IFNFTSingle  is IERC20Upgradeable {
         uint256 _id,
         uint256 _supply,
         uint256 _listPrice,
-        uint256 _fee
+        uint256 _curatorFee
     ) external;
 
     function reservePrice() external view returns (uint256);
@@ -78,7 +78,7 @@ interface IFNFTSingle  is IERC20Upgradeable {
 
     function updateFee(uint256 _fee) external;
 
-    function claimFees() external;
+    function claimCuratorFees() external;
 
     function getAuctionPrice() external view returns (uint256);
 
@@ -127,8 +127,8 @@ interface IFNFTSingle  is IERC20Upgradeable {
     /// @notice An event emitted when someone cashes in ERC20 tokens for ETH from an ERC721 token sale
     event CashWithdrawn(address indexed owner, uint256 shares);
     event AuctionLengthUpdated(uint256 length);
-    event CuratorFeeUpdated(uint256 fee);
-    event FeeClaimed(uint256 fee);
+    event CuratorFeeUpdated(uint256 curatorFee);
+    event CuratorFeeClaimed(uint256 curatorFee);
     event Verified(bool verified);
     event CuratorKicked(address indexed oldCurator, address indexed newCurator);
     event CuratorUpdated(address indexed oldCurator, address indexed newCurator);
