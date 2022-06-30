@@ -107,7 +107,7 @@ contract FNFTCollectionFactory is
         uint256 _factoryTargetRedeemFee,
         uint256 _factoryRandomSwapFee,
         uint256 _factoryTargetSwapFee
-    ) public onlyOwner virtual override {
+    ) public virtual override onlyOwner {
         if (_factoryMintFee > 0.5 ether) revert FeeTooHigh();
         if (_factoryRandomRedeemFee > 0.5 ether) revert FeeTooHigh();
         if (_factoryTargetRedeemFee > 0.5 ether) revert FeeTooHigh();

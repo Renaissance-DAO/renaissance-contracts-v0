@@ -33,86 +33,86 @@ contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
     }
 
     function testSetMaxAuction() public {
-        fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Max, 4 weeks);
+        fnftSingleFactory.setFactoryThresholds(4 weeks, 3 days, 2000, 50000, 500, 2500, 15e18);
         assertEq(fnftSingleFactory.maxAuctionLength(), 4 weeks);
     }
 
     function testSetMaxAuctionLengthTooHigh() public {
         vm.expectRevert(IFNFTSingleFactory.MaxAuctionLengthOutOfBounds.selector);
-        fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Max, 10 weeks);
+        fnftSingleFactory.setFactoryThresholds(10 weeks, 3 days, 2000, 50000, 500, 2500, 15e18);
     }
 
     function testSetMaxAuctionLengthTooLow() public {
         vm.expectRevert(IFNFTSingleFactory.MaxAuctionLengthOutOfBounds.selector);
-        fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Max, 2.9 days);
+        fnftSingleFactory.setFactoryThresholds(2.9 days, 3 days, 2000, 50000, 500, 2500, 15e18);
     }
 
     function testSetMinAuction() public {
-        fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Min, 1 weeks);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 1 weeks, 2000, 50000, 500, 2500, 15e18);
     }
 
     function testSetMinAuctionLengthTooLow() public {
         vm.expectRevert(IFNFTSingleFactory.MinAuctionLengthOutOfBounds.selector);
-        fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Min, 0.1 days);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 0.1 days, 2000, 50000, 500, 2500, 15e18);
     }
 
     function testSetMinAuctionLengthTooHigh() public {
         vm.expectRevert(IFNFTSingleFactory.MinAuctionLengthOutOfBounds.selector);
-        fnftSingleFactory.setAuctionLength(IFNFTSingleFactory.Boundary.Min, 5 weeks);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 5 weeks, 2000, 50000, 500, 2500, 15e18);
     }
 
-    function testSetGovernanceFee() public {
-        fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.GovernanceFee, 1000);
+    function testSetFactoryFees() public {
+        fnftSingleFactory.setFactoryFees(1000, 1000, 500, 500);
     }
 
     // too high
     function testSetGovernanceFeeTooHigh() public {
         vm.expectRevert(IFNFTSingleFactory.FeeTooHigh.selector);
-        fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.GovernanceFee, 1001);
+        fnftSingleFactory.setFactoryFees(1001, 1000, 500, 500);
     }
 
     function testSetMinBidIncrease() public {
-        fnftSingleFactory.setMinBidIncrease(750);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 3 days, 2000, 50000, 750, 2500, 15e18);
     }
 
     // too high
     function testSetMinBidIncreaseTooHigh() public {
         vm.expectRevert(IFNFTSingleFactory.MinBidIncreaseOutOfBounds.selector);
-        fnftSingleFactory.setMinBidIncrease(1100);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 3 days, 2000, 50000, 1100, 2500, 15e18);
     }
 
     // too low
     function testSetMinBidIncreaseTooLow() public {
         vm.expectRevert(IFNFTSingleFactory.MinBidIncreaseOutOfBounds.selector);
-        fnftSingleFactory.setMinBidIncrease(50);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 3 days, 2000, 50000, 50, 2500, 15e18);
     }
 
     function testSetMaxReserveFactor() public {
-        fnftSingleFactory.setReserveFactor(IFNFTSingleFactory.Boundary.Max, 100000);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 3 days, 2000, 100000, 500, 2500, 15e18);
     }
 
     function testSetMaxReserveFactorTooLow() public {
         vm.expectRevert(IFNFTSingleFactory.MaxReserveFactorTooLow.selector);
-        fnftSingleFactory.setReserveFactor(IFNFTSingleFactory.Boundary.Max, 2000);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 3 days, 2000, 2000, 500, 2500, 15e18);
     }
 
     function testSetMinReserveFactor() public {
-        fnftSingleFactory.setReserveFactor(IFNFTSingleFactory.Boundary.Min, 4000);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 3 days, 4000, 50000, 500, 2500, 15e18);
     }
 
     function testSetMaxReserveFactorTooHigh() public {
         vm.expectRevert(IFNFTSingleFactory.MinReserveFactorTooHigh.selector);
-        fnftSingleFactory.setReserveFactor(IFNFTSingleFactory.Boundary.Min, 60000);
+        fnftSingleFactory.setFactoryThresholds(2 weeks, 3 days, 60000, 50000, 500, 2500, 15e18);
     }
 
     function testSetFlashLoanFeeTooHigh() public {
         vm.expectRevert(IFNFTSingleFactory.FeeTooHigh.selector);
-        fnftSingleFactory.setFlashLoanFee(501);
+        fnftSingleFactory.setFactoryFees(1000, 1000, 501, 500);
     }
 
-    function testSetFlashLoanFeeNotOwner() public {
+    function testSetFactoryFeesNotOwner() public {
         vm.expectRevert("Ownable: caller is not the owner");
         vm.prank(address(1));
-        fnftSingleFactory.setFlashLoanFee(499);
+        fnftSingleFactory.setFactoryFees(1000, 1000, 500, 500);
     }
 }

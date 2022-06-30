@@ -47,7 +47,8 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
             fnftCollectionFactory,
         ) = setupContracts();
 
-        fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.GovernanceFee, 0);
+        //set governance fee to 0
+        fnftSingleFactory.setFactoryFees(0, 1000, 0, 0);
 
         nft = new MockNFT();
 

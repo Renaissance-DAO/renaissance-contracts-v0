@@ -379,7 +379,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         return votingTokens == 0 ? 0 : reserveTotal / votingTokens;
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(IERC165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public pure override(IERC165) returns (bool) {
         return interfaceId == type(IFNFTSingle).interfaceId ||
                 interfaceId == type(IERC165).interfaceId;
     }

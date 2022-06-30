@@ -51,7 +51,8 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
             fnftSingleFactory,
             ,
         ) = setupContracts();
-        fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.GovernanceFee, 100);
+        //set governance fee to 100
+        fnftSingleFactory.setFactoryFees(100, 1000, 0, 0);
         token = new MockNFT();
         token.mint(address(this), 1);
         token.setApprovalForAll(address(fnftSingleFactory), true);
@@ -494,7 +495,8 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     function testAuctionEndCurator0() public {
         fnftSingle.updateFee(0);
         fnftSingle.updateCurator(address(0));
-        fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.GovernanceFee, 0);
+        //set governance fee to 0
+        fnftSingleFactory.setFactoryFees(0, 1000, 0, 0);
         fnftSingle.transfer(address(user1), 25e18);
         user1.call_updatePrice(1 ether);
         fnftSingle.transfer(address(user2), 25e18);
@@ -652,7 +654,8 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testSwapFee() public {
-        fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.SwapFee, 100);
+        //set swap fee to 100
+        fnftSingleFactory.setFactoryFees(100, 1000, 0, 100);
 
         uint originalBalance = fnftSingle.balanceOf(address(this));
         uint transferAmount = 1 ether;
@@ -668,7 +671,8 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testExcludeSwapFeeFromFeeExclusion() public {
-        fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.SwapFee, 100);
+        //set swap fee to 100
+        fnftSingleFactory.setFactoryFees(100, 1000, 0, 100);
         vaultManager.setFeeExclusion(address(this), true);
         assertTrue(vaultManager.excludedFromFees(address(this)));
 
@@ -685,7 +689,8 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testExcludeSwapFeeForNormalTransfers() public {
-        fnftSingleFactory.setFee(IFNFTSingleFactory.FeeType.SwapFee, 100);
+        //set swap fee to 100
+        fnftSingleFactory.setFactoryFees(100, 1000, 0, 100);
 
         uint originalBalance = fnftSingle.balanceOf(address(this));
         uint transferAmount = 1 ether;

@@ -48,26 +48,39 @@ interface IFNFTSingleFactory {
 
     function flashLoanFee() external view returns (uint256);
 
-    function setAuctionLength(Boundary boundary, uint256 _auctionLength) external;
+    function setFactoryFees(
+        uint256 _governanceFee,
+        uint256 _maxCuratorFee,
+        uint256 _flashLoanFee,
+        uint256 _swapFee
+    ) external;
 
-    function setFee(FeeType feeType, uint256 _fee) external;
-
-    function setMinBidIncrease(uint256 _minBidIncrease) external;
-
-    function setMinVotePercentage(uint256 _minVotePercentage) external;
-
-    function setReserveFactor(Boundary boundary, uint256 _reserveFactor) external;
-
-    function setLiquidityThreshold(uint256 _liquidityThreshold) external;
+    function setFactoryThresholds(
+        uint256 _maxAuctionLength,
+        uint256 _minAuctionLength,
+        uint256 _minReserveFactor,
+        uint256 _maxReserveFactor,
+        uint256 _minBidIncrease,
+        uint256 _minVotePercentage,
+        uint256 _liquidityThreshold
+    ) external;
 
     function setInstantBuyMultiplier(uint256 _instantBuyMultiplier) external;
-
-    function setFlashLoanFee(uint256 fee) external;
 
     event MaxAuctionLengthUpdated(uint256 oldMaxAuctionLength, uint256 newMaxAuctionLength);
     event MinAuctionLengthUpdated(uint256 oldMinAuctionLength, uint256 newMinAuctionLength);
     event GovernanceFeeUpdated(uint256 oldGovernanceFee, uint256 newGovernanceFee);
     event CuratorFeeUpdated(uint256 oldCuratorFee, uint256 newCuratorFee);
+    event FactoryFeesUpdated(uint256 governanceFee, uint256 maxCuratorFee, uint256 flashLoanFee, uint256 swapFee);
+    event FactoryThresholdsUpdated(
+        uint256 maxAuctionLength,
+        uint256 minAuctionLength,
+        uint256 minReserveFactor,
+        uint256 maxReserveFactor,
+        uint256 minBidIncrease,
+        uint256 minVotePercentage,
+        uint256 liquidityThreshold
+    );
     event SwapFeeUpdated(uint256 oldSwapFee, uint256 newSwapFee);
     event MinBidIncreaseUpdated(uint256 oldMinBidIncrease, uint256 newMinBidIncrease);
     event MinVotePercentageUpdated(uint256 oldMinVotePercentage, uint256 newMinVotePercentage);
