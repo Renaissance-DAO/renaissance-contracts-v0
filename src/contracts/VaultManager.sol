@@ -47,9 +47,9 @@ contract VaultManager is
     }
 
     function addVault(address _fnft) external override returns (uint256 vaultId) {
-        if (_fnft == address(0)) revert ZeroAddressDisallowed();
+        if (_fnft == address(0)) revert ZeroAddress();
         address _feeDistributor = feeDistributor;
-        if (_feeDistributor == address(0)) revert ZeroAddressDisallowed();
+        if (_feeDistributor == address(0)) revert ZeroAddress();
         if (msg.sender != fnftCollectionFactory && msg.sender != fnftSingleFactory) revert OnlyFactory();
         vaultId = vaults.length;
         vaults.push(_fnft);
@@ -62,25 +62,25 @@ contract VaultManager is
     }
 
     function setFeeDistributor(address _feeDistributor) public override onlyOwner {
-        if (_feeDistributor == address(0)) revert ZeroAddressDisallowed();
+        if (_feeDistributor == address(0)) revert ZeroAddress();
         emit FeeDistributorUpdated(feeDistributor, _feeDistributor);
         feeDistributor = _feeDistributor;
     }
 
     function setFeeReceiver(address payable _feeReceiver) external override onlyOwner {
-        if (_feeReceiver == address(0)) revert ZeroAddressDisallowed();
+        if (_feeReceiver == address(0)) revert ZeroAddress();
         emit FeeReceiverUpdated(feeReceiver, _feeReceiver);
         feeReceiver = _feeReceiver;
     }
 
     function setFNFTCollectionFactory(address _fnftCollectionFactory) external override onlyOwner {
-        if (_fnftCollectionFactory == address(0)) revert ZeroAddressDisallowed();
+        if (_fnftCollectionFactory == address(0)) revert ZeroAddress();
         emit FNFTCollectionFactoryUpdated(fnftCollectionFactory, _fnftCollectionFactory);
         fnftCollectionFactory = _fnftCollectionFactory;
     }
 
     function setFNFTSingleFactory(address _fnftSingleFactory) external override onlyOwner {
-        if (_fnftSingleFactory == address(0)) revert ZeroAddressDisallowed();
+        if (_fnftSingleFactory == address(0)) revert ZeroAddress();
         emit FNFTSingleFactoryUpdated(fnftSingleFactory, _fnftSingleFactory);
         fnftSingleFactory = _fnftSingleFactory;
     }
@@ -91,7 +91,7 @@ contract VaultManager is
     }
 
     function setZapContract(address _zapContract) external override onlyOwner {
-        if (_zapContract == address(0)) revert ZeroAddressDisallowed();
+        if (_zapContract == address(0)) revert ZeroAddress();
         emit ZapContractUpdated(zapContract, _zapContract);
         zapContract = _zapContract;
     }

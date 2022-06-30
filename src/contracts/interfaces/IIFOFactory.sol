@@ -62,5 +62,5 @@ interface IIFOFactory {
     error FeeTooHigh();
     error IFOExists(address nft);
     error InvalidDuration();
-    error ZeroAddressDisallowed();
+    error ZeroAddress();
 }

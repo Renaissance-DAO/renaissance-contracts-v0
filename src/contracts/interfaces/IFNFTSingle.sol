@@ -150,6 +150,6 @@ interface IFNFTSingle  is IERC20Upgradeable {
     error PriceTooHigh();
     error PriceTooLow();
     error SameCurator();
-    error WrongToken();
+    error InvalidToken();
     error ZeroAddress();
 }

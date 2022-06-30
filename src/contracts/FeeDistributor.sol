@@ -77,7 +77,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   }
 
   function initializeVaultReceivers(uint256 _vaultId) external override {
-    if (msg.sender != address(vaultManager)) revert CallerIsNotVaultManager();
+    if (msg.sender != address(vaultManager)) revert NotVaultManager();
     lpStaking.addPoolForVault(_vaultId);
     IInventoryStaking _inventoryStaking = inventoryStaking;
     if (address(_inventoryStaking) != address(0))

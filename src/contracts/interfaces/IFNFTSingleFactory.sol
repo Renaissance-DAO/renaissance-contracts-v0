@@ -95,5 +95,5 @@ interface IFNFTSingleFactory {
     error MaxReserveFactorTooLow();
     error MinVotePercentageTooHigh();
     error MultiplierTooLow();
-    error ZeroAddressDisallowed();
+    error ZeroAddress();
 }

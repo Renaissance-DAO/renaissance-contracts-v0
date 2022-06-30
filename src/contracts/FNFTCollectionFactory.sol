@@ -95,7 +95,7 @@ contract FNFTCollectionFactory is
     function disableVaultFees(uint256 vaultId) public virtual override {
         if (msg.sender != owner()) {
             address vaultAddr = vaultManager.vault(vaultId);
-            if (msg.sender != vaultAddr) revert CallerIsNotVault();
+            if (msg.sender != vaultAddr) revert NotVault();
         }
         delete _vaultFees[vaultId];
         emit VaultFeesDisabled(vaultId);
@@ -133,7 +133,7 @@ contract FNFTCollectionFactory is
     ) public virtual override {
         if (msg.sender != owner()) {
             address vaultAddr = vaultManager.vault(vaultId);
-            if (msg.sender != vaultAddr) revert CallerIsNotVault();
+            if (msg.sender != vaultAddr) revert NotVault();
         }
         if (_mintFee > 0.5 ether) revert FeeTooHigh();
         if (_randomRedeemFee > 0.5 ether) revert FeeTooHigh();

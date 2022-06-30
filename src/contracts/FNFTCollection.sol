@@ -191,7 +191,7 @@ contract FNFTCollection is
         IERC3156FlashLenderUpgradeable,
         IFNFTCollection
     ) returns (uint256) {
-        if (borrowedToken != address(this)) revert WrongToken();
+        if (borrowedToken != address(this)) revert InvalidToken();
         return factory.flashLoanFee() * amount / 10000;
     }
 
