@@ -79,8 +79,8 @@ contract IFOFactoryTest is DSTest, SetupEnvironment {
         assertEq(ifoFactory.feeReceiver(), payable(address(1)));
     }
 
-    function testSetFeeReceiverZeroAddressDisallowed() public {
-        vm.expectRevert(IIFOFactory.ZeroAddressDisallowed.selector);
+    function testSetFeeReceiverZeroAddress() public {
+        vm.expectRevert(IIFOFactory.ZeroAddress.selector);
         ifoFactory.setFeeReceiver(payable(address(0)));
     }
 }

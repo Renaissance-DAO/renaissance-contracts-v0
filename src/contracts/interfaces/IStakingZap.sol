@@ -95,20 +95,20 @@ interface IStakingZap {
 
     function rescue(address token) external;
 
+    event UserStaked(uint256 vaultId, uint256 count, uint256 lpBalance, uint256 timelockUntil, address sender);
+    event InventoryLockTimeUpdated(uint256 oldLockTime, uint256 newLockTime);
+    event LPLockTimeUpdated(uint256 oldLockTime, uint256 newLockTime);
+
     error CallFailed();
     error CallFailedWithMessage(string message);
     error IdenticalAddress();
-    error IncorrectAmount();
+    error InvalidAmount();
     error InvalidDestination();
     error LockTooLong();
     error NotEqualLength();
     error NotExcluded();
     error NotOwner();
-    error NotZero();
+    error NotZeroAddress();
     error OnlyWETH();
     error ZeroAddress();
-
-    event UserStaked(uint256 vaultId, uint256 count, uint256 lpBalance, uint256 timelockUntil, address sender);
-    event InventoryLockTimeUpdated(uint256 oldLockTime, uint256 newLockTime);
-    event LPLockTimeUpdated(uint256 oldLockTime, uint256 newLockTime);
 }

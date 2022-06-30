@@ -69,7 +69,7 @@ interface IFNFTCollectionFactory is IBeacon {
   event FlashLoanFeeUpdated(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
   event SwapFeeUpdated(uint256 oldSwapFee, uint256 newSwapFee);
 
-  error CallerIsNotVault();
+  error NotVault();
   error FeeTooHigh();
   error ZeroAddress();
 }

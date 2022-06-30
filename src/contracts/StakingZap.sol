@@ -88,7 +88,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     nft.setApprovalForAll(address(vault), true);
     vault.mintTo(tokenIds, amounts, address(xToken));
     uint256 newBal = IERC20Upgradeable(vault).balanceOf(address(xToken));
-    if (newBal != oldBal + count*BASE) revert IncorrectAmount();
+    if (newBal != oldBal + count*BASE) revert InvalidAmount();
   }
 
   function provideInventory721(uint256 vaultId, uint256[] calldata tokenIds) external override {
@@ -109,7 +109,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
     }
     vault.mintTo(tokenIds, amounts, address(xToken));
     uint256 newBal = IERC20Upgradeable(vault).balanceOf(xToken);
-    if (newBal != oldBal + count*BASE) revert IncorrectAmount();
+    if (newBal != oldBal + count*BASE) revert InvalidAmount();
   }
 
   function rescue(address token) external override onlyOwner {
@@ -233,7 +233,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
   }
 
   function assignStakingContracts() public override {
-    if (address(lpStaking) != address(0) && address(inventoryStaking) != address(0)) revert NotZero();
+    if (address(lpStaking) != address(0) && address(inventoryStaking) != address(0)) revert NotZeroAddress();
     IFeeDistributor feeDistributor = IFeeDistributor(IVaultManager(VAULT_MANAGER).feeDistributor());
     lpStaking = ILPStaking(feeDistributor.lpStaking());
     inventoryStaking = IInventoryStaking(feeDistributor.inventoryStaking());

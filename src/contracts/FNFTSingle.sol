@@ -358,7 +358,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         IERC3156FlashLenderUpgradeable,
         IFNFTSingle
     ) returns (uint256) {
-        if (borrowedToken != address(this)) revert WrongToken();
+        if (borrowedToken != address(this)) revert InvalidToken();
         return IFNFTSingleFactory(factory).flashLoanFee() * amount / 10000;
     }
 

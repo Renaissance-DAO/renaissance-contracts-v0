@@ -47,5 +47,5 @@ interface IVaultManager {
     error MinVotePercentageTooHigh();
     error MultiplierTooLow();
     error OnlyFactory();
-    error ZeroAddressDisallowed();
+    error ZeroAddress();
 }

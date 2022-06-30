@@ -61,8 +61,7 @@ interface IFeeDistributor {
   event FeeReceiverAddressUpdated(address oldReceiver, address newReceiver);
   event FeeReceiverRemoved(address receiver);
 
-  error CallerIsNotVaultManager();
+  error NotVaultManager();
   error OutOfBounds();
-  error VaultManagerIsImmutable();
   error ZeroAddress();
 }

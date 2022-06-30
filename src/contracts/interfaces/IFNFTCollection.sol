@@ -192,7 +192,7 @@ interface IFNFTCollection is IERC20Upgradeable {
     error TargetRedeemDisabled();
     error TargetSwapDisabled();
     error TooManyNFTs();
-    error WrongToken();
+    error InvalidToken();
     error ZeroAddress();
     error ZeroTransferAmount();
 }

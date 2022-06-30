@@ -89,7 +89,7 @@ contract IFOFactory is IIFOFactory, OwnableUpgradeable, PausableUpgradeable, Bea
     }
 
     function setFeeReceiver(address payable _feeReceiver) external override onlyOwner {
-        if (_feeReceiver == address(0)) revert ZeroAddressDisallowed();
+        if (_feeReceiver == address(0)) revert ZeroAddress();
         emit FeeReceiverUpdated(feeReceiver, _feeReceiver);
         feeReceiver = _feeReceiver;
     }
