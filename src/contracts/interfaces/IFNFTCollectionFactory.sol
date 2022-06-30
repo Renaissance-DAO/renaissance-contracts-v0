@@ -80,8 +80,6 @@ interface IFNFTCollectionFactory is IBeacon {
   event VaultFeesUpdated(uint256 vaultId, uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
   event VaultFeesDisabled(uint256 vaultId);
   event FactoryFeesUpdated(uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee, uint256 flashLoanFee, uint256 swapFee);
-  event FlashLoanFeeUpdated(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
-  event SwapFeeUpdated(uint256 oldSwapFee, uint256 newSwapFee);
 
   error NotVault();
   error FeeTooHigh();
