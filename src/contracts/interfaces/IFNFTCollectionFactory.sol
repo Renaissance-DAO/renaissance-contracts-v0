@@ -51,14 +51,14 @@ interface IFNFTCollectionFactory is IBeacon {
 
   function setEligibilityManager(address _eligibilityManager) external;
 
-  function setSwapFee(uint256 _swapFee) external;
-
   function setFactoryFees(
     uint256 _factoryMintFee,
     uint256 _factoryRandomRedeemFee,
     uint256 _factoryTargetRedeemFee,
     uint256 _factoryRandomSwapFee,
-    uint256 _factoryTargetSwapFee
+    uint256 _factoryTargetSwapFee,
+    uint256 _flashLoanFee,
+    uint256 _swapFee
   ) external;
 
   function setVaultFees(
@@ -72,8 +72,6 @@ interface IFNFTCollectionFactory is IBeacon {
 
   function disableVaultFees(uint256 vaultId) external;
 
-  function setFlashLoanFee(uint256 _flashLoanFee) external;
-
   event FeeDistributorUpdated(address oldFeeDistributor, address newFeeDistributor);
   event FeeExclusionUpdated(address target, bool excluded);
   event PriceOracleUpdated(address oldPriceOracle, address newPriceOracle);
@@ -81,7 +79,7 @@ interface IFNFTCollectionFactory is IBeacon {
   event VaultCreated(uint256 indexed vaultId, address vaultAddress, address assetAddress);
   event VaultFeesUpdated(uint256 vaultId, uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
   event VaultFeesDisabled(uint256 vaultId);
-  event FactoryFeesUpdated(uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
+  event FactoryFeesUpdated(uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee, uint256 flashLoanFee, uint256 swapFee);
   event FlashLoanFeeUpdated(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
   event SwapFeeUpdated(uint256 oldSwapFee, uint256 newSwapFee);
 

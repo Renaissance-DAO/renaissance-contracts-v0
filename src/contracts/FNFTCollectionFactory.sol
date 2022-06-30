@@ -37,7 +37,7 @@ contract FNFTCollectionFactory is
         // We use a beacon proxy so that every child contract follows the same implementation code.
         __BeaconUpgradeable__init(address(new FNFTCollection()));
         vaultManager = IVaultManager(_vaultManager);
-        setFactoryFees(0.1 ether, 0.05 ether, 0.1 ether, 0.05 ether, 0.1 ether);
+        setFactoryFees(0.1 ether, 0.05 ether, 0.1 ether, 0.05 ether, 0.1 ether, 0, 0);
     }
 
     function createVault(
@@ -63,18 +63,6 @@ contract FNFTCollectionFactory is
     function setEligibilityManager(address _eligibilityManager) external onlyOwner virtual override {
         emit EligibilityManagerUpdated(eligibilityManager, _eligibilityManager);
         eligibilityManager = _eligibilityManager;
-    }
-
-    function setFlashLoanFee(uint256 _flashLoanFee) external virtual override onlyOwner {
-        if (_flashLoanFee > 500) revert FeeTooHigh();
-        emit FlashLoanFeeUpdated(flashLoanFee, _flashLoanFee);
-        flashLoanFee = _flashLoanFee;
-    }
-
-    function setSwapFee(uint256 _swapFee) external virtual override onlyOwner {
-        if (_swapFee > 500) revert FeeTooHigh();
-        emit SwapFeeUpdated(swapFee, _swapFee);
-        swapFee = _swapFee;
     }
 
     function vaultFees(uint256 vaultId) external view virtual override returns (uint256, uint256, uint256, uint256, uint256) {
@@ -106,21 +94,35 @@ contract FNFTCollectionFactory is
         uint256 _factoryRandomRedeemFee,
         uint256 _factoryTargetRedeemFee,
         uint256 _factoryRandomSwapFee,
-        uint256 _factoryTargetSwapFee
+        uint256 _factoryTargetSwapFee,
+        uint256 _flashLoanFee,
+        uint256 _swapFee
     ) public virtual override onlyOwner {
         if (_factoryMintFee > 0.5 ether) revert FeeTooHigh();
         if (_factoryRandomRedeemFee > 0.5 ether) revert FeeTooHigh();
         if (_factoryTargetRedeemFee > 0.5 ether) revert FeeTooHigh();
         if (_factoryRandomSwapFee > 0.5 ether) revert FeeTooHigh();
         if (_factoryTargetSwapFee > 0.5 ether) revert FeeTooHigh();
+        if (_flashLoanFee > 500) revert FeeTooHigh();
+        if (_swapFee > 500) revert FeeTooHigh();
 
         factoryMintFee = uint64(_factoryMintFee);
         factoryRandomRedeemFee = uint64(_factoryRandomRedeemFee);
         factoryTargetRedeemFee = uint64(_factoryTargetRedeemFee);
         factoryRandomSwapFee = uint64(_factoryRandomSwapFee);
         factoryTargetSwapFee = uint64(_factoryTargetSwapFee);
+        flashLoanFee = _flashLoanFee;
+        swapFee = _swapFee;
 
-        emit FactoryFeesUpdated(_factoryMintFee, _factoryRandomRedeemFee, _factoryTargetRedeemFee, _factoryRandomSwapFee, _factoryTargetSwapFee);
+        emit FactoryFeesUpdated(
+            _factoryMintFee,
+            _factoryRandomRedeemFee,
+            _factoryTargetRedeemFee,
+            _factoryRandomSwapFee,
+            _factoryTargetSwapFee,
+            _flashLoanFee,
+            _swapFee
+        );
     }
 
     function setVaultFees(
