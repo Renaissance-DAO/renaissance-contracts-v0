@@ -58,7 +58,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
     assertEq(vault.name(), "Doodles");
     assertEq(vault.symbol(), "DOODLE");
     assertEq(vault.assetAddress(), address(token));
-    assertEq(vault.manager(), address(this));
+    assertEq(vault.curator(), address(this));
     assertEq(vault.owner(), address(this));
     assertEq(vault.vaultId(), uint256(0));
     assertEq(address(vault.factory()), address(fnftCollectionFactory));

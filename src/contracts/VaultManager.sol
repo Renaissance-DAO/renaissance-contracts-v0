@@ -54,7 +54,7 @@ contract VaultManager is
         vaultId = vaults.length;
         vaults.push(_fnft);
         IFeeDistributor(_feeDistributor).initializeVaultReceivers(vaultId);
-        emit VaultSet(vaultId, _fnft);
+        emit VaultAdded(vaultId, _fnft);
     }
 
     function numVaults() external view override returns (uint) {

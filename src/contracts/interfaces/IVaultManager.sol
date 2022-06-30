@@ -34,7 +34,7 @@ interface IVaultManager {
     event ZapContractUpdated(address oldZapContract, address newZapContract);
     event FNFTCollectionFactoryUpdated(address oldFNFTCollectionFactory, address newFNFTCollectionFactory);
     event FNFTSingleFactoryUpdated(address oldFNFTSingleFactory, address newFNFTSingleFactory);
-    event VaultSet(uint256 vaultId, address vault);
+    event VaultAdded(uint256 vaultId, address vault);
     event FeeDistributorUpdated(address oldFeeDistributor, address newFeeDistributor);
     event FeeExclusionUpdated(address target, bool excluded);
 

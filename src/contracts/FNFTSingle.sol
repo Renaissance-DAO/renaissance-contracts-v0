@@ -55,8 +55,8 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     /// @notice the AUM fee paid to the curator yearly. 3 decimals. ie. 100 = 10%
     uint256 public override fee;
 
-    /// @notice the ERC721 token ID of the vault's token
-    uint256 public override id;
+    /// @notice the ERC721 token id of the nft's token
+    uint256 public override tokenId;
 
     /// @notice initial price of NFT set by curator on creation
     uint256 public override initialReserve;
@@ -80,7 +80,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         string memory _symbol,
         address _curator,
         address _token,
-        uint256 _id,
+        uint256 _tokenId,
         uint256 _supply,
         uint256 _listPrice,
         uint256 _fee
@@ -102,7 +102,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         vaultManager = _vaultManager;
         token = _token;
         vaultId = _vaultManager.numVaults();
-        id = _id;
+        tokenId = _tokenId;
         auctionLength = 3 days;
         curator = _curator;
         fee = _fee;
@@ -174,7 +174,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         IWETH(vaultManager.WETH()).deposit{value: msg.value}();
 
         // transfer erc721 to buyer
-        IERC721(token).transferFrom(address(this), msg.sender, id);
+        IERC721(token).transferFrom(address(this), msg.sender, tokenId);
 
         auctionState = State.Ended;
 
@@ -189,7 +189,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         _claimFees();
 
         // transfer erc721 to winner
-        IERC721(token).transferFrom(address(this), winning, id);
+        IERC721(token).transferFrom(address(this), winning, tokenId);
 
         auctionState = State.Ended;
 
@@ -218,7 +218,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         _burn(msg.sender, totalSupply());
 
         // transfer erc721 to redeemer
-        IERC721(token).transferFrom(address(this), msg.sender, id);
+        IERC721(token).transferFrom(address(this), msg.sender, tokenId);
 
         auctionState = State.Redeemed;
 

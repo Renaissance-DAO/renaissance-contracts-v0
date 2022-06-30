@@ -21,7 +21,7 @@ interface IFNFTSingle  is IERC20Upgradeable {
 
     function vaultId() external returns (uint256);
 
-    function id() external returns (uint256);
+    function tokenId() external returns (uint256);
 
     function auctionEnd() external returns (uint256);
 

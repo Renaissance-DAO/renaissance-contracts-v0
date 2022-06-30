@@ -42,7 +42,7 @@ contract FNFTCollection is
     IEligibility public override eligibilityStorage;
     IFNFTCollectionFactory public override factory;
     IVaultManager public override vaultManager;
-    address public override manager;
+    address public override curator;
     address public override pair;
 
     uint256 public override vaultId;
@@ -112,7 +112,7 @@ contract FNFTCollection is
     }
 
     function finalizeVault() external override virtual {
-        setManager(address(0));
+        setCurator(address(0));
     }
 
     function mint(
@@ -282,11 +282,11 @@ contract FNFTCollection is
         factory.setVaultFees(vaultId, _mintFee, _randomRedeemFee, _targetRedeemFee, _randomSwapFee, _targetSwapFee);
     }
 
-    // The manager has control over options like fees and features
-    function setManager(address _manager) public override virtual {
+    // The curator has control over options like fees and features
+    function setCurator(address _curator) public override virtual {
         _onlyPrivileged();
-        manager = _manager;
-        emit ManagerSet(_manager);
+        curator = _curator;
+        emit CuratorSet(_curator);
     }
 
     function setVaultFeatures(
@@ -482,10 +482,10 @@ contract FNFTCollection is
 
 
     function _onlyPrivileged() internal view {
-        if (manager == address(0)) {
+        if (curator == address(0)) {
             if (msg.sender != owner()) revert NotOwner();
         } else {
-            if (msg.sender != manager) revert NotManager();
+            if (msg.sender != curator) revert NotManager();
         }
     }
 

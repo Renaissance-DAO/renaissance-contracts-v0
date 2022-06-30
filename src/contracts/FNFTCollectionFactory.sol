@@ -170,8 +170,8 @@ contract FNFTCollectionFactory is
 
         address newBeaconProxy = address(new BeaconProxy(address(this), _initializationCalldata));
 
-        // Manager for configuration.
-        FNFTCollection(newBeaconProxy).setManager(msg.sender);
+        // Curator for configuration.
+        FNFTCollection(newBeaconProxy).setCurator(msg.sender);
         // Owner for administrative functions.
         FNFTCollection(newBeaconProxy).transferOwnership(owner());
         return newBeaconProxy;

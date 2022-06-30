@@ -7,8 +7,6 @@ import "./IUniswapV2Pair.sol";
 interface IFNFT {
     function vaultId() external returns (uint256);
 
-    function id() external returns (uint256);
-
     function pair() external returns (IUniswapV2Pair);
 
     function factory() external returns (address);

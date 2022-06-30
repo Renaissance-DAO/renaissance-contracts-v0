@@ -12,7 +12,7 @@ import "../token/ERC20Upgradeable.sol";
 interface IFNFTCollection is IERC20Upgradeable {
     function vaultManager() external view returns (IVaultManager);
 
-    function manager() external view returns (address);
+    function curator() external view returns (address);
 
     function pair() external view returns (address);
 
@@ -104,8 +104,8 @@ interface IFNFTCollection is IERC20Upgradeable {
         bytes calldata initData
     ) external returns (address);
 
-    // The manager has control over options like fees and features
-    function setManager(address _manager) external;
+    // The curator has control over options like fees and features
+    function setCurator(address _curator) external;
 
     function mint(
         uint256[] calldata tokenIds,
@@ -161,7 +161,7 @@ interface IFNFTCollection is IERC20Upgradeable {
         bool is1155,
         bool allowAllItems
     );
-    event ManagerSet(address manager);
+    event CuratorUpdated(address curator);
     event EligibilityDeployed(uint256 moduleIndex, address eligibilityAddr);
     event EnableMintUpdated(bool enabled);
     event EnableRandomRedeemUpdated(bool enabled);

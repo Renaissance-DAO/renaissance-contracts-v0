@@ -77,9 +77,9 @@ contract FNFTSingleFactory is
     /// @param _name the desired name of the vault
     /// @param _symbol the desired symbol of the vault
     /// @param _nft the ERC721 token address
-    /// @param _tokenId the uint256 ID of the token
+    /// @param _tokenId the uint256 id of the token
     /// @param _listPrice the initial price of the NFT
-    /// @return the ID of the vault
+    /// @return vaultId
     function createVault(
         string memory _name,
         string memory _symbol,
