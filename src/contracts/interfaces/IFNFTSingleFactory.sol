@@ -62,10 +62,9 @@ interface IFNFTSingleFactory {
         uint256 _maxReserveFactor,
         uint256 _minBidIncrease,
         uint256 _minVotePercentage,
-        uint256 _liquidityThreshold
+        uint256 _liquidityThreshold,
+        uint256 _instantBuyMultiplier
     ) external;
-
-    function setInstantBuyMultiplier(uint256 _instantBuyMultiplier) external;
 
     event MaxAuctionLengthUpdated(uint256 oldMaxAuctionLength, uint256 newMaxAuctionLength);
     event MinAuctionLengthUpdated(uint256 oldMinAuctionLength, uint256 newMinAuctionLength);
@@ -79,16 +78,9 @@ interface IFNFTSingleFactory {
         uint256 maxReserveFactor,
         uint256 minBidIncrease,
         uint256 minVotePercentage,
-        uint256 liquidityThreshold
+        uint256 liquidityThreshold,
+        uint256 instantBuyMultiplier
     );
-    event SwapFeeUpdated(uint256 oldSwapFee, uint256 newSwapFee);
-    event MinBidIncreaseUpdated(uint256 oldMinBidIncrease, uint256 newMinBidIncrease);
-    event MinVotePercentageUpdated(uint256 oldMinVotePercentage, uint256 newMinVotePercentage);
-    event MaxReserveFactorUpdated(uint256 oldMaxReserveFactor, uint256 newMaxReserveFactor);
-    event MinReserveFactorUpdated(uint256 oldMinReserveFactor, uint256 newMinReserveFactor);
-    event LiquidityThresholdUpdated(uint256 oldLiquidityThreshold, uint256 newLiquidityThreshold);
-    event InstantBuyMultiplierUpdated(uint256 oldInstantBuyMultiplier, uint256 newInstantBuyMultiplier);
-    event FlashLoanFeeUpdated(uint256 oldFlashLoanFee, uint256 newFlashLoanFee);
     event FeeExclusionUpdated(address target, bool excluded);
     event FNFTSingleCreated(
         address indexed token,

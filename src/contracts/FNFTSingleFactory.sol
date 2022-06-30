@@ -106,14 +106,6 @@ contract FNFTSingleFactory is
         return fnftSingle;
     }
 
-    function setInstantBuyMultiplier(uint256 _instantBuyMultiplier) external override onlyOwner {
-        if (_instantBuyMultiplier < 10) revert MultiplierTooLow();
-
-        emit InstantBuyMultiplierUpdated(instantBuyMultiplier, _instantBuyMultiplier);
-
-        instantBuyMultiplier = _instantBuyMultiplier;
-    }
-
     function setFactoryFees(
         uint256 _governanceFee,
         uint256 _maxCuratorFee,
@@ -139,7 +131,8 @@ contract FNFTSingleFactory is
         uint256 _maxReserveFactor,
         uint256 _minBidIncrease,
         uint256 _minVotePercentage,
-        uint256 _liquidityThreshold
+        uint256 _liquidityThreshold,
+        uint256 _instantBuyMultiplier
     ) public virtual override onlyOwner {
         if (_minAuctionLength < 1 days || _minAuctionLength >= maxAuctionLength) revert MinAuctionLengthOutOfBounds();
         if (_maxAuctionLength > 8 weeks || _maxAuctionLength <= minAuctionLength) revert MaxAuctionLengthOutOfBounds();
@@ -157,6 +150,7 @@ contract FNFTSingleFactory is
         minBidIncrease = _minBidIncrease;
         minVotePercentage = _minVotePercentage;
         liquidityThreshold = _liquidityThreshold;
+        instantBuyMultiplier = _instantBuyMultiplier;
 
         emit FactoryThresholdsUpdated(
             _maxAuctionLength,
@@ -165,7 +159,8 @@ contract FNFTSingleFactory is
             _maxReserveFactor,
             _minBidIncrease,
             _minVotePercentage,
-            _liquidityThreshold
+            _liquidityThreshold,
+            _instantBuyMultiplier
         );
     }
 
