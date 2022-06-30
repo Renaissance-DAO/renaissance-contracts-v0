@@ -37,7 +37,11 @@ contract FNFTCollectionFactory is
         // We use a beacon proxy so that every child contract follows the same implementation code.
         __BeaconUpgradeable__init(address(new FNFTCollection()));
         vaultManager = IVaultManager(_vaultManager);
-        setFactoryFees(0.1 ether, 0.05 ether, 0.1 ether, 0.05 ether, 0.1 ether, 0, 0);
+        factoryMintFee = uint64(0.1 ether);
+        factoryRandomRedeemFee = uint64(0.05 ether);
+        factoryTargetRedeemFee = uint64(0.1 ether);
+        factoryRandomSwapFee = uint64(0.05 ether);
+        factoryTargetSwapFee = uint64(0.1 ether);
     }
 
     function createVault(
