@@ -66,10 +66,6 @@ interface IFNFTSingleFactory {
         uint256 _instantBuyMultiplier
     ) external;
 
-    event MaxAuctionLengthUpdated(uint256 oldMaxAuctionLength, uint256 newMaxAuctionLength);
-    event MinAuctionLengthUpdated(uint256 oldMinAuctionLength, uint256 newMinAuctionLength);
-    event GovernanceFeeUpdated(uint256 oldGovernanceFee, uint256 newGovernanceFee);
-    event CuratorFeeUpdated(uint256 oldCuratorFee, uint256 newCuratorFee);
     event FactoryFeesUpdated(uint256 governanceFee, uint256 maxCuratorFee, uint256 flashLoanFee, uint256 swapFee);
     event FactoryThresholdsUpdated(
         uint256 maxAuctionLength,
