@@ -10,10 +10,10 @@ import "./IUniswapV2Router.sol";
 
 interface IStakingZap {
     function WETH() external returns(IWETH);
+    
+    function vaultManager() external returns(IVaultManager);
 
-    function VAULT_MANAGER() external returns(IVaultManager);
-
-    function ROUTER() external returns(IUniswapV2Router);
+    function router() external returns(IUniswapV2Router);
 
     function lpStaking() external returns(ILPStaking);
 
