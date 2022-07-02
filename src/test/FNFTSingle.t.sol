@@ -19,6 +19,7 @@ import {MockNFT} from "../contracts/mocks/NFT.sol";
 import {WETH} from "../contracts/mocks/WETH.sol";
 import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH} from "./utils/utils.sol";
 import {ERC20FlashMintUpgradeable} from "../contracts/token/ERC20FlashMintUpgradeable.sol";
+import {Pausable} from "../contracts/util/Pausable.sol";
 import {FlashBorrower} from "./utils/FlashBorrower.sol";
 
 /// @author Nibble Market
@@ -53,6 +54,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         ) = setupContracts();
         //set governance fee to 100
         fnftSingleFactory.setFactoryFees(100, 1000, 0, 0);
+        fnftSingleFactory.setIsGuardian(address(this), true);
         token = new MockNFT();
         token.mint(address(this), 1);
         token.setApprovalForAll(address(fnftSingleFactory), true);
@@ -136,8 +138,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testPause() public {
-        fnftSingleFactory.togglePaused();
-        fnftSingleFactory.togglePaused();
+        fnftSingleFactory.pause(0);
         MockNFT temp = new MockNFT();
 
         temp.mint(address(this), 1);
@@ -147,14 +148,17 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testFNFTSingleFactoryPausedCannotMint() public {
-        fnftSingleFactory.togglePaused();
+        fnftSingleFactory.pause(0);
+
+        vm.startPrank(address(user1));
         MockNFT temp = new MockNFT();
 
         temp.mint(address(this), 1);
 
         temp.setApprovalForAll(address(fnftSingleFactory), true);
-        vm.expectRevert("Pausable: paused");
+        vm.expectRevert(Pausable.Paused.selector);
         fnftSingleFactory.createVault("testName2", "TEST2", address(temp), 1, 100e18, 1 ether, 500);
+        vm.stopPrank();
     }
 
     /// -------------------------------

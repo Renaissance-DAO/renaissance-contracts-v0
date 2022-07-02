@@ -485,7 +485,7 @@ contract FNFTCollection is
         if (curator == address(0)) {
             if (msg.sender != owner()) revert NotOwner();
         } else {
-            if (msg.sender != curator) revert NotManager();
+            if (msg.sender != curator) revert NotCurator();
         }
     }
 

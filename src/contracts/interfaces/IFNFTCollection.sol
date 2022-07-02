@@ -183,7 +183,7 @@ interface IFNFTCollection is IERC20Upgradeable {
     error IneligibleNFTs();
     error MintDisabled();
     error NFTAlreadyInCollection();
-    error NotManager();
+    error NotCurator();
     error NotNFTOwner();
     error NotOwner();
     error Paused();

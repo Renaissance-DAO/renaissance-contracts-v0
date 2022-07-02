@@ -32,6 +32,8 @@ interface IFNFTSingleFactory {
 
     function instantBuyMultiplier() external view returns (uint256);
 
+    function isLocked(uint256 lockId) external view returns (bool);
+
     function __FNFTSingleFactory_init(address _vaultManager) external;
 
     function createVault(
@@ -43,8 +45,6 @@ interface IFNFTSingleFactory {
         uint256 _listPrice,
         uint256 _fee
     ) external returns (address);
-
-    function togglePaused() external;
 
     function flashLoanFee() external view returns (uint256);
 
