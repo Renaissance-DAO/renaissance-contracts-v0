@@ -56,7 +56,7 @@ contract FNFTCollectionFactory is
         IVaultManager _vaultManager = vaultManager;
         address fnftCollection = _deployVault(_name, _symbol, _assetAddress, is1155, allowAllItems);
         uint vaultId = _vaultManager.addVault(fnftCollection);
-        emit VaultCreated(vaultId, fnftCollection, _assetAddress);
+        emit FNFTCollectionCreated(vaultId, fnftCollection, _assetAddress, _name, _symbol);
         return fnftCollection;
     }
 
