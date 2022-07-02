@@ -78,14 +78,20 @@ interface IFNFTSingleFactory {
         uint256 instantBuyMultiplier
     );
     event FeeExclusionUpdated(address target, bool excluded);
-    event FNFTSingleCreated(
-        address indexed token,
-        address fnftSingle,
-        address creator,
-
-        uint256 price,
+    event VaultCreated(
+        uint256 indexed vaultId,
+        address vaultAddress,
+        address assetAddress,
+        uint256 tokenId,
         string name,
         string symbol
+    );
+    event VaultCurated(
+        address vaultAddress,
+        address curator,
+        uint256 supply,
+        uint256 listPrice,
+        uint256 fee
     );
 
     error FeeTooHigh();
