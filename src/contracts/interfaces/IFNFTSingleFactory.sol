@@ -79,13 +79,19 @@ interface IFNFTSingleFactory {
     );
     event FeeExclusionUpdated(address target, bool excluded);
     event FNFTSingleCreated(
-        address indexed token,
-        address fnftSingle,
-        address creator,
-
-        uint256 price,
+        uint256 indexed vaultId,
+        address vaultAddress,
+        address assetAddress,
+        uint256 tokenId,
         string name,
         string symbol
+    );
+    event FNFTSingleCurated(
+        address vaultAddress,
+        address curator,
+        uint256 supply,
+        uint256 listPrice,
+        uint256 fee
     );
 
     error FeeTooHigh();
