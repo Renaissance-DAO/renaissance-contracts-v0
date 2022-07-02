@@ -76,7 +76,7 @@ interface IFNFTCollectionFactory is IBeacon {
   event FeeExclusionUpdated(address target, bool excluded);
   event PriceOracleUpdated(address oldPriceOracle, address newPriceOracle);
   event EligibilityManagerUpdated(address oldEligManager, address newEligManager);
-  event VaultCreated(uint256 indexed vaultId, address vaultAddress, address assetAddress);
+  event VaultCreated(uint256 indexed vaultId, address curator, address vaultAddress, address assetAddress, string name, string symbol);
   event VaultFeesUpdated(uint256 vaultId, uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee);
   event VaultFeesDisabled(uint256 vaultId);
   event FactoryFeesUpdated(uint256 mintFee, uint256 randomRedeemFee, uint256 targetRedeemFee, uint256 randomSwapFee, uint256 targetSwapFee, uint256 flashLoanFee, uint256 swapFee);
