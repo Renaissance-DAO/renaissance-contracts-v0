@@ -73,11 +73,11 @@ interface IFNFTSingle  is IERC20Upgradeable {
 
     function toggleVerified() external;
 
-    function updateCurator(address _curator) external;
+    function setCurator(address _curator) external;
 
-    function updateAuctionLength(uint256 _length) external;
+    function setAuctionLength(uint256 _length) external;
 
-    function updateFee(uint256 _fee) external;
+    function setFee(uint256 _fee) external;
 
     function claimCuratorFees() external;
 

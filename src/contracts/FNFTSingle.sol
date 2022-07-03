@@ -276,7 +276,7 @@ contract FNFTSingle is
 
     /// @notice allow curator to update the auction length
     /// @param _length the new base price
-    function updateAuctionLength(uint256 _length) external override {
+    function setAuctionLength(uint256 _length) external override {
         _onlyPrivileged();
         if (
             _length < factory.minAuctionLength() || _length > factory.maxAuctionLength()
@@ -288,16 +288,16 @@ contract FNFTSingle is
 
     /// @notice allow curator to update the curator address
     /// @param _curator the new curator
-    function updateCurator(address _curator) external override {
+    function setCurator(address _curator) external override {
         _onlyPrivileged();
         if (curator == _curator) revert SameCurator();
-        emit CuratorUpdated(curator, _curator);
         curator = _curator;
+        emit CuratorUpdated(curator, _curator);
     }
 
     /// @notice allow the curator to change their fee
     /// @param _curatorFee the new fee
-    function updateFee(uint256 _curatorFee) external override {
+    function setFee(uint256 _curatorFee) external override {
         _onlyPrivileged();
         if (_curatorFee >= curatorFee) revert CanNotRaise();
         if (_curatorFee > factory.maxCuratorFee()) revert FeeTooHigh();

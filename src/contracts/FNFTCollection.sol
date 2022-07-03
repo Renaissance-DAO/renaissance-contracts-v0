@@ -287,6 +287,7 @@ contract FNFTCollection is
     // The curator has control over options like fees and features
     function setCurator(address _curator) public override virtual {
         _onlyPrivileged();
+        if (curator == _curator) revert SameCurator();
         curator = _curator;
         emit CuratorUpdated(_curator);
     }

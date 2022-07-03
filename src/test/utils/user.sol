@@ -91,8 +91,8 @@ contract Curator {
         fnftSingle = FNFTSingle(_fnft);
     }
 
-    function call_updateCurator(address _who) public {
-        fnftSingle.updateCurator(_who);
+    function call_setCurator(address _who) public {
+        fnftSingle.setCurator(_who);
     }
 
     function call_kickCurator(address _who) public {
