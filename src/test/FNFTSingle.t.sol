@@ -194,7 +194,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     }
 
     function testKickCuratorNotGov() public {
-        vm.expectRevert(IFNFTSingle.NotGov.selector);
+        vm.expectRevert(IFNFTSingle.NotOwner.selector);
         curator.call_kickCurator(address(curator));
     }
 
@@ -229,7 +229,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         user1.call_updatePrice(2 ether);
         assertEq(fnftSingle.reservePrice(), 1.5 ether);
 
-        vm.expectRevert(IFNFTSingle.NotGov.selector);
+        vm.expectRevert(IFNFTSingle.NotOwner.selector);
         // user1 is not gov so cannot do anything
         user1.call_remove(address(this));
     }

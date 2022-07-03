@@ -18,7 +18,12 @@ import "./interfaces/IVaultManager.sol";
 import "./interfaces/IWETH.sol";
 import "./token/ERC20FlashMintUpgradeable.sol";
 
-contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721HolderUpgradeable {
+contract FNFTSingle is
+    IFNFTSingle,
+    IERC165,
+    ERC20FlashMintUpgradeable,
+    ERC721HolderUpgradeable
+{
     using Address for address;
 
     /// @notice a mapping of users to their desired token price
@@ -32,7 +37,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     IVaultManager public override vaultManager;
 
     /// @notice the governance contract which gets paid in ETH
-    address public override factory;
+    IFNFTSingleFactory public override factory;
 
     /// @notice the address who initially deposited the NFT
     address public override curator;
@@ -98,7 +103,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         if (_curatorFee > _factory.maxCuratorFee()) revert FeeTooHigh();
 
         // set storage variables
-        factory = address(_factory);
+        factory = _factory;
         vaultManager = _vaultManager;
         token = _token;
         vaultId = _vaultManager.numVaults();
@@ -113,20 +118,11 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         _mint(_curator, _supply);
     }
 
-    modifier onlyCurator() {
-        if (msg.sender != curator) revert NotCurator();
-        _;
-    }
-
-    modifier onlyGov() {
-        if (msg.sender != OwnableUpgradeable(address(vaultManager)).owner()) revert NotGov();
-        _;
-    }
-
     /// @notice an external function to bid on purchasing the vaults NFT. The msg.value is the bid amount
     function bid() external payable override {
+        _onlyOwnerIfPaused(1);
         if (auctionState != State.Live) revert AuctionNotLive();
-        uint256 increase = IFNFTSingleFactory(factory).minBidIncrease() + 10000;
+        uint256 increase = factory.minBidIncrease() + 10000;
         if (msg.value * 10000 < livePrice * increase) revert BidTooLow();
         if (block.timestamp >= auctionEnd) revert AuctionEnded();
 
@@ -145,6 +141,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     /// @notice an external function to burn ERC20 tokens to receive ETH from ERC721 token purchase
     function cash() external override {
+        _onlyOwnerIfPaused(4);
         if (auctionState != State.Ended) revert AuctionNotEnded();
         uint256 bal = balanceOf(msg.sender);
         if (bal == 0) revert NoTokens();
@@ -159,10 +156,12 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     /// @notice external function to claim fees for the curator and governance
     function claimCuratorFees() external override {
+        _onlyOwnerIfPaused(3);
         _claimCuratorFees();
     }
 
     function buyItNow() external payable override {
+        _onlyOwnerIfPaused(2);
         if (auctionState != State.Inactive) revert AuctionLive();
         uint256 price = buyItNowPrice();
         if (price == 0) revert PriceTooLow();
@@ -183,6 +182,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     /// @notice an external function to end an auction after the timer has run out
     function end() external override {
+        _onlyOwnerIfPaused(1);
         if (auctionState != State.Live) revert AuctionNotLive();
         if (block.timestamp < auctionEnd) revert AuctionNotEnded();
 
@@ -206,7 +206,8 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     /// @notice allow governance to boot a bad actor curator
     /// @param _curator the new curator
-    function kickCurator(address _curator) external override onlyGov {
+    function kickCurator(address _curator) external override {
+        _onlyOwner();
         if (curator == _curator) revert SameCurator();
         emit CuratorKicked(curator, _curator);
         curator = _curator;
@@ -214,6 +215,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     /// @notice an external function to burn all ERC20 tokens to receive the ERC721 token
     function redeem() external override {
+        _onlyOwnerIfPaused(5);
         if (auctionState != State.Inactive) revert AuctionLive();
         _burn(msg.sender, totalSupply());
 
@@ -226,7 +228,8 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     }
 
     /// @notice allow governance to remove bad reserve prices
-    function removeReserve(address _user) external override onlyGov {
+    function removeReserve(address _user) external override {
+        _onlyOwner();
         if (auctionState != State.Inactive) revert AuctionLive();
 
         uint256 old = userReservePrice[_user];
@@ -245,12 +248,14 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     function setVaultMetadata(
         string calldata name_,
         string calldata symbol_
-    ) external override onlyCurator {
+    ) external override {
+        _onlyPrivileged();
         _setMetadata(name_, symbol_);
     }
 
     /// @notice kick off an auction. Must send reservePrice in ETH
     function start() external payable override {
+        _onlyOwnerIfPaused(1);
         if (auctionState != State.Inactive) revert AuctionLive();
         uint256 _auctionPrice = _getAuctionPrice();
         if (_auctionPrice == 0 || msg.value < _auctionPrice) revert BidTooLow();
@@ -264,7 +269,8 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         emit AuctionStarted(msg.sender, msg.value);
     }
 
-    function toggleVerified() external override onlyGov {
+    function toggleVerified() external override {
+        _onlyOwner();
         bool _verified = !verified;
         verified = _verified;
         emit Verified(_verified);
@@ -272,9 +278,10 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     /// @notice allow curator to update the auction length
     /// @param _length the new base price
-    function updateAuctionLength(uint256 _length) external override onlyCurator {
+    function updateAuctionLength(uint256 _length) external override {
+        _onlyPrivileged();
         if (
-            _length < IFNFTSingleFactory(factory).minAuctionLength() || _length > IFNFTSingleFactory(factory).maxAuctionLength()
+            _length < factory.minAuctionLength() || _length > factory.maxAuctionLength()
         ) revert InvalidAuctionLength();
 
         auctionLength = _length;
@@ -283,7 +290,8 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     /// @notice allow curator to update the curator address
     /// @param _curator the new curator
-    function updateCurator(address _curator) external override onlyCurator {
+    function updateCurator(address _curator) external override {
+        _onlyPrivileged();
         if (curator == _curator) revert SameCurator();
         emit CuratorUpdated(curator, _curator);
         curator = _curator;
@@ -291,9 +299,10 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     /// @notice allow the curator to change their fee
     /// @param _curatorFee the new fee
-    function updateFee(uint256 _curatorFee) external override onlyCurator {
+    function updateFee(uint256 _curatorFee) external override {
+        _onlyPrivileged();
         if (_curatorFee >= curatorFee) revert CanNotRaise();
-        if (_curatorFee > IFNFTSingleFactory(factory).maxCuratorFee()) revert FeeTooHigh();
+        if (_curatorFee > factory.maxCuratorFee()) revert FeeTooHigh();
 
         _claimCuratorFees();
 
@@ -304,6 +313,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     /// @notice a function for an end user to update their desired sale price
     /// @param newUserReserve the desired price in ETH
     function updateUserPrice(uint256 newUserReserve) external override {
+        _onlyOwnerIfPaused(6);
         if (auctionState != State.Inactive) revert AuctionLive();
         uint256 previousUserReserve = userReservePrice[msg.sender];
         if (newUserReserve == previousUserReserve) revert NotAnUpdate();
@@ -351,7 +361,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
     }
 
     function buyItNowPrice() public view override returns (uint256) {
-        return (_getAuctionPrice() * IFNFTSingleFactory(factory).instantBuyMultiplier()) / 10;
+        return (_getAuctionPrice() * factory.instantBuyMultiplier()) / 10;
     }
 
     function flashFee(address borrowedToken, uint256 amount) public view override (
@@ -359,7 +369,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         IFNFTSingle
     ) returns (uint256) {
         if (borrowedToken != address(this)) revert InvalidToken();
-        return IFNFTSingleFactory(factory).flashLoanFee() * amount / 10000;
+        return factory.flashLoanFee() * amount / 10000;
     }
 
     function flashLoan(
@@ -371,6 +381,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         IERC3156FlashLenderUpgradeable,
         IFNFTSingle
     ) returns (bool) {
+        _onlyOwnerIfPaused(7);
         uint256 flashLoanFee = vaultManager.excludedFromFees(address(receiver)) ? 0 : flashFee(borrowedToken, amount);
         return _flashLoan(receiver, borrowedToken, amount, flashLoanFee, data);
     }
@@ -466,7 +477,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
         // now lets do the same for governance
         address govAddress = vaultManager.feeReceiver();
-        uint256 govFee = IFNFTSingleFactory(factory).governanceFee();
+        uint256 govFee = factory.governanceFee();
         currentAnnualFee = (govFee * totalSupply()) / 10000;
         feePerSecond = currentAnnualFee / 31536000;
         uint256 govMint = sinceLastClaim * feePerSecond;
@@ -485,13 +496,13 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     function _getAuctionPrice() internal view returns (uint256) {
         address priceOracle = vaultManager.priceOracle();
-        bool aboveQuorum = _getQuorum() > IFNFTSingleFactory(factory).minVotePercentage();
+        bool aboveQuorum = _getQuorum() > factory.minVotePercentage();
         uint256 _reservePrice = reservePrice();
 
         if (address(priceOracle) != address(0)) {
             (, uint256 reserve1,) = pair.getReserves();
 
-            bool aboveLiquidityThreshold = reserve1 * 2 > IFNFTSingleFactory(factory).liquidityThreshold();
+            bool aboveLiquidityThreshold = reserve1 * 2 > factory.liquidityThreshold();
 
             if (aboveLiquidityThreshold) {
                 uint256 twapPrice = _getTWAP();
@@ -535,6 +546,23 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         }
     }
 
+    function _onlyOwner() internal view {
+        if (msg.sender != OwnableUpgradeable(address(vaultManager)).owner()) revert NotOwner();
+    }
+
+    function _onlyOwnerIfPaused(uint256 lockId) internal view {
+        // TODO: compare gas usage on the order of logic
+        if (msg.sender != OwnableUpgradeable(address(vaultManager)).owner() && factory.isLocked(lockId)) revert Paused();
+    }
+
+    function _onlyPrivileged() internal view {
+        if (curator == address(0)) {
+            if (msg.sender != OwnableUpgradeable(address(vaultManager)).owner()) revert NotOwner();
+        } else {
+            if (msg.sender != curator) revert NotCurator();
+        }
+    }
+
     // Will attempt to transfer ETH, but will transfer WETH instead if it fails.
     function _sendETHOrWETH(address to, uint256 value) internal {
         // Try to transfer ETH to the given recipient.
@@ -555,7 +583,7 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
         uint256 amount
     ) internal virtual override {
         if (to == address(pair)) {
-            uint256 swapFee = IFNFTSingleFactory(factory).swapFee();
+            uint256 swapFee = factory.swapFee();
             if (swapFee > 0 && !vaultManager.excludedFromFees(address(msg.sender))) {
                 uint256 feeAmount = amount * swapFee / 10000;
                 _chargeAndDistributeFees(from, feeAmount);
@@ -568,9 +596,9 @@ contract FNFTSingle is IFNFTSingle, IERC165, ERC20FlashMintUpgradeable, ERC721Ho
 
     /// @notice makes sure that the new price does not impact the reserve drastically
     function _validateUserPrice(uint256 prevUserReserve, uint256 newUserReserve) private view {
-        uint256 reservePriceMin = (prevUserReserve * IFNFTSingleFactory(factory).minReserveFactor()) / 10000;
+        uint256 reservePriceMin = (prevUserReserve * factory.minReserveFactor()) / 10000;
         if (newUserReserve < reservePriceMin) revert PriceTooLow();
-        uint256 reservePriceMax = (prevUserReserve * IFNFTSingleFactory(factory).maxReserveFactor()) / 10000;
+        uint256 reservePriceMax = (prevUserReserve * factory.maxReserveFactor()) / 10000;
         if (newUserReserve > reservePriceMax) revert PriceTooHigh();
     }
 
