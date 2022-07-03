@@ -60,6 +60,7 @@ contract FNFTCollection is
     function __FNFTCollection_init(
         string memory _name,
         string memory _symbol,
+        address _curator,
         address _assetAddress,
         bool _is1155,
         bool _allowAllItems
@@ -67,16 +68,17 @@ contract FNFTCollection is
         __Ownable_init();
         __ERC20_init(_name, _symbol);
         if (_assetAddress == address(0)) revert ZeroAddress();
+        setVaultFeatures(true /*enableMint*/, true /*enableRandomRedeem*/, true /*enableTargetRedeem*/, true /*enableRandomSwap*/, true /*enableTargetSwap*/);
         IFNFTCollectionFactory _factory = IFNFTCollectionFactory(msg.sender);
         vaultManager = IVaultManager(_factory.vaultManager());
         assetAddress = _assetAddress;
+        curator = _curator;
         factory = _factory;
         vaultId = vaultManager.numVaults();
         is1155 = _is1155;
         allowAllItems = _allowAllItems;
         pair = IPriceOracle(vaultManager.priceOracle()).createFNFTPair(address(this));
         emit VaultInit(vaultId, _assetAddress, _is1155, _allowAllItems);
-        setVaultFeatures(true /*enableMint*/, true /*enableRandomRedeem*/, true /*enableTargetRedeem*/, true /*enableRandomSwap*/, true /*enableTargetSwap*/);
     }
 
     function allHoldings() external view override virtual returns (uint256[] memory) {

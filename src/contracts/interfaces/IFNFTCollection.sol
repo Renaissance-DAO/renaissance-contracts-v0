@@ -67,6 +67,7 @@ interface IFNFTCollection is IERC20Upgradeable {
     function __FNFTCollection_init(
         string calldata _name,
         string calldata _symbol,
+        address _curator,
         address _assetAddress,
         bool _is1155,
         bool _allowAllItems

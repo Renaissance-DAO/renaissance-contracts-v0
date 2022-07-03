@@ -168,6 +168,7 @@ contract FNFTCollectionFactory is
             FNFTCollection.__FNFTCollection_init.selector,
             name,
             symbol,
+            msg.sender,
             _assetAddress,
             is1155,
             allowAllItems
@@ -175,10 +176,9 @@ contract FNFTCollectionFactory is
 
         address newBeaconProxy = address(new BeaconProxy(address(this), _initializationCalldata));
 
-        // Curator for configuration.
-        FNFTCollection(newBeaconProxy).setCurator(msg.sender);
         // Owner for administrative functions.
         FNFTCollection(newBeaconProxy).transferOwnership(owner());
+
         return newBeaconProxy;
     }
 }
