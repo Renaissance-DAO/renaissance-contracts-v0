@@ -20,6 +20,7 @@ import "./token/ERC20FlashMintUpgradeable.sol";
 
 contract FNFTSingle is
     IFNFTSingle,
+    OwnableUpgradeable,
     IERC165,
     ERC20FlashMintUpgradeable,
     ERC721HolderUpgradeable
@@ -93,7 +94,7 @@ contract FNFTSingle is
         if (_curator == address(0)) revert ZeroAddress();
         if (_token == address(0)) revert ZeroAddress();
 
-        // initialize inherited contracts
+        __Ownable_init();
         __ERC20_init(_name, _symbol);
         __ERC721Holder_init();
 
@@ -206,8 +207,7 @@ contract FNFTSingle is
 
     /// @notice allow governance to boot a bad actor curator
     /// @param _curator the new curator
-    function kickCurator(address _curator) external override {
-        _onlyOwner();
+    function kickCurator(address _curator) external override onlyOwner {
         if (curator == _curator) revert SameCurator();
         emit CuratorKicked(curator, _curator);
         curator = _curator;
@@ -228,8 +228,7 @@ contract FNFTSingle is
     }
 
     /// @notice allow governance to remove bad reserve prices
-    function removeReserve(address _user) external override {
-        _onlyOwner();
+    function removeReserve(address _user) external override onlyOwner {
         if (auctionState != State.Inactive) revert AuctionLive();
 
         uint256 old = userReservePrice[_user];
@@ -269,8 +268,7 @@ contract FNFTSingle is
         emit AuctionStarted(msg.sender, msg.value);
     }
 
-    function toggleVerified() external override {
-        _onlyOwner();
+    function toggleVerified() external override onlyOwner {
         bool _verified = !verified;
         verified = _verified;
         emit Verified(_verified);
@@ -546,18 +544,14 @@ contract FNFTSingle is
         }
     }
 
-    function _onlyOwner() internal view {
-        if (msg.sender != OwnableUpgradeable(address(vaultManager)).owner()) revert NotOwner();
-    }
-
     function _onlyOwnerIfPaused(uint256 lockId) internal view {
         // TODO: compare gas usage on the order of logic
-        if (msg.sender != OwnableUpgradeable(address(vaultManager)).owner() && factory.isLocked(lockId)) revert Paused();
+        if (msg.sender != owner() && factory.isLocked(lockId)) revert Paused();
     }
 
     function _onlyPrivileged() internal view {
         if (curator == address(0)) {
-            if (msg.sender != OwnableUpgradeable(address(vaultManager)).owner()) revert NotOwner();
+            if (msg.sender != owner()) revert NotOwner();
         } else {
             if (msg.sender != curator) revert NotCurator();
         }
