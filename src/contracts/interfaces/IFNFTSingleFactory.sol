@@ -86,13 +86,6 @@ interface IFNFTSingleFactory {
         string name,
         string symbol
     );
-    event VaultCurated(
-        address vaultAddress,
-        address curator,
-        uint256 supply,
-        uint256 listPrice,
-        uint256 fee
-    );
 
     error FeeTooHigh();
     error MaxAuctionLengthOutOfBounds();
