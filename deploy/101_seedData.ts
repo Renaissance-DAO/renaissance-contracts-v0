@@ -230,7 +230,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT2
-  await FNFTSingleFactory.createVault(
+  const fnftSingle2Address = await FNFTSingleFactory.createVault(
     "FNFTSingle2", // name
     "FNFTSingle2",  // symbol
     nft2CollectionInfo.address, // collection address
@@ -239,10 +239,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10000', 18), // initialPrice === 2e18
     .1 * PERCENTAGE_SCALE, // fee (10%)
   );
-  const fnftSingle2Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft2CollectionInfo.address, 2));
 
   // NFT3
-  await FNFTSingleFactory.createVault(
+  const fnftSingle3Address = await FNFTSingleFactory.createVault(
     "FNFTSingle3", // name
     "FNFTSingle3",  // symbol
     nft3CollectionInfo.address, // collection address
@@ -251,10 +250,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('1000', 18), // initialPrice == 2e18
     .03 * PERCENTAGE_SCALE, // fee (3%)
   );
-  const fnftSingle3Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft3CollectionInfo.address, 3));
 
   // NFT4
-  await FNFTSingleFactory.createVault(
+  const fnftSingle4Address = await FNFTSingleFactory.createVault(
     "FNFTSingle4", // name
     "FNFTSingle4",  // symbol
     nft4CollectionInfo.address, // collection address
@@ -263,10 +261,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('1000000', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fnftSingle4Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft4CollectionInfo.address, 4));
 
   // NFT5
-  await FNFTSingleFactory.createVault(
+  const fnftSingle5Address = await FNFTSingleFactory.createVault(
     "FNFTSingle5", // name
     "FNFTSingle5",  // symbol
     nft5CollectionInfo.address, // collection address
@@ -275,10 +272,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('100', 18), // initialPrice
     .01 * PERCENTAGE_SCALE, // fee (1%)
   );
-  const fnftSingle5Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft5CollectionInfo.address, 5));
 
   // NFT6
-  await FNFTSingleFactory.createVault(
+  const fnftSingle6Address = await FNFTSingleFactory.createVault(
     "FNFTSingle6", // name
     "FNFTSingle6",  // symbol
     nft6CollectionInfo.address, // collection address
@@ -287,10 +283,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18),
     .1 * PERCENTAGE_SCALE, // fee (10%)
   );
-  const fnftSingle6Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft6CollectionInfo.address, 6));
 
   // NFT7
-  await FNFTSingleFactory.createVault(
+  const fnftSingle7Address = await FNFTSingleFactory.createVault(
     "FNFTSingle7", // name
     "FNFTSingle7",  // symbol
     nft7CollectionInfo.address, // collection address
@@ -299,10 +294,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // initialPrice == 1e18
     .03 * PERCENTAGE_SCALE, // fee (3%)
   );
-  const fnftSingle7Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft7CollectionInfo.address, 7));
 
   // NFT8
-  await FNFTSingleFactory.createVault(
+  const fnftSingle8Address = await FNFTSingleFactory.createVault(
     "FNFTSingle8", // name
     "FNFTSingle8",  // symbol
     nft8CollectionInfo.address, // collection address
@@ -311,10 +305,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fnftSingle8Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft8CollectionInfo.address, 8));
 
   // NFT9
-  await FNFTSingleFactory.createVault(
+  const fnftSingle9Address = await FNFTSingleFactory.createVault(
     "FNFTSingle9", // name
     "FNFTSingle9",  // symbol
     nft9CollectionInfo.address, // collection address
@@ -323,10 +316,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fnftSingle9Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft9CollectionInfo.address, 9));
 
   // NFT10
-  await FNFTSingleFactory.createVault(
+  const fnftSingle10Address = await FNFTSingleFactory.createVault(
     "FNFTSingle10", // name
     "FNFTSingle10",  // symbol
     nft10CollectionInfo.address, // collection address
@@ -335,10 +327,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fnftSingle10Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft10CollectionInfo.address, 10));
 
   // NFT11
-  await FNFTSingleFactory.createVault(
+  const fnftSingle11Address = await FNFTSingleFactory.createVault(
     "FNFTSingle11", // name
     "FNFTSingle11",  // symbol
     nft11CollectionInfo.address, // collection address
@@ -347,10 +338,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fnftSingle11Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft11CollectionInfo.address, 11));
 
   // NFT12
-  await FNFTSingleFactory.createVault(
+  const fnftSingle12Address = await FNFTSingleFactory.createVault(
     "FNFTSingle12", // name
     "FNFTSingle12",  // symbol
     nft12CollectionInfo.address, // collection address
@@ -359,10 +349,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fnftSingle12Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft12CollectionInfo.address, 12));
 
   // NFT13
-  await FNFTSingleFactory.createVault(
+  const fnftSingle13Address = await FNFTSingleFactory.createVault(
     "FNFTSingle13", // name
     "FNFTSingle13",  // symbol
     nft13CollectionInfo.address, // collection address
@@ -371,7 +360,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('100000', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
   );
-  const fnftSingle13Address = await FNFTSingleFactory.fnfts(await FNFTSingleFactory.getFNFTId(nft13CollectionInfo.address, 13));
 
   // IFOFactory
   const IFOFactory = await getContract(hre, 'IFOFactory');
@@ -416,7 +404,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT3 IFO
-  await IFOFactory.create(
+  const IFO3Address = await IFOFactory.create(
     fnftSingle3Address, // fNft
     await fnftSingle3.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -424,10 +412,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO3Address = await IFOFactory.ifos(fnftSingle3Address)
 
   // NFT4 IFO
-  await IFOFactory.create(
+  const IFO4Address = await IFOFactory.create(
     fnftSingle4Address, // fNft
     await fnftSingle4.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -435,10 +422,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO4Address = await IFOFactory.ifos(fnftSingle4Address);
 
   // NFT5 IFO
-  await IFOFactory.create(
+  const IFO5Address = await IFOFactory.create(
     fnftSingle5Address, // fNft
     await fnftSingle5.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -446,10 +432,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     86400, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO5Address = await IFOFactory.ifos(fnftSingle5Address);
 
   // NFT6 IFO
-  await IFOFactory.create(
+  const IFO6Address = await IFOFactory.create(
     fnftSingle6Address, // fNft
     await fnftSingle6.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -457,10 +442,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO6Address = await IFOFactory.ifos(fnftSingle6Address)
 
   // NFT7 IFO
-  await IFOFactory.create(
+  const IFO7Address = await IFOFactory.create(
     fnftSingle7Address, // fNft
     await fnftSingle7.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -468,10 +452,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO7Address = await IFOFactory.ifos(fnftSingle7Address)
 
   // NFT8 IFO
-  await IFOFactory.create(
+  const IFO8Address = await IFOFactory.create(
     fnftSingle8Address, // fNft
     await fnftSingle8.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -479,10 +462,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO8Address = await IFOFactory.ifos(fnftSingle8Address);
 
   // NFT9 IFO
-  await IFOFactory.create(
+  const IFO9Address = await IFOFactory.create(
     fnftSingle9Address, // fNft
     await fnftSingle9.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -490,10 +472,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO9Address = await IFOFactory.ifos(fnftSingle9Address);
 
   // NFT10 IFO
-  await IFOFactory.create(
+  const IFO10Address = await IFOFactory.create(
     fnftSingle10Address, // fNft
     await fnftSingle10.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -501,12 +482,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, //duration
     false // allow whitelisting
   );
-  const IFO10Address = await IFOFactory.ifos(fnftSingle10Address);
 
   // NFT11 No IFO
 
   // NFT12 IFO
-  await IFOFactory.create(
+  const IFO12Address = await IFOFactory.create(
     fnftSingle12Address, // fNft
     await fnftSingle12.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -514,10 +494,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO12Address = await IFOFactory.ifos(fnftSingle12Address);
 
   // NFT13 IFO
-  await IFOFactory.create(
+  const IFO13Address = await IFOFactory.create(
     fnftSingle13Address, // fNft
     await fnftSingle13.totalSupply(), // amount for sale
     parseFixed('1', 18), // price
@@ -525,7 +504,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
   );
-  const IFO13Address = await IFOFactory.ifos(fnftSingle13Address);
 
 
   // start IFOs
