@@ -162,7 +162,7 @@ interface IFNFTCollection is IERC20Upgradeable {
         bool is1155,
         bool allowAllItems
     );
-    event CuratorUpdated(address curator);
+    event CuratorUpdated(address oldCurator, address newCurator);
     event EligibilityDeployed(uint256 moduleIndex, address eligibilityAddr);
     event EnableMintUpdated(bool enabled);
     event EnableRandomRedeemUpdated(bool enabled);

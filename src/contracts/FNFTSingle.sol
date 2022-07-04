@@ -291,8 +291,8 @@ contract FNFTSingle is
     function setCurator(address _curator) external override {
         _onlyPrivileged();
         if (curator == _curator) revert SameCurator();
-        curator = _curator;
         emit CuratorUpdated(curator, _curator);
+        curator = _curator;
     }
 
     /// @notice allow the curator to change their fee
