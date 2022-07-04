@@ -152,11 +152,11 @@ contract SetupEnvironment {
         );
     }
 
-    function setupInventoryStaking(address fnftCollectionFactory) public returns (InventoryStaking inventoryStaking) {
+    function setupInventoryStaking(address vaultManager) public returns (InventoryStaking inventoryStaking) {
         inventoryStaking = InventoryStaking(
             deployer.deployInventoryStaking(
                 address(new InventoryStaking()),
-                fnftCollectionFactory
+                vaultManager
             )
         );
     }
