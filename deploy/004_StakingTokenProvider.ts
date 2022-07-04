@@ -30,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deployerInfo.abi,
     signer
   );
-  await deployerContract.deployPriceOracle(
+  await deployerContract.deployStakingTokenProvider(
     stakingTokenProviderImpl.address,
     UNISWAP_V2_FACTORY,
     WETH,

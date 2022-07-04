@@ -39,7 +39,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deployerInfo.abi,
     signer
   );
-  await deployerContract.deployVaultManager(
+  await deployerContract.deployFeeDistributor(
     feeDistributorImpl.address,
     vaultManagerAddress,
     lpStakingAddress,

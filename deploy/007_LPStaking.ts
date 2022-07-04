@@ -37,7 +37,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deployerInfo.abi,
     signer
   );
-  await deployerContract.deployVaultManager(
+  await deployerContract.deployLPStaking(
     lpStakingImpl.address,
     vaultManagerAddress,
     stakingTokenProviderAddress
