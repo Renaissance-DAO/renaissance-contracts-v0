@@ -99,11 +99,12 @@ contract FNFTSingleFactory is
         );
         uint vaultId = _vaultManager.addVault(fnftSingle);
         IERC721(_nft).safeTransferFrom(msg.sender, fnftSingle, _tokenId);
-
         emit VaultCreated(vaultId, fnftSingle, _nft, _tokenId, _name, _symbol);
-        emit VaultCurated(fnftSingle, msg.sender, _supply, _listPrice, _fee);
-
         return fnftSingle;
+    }
+
+    function isLocked(uint256 lockId) external view override virtual returns (bool) {
+        return isPaused[lockId];
     }
 
     function setFactoryFees(
