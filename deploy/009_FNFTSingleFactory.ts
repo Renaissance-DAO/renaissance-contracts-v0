@@ -7,16 +7,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const {deploy, get} = deployments;
   const {deployer} = await getNamedAccounts();
-  const chainId = await hre.getChainId();
 
   const signer = await ethers.getSigner(deployer);
-
-  // get WETH address
-  let { WETH } = await getNamedAccounts();
-  if (testnets.includes(chainId)) {
-    const mockWETH = await get('WETH');
-    WETH = mockWETH.address;
-  }
 
   // get ifo factory proxy address
   const proxyControllerInfo = await get('MultiProxyController');
@@ -25,8 +17,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     proxyControllerInfo.abi,
     signer
   );
-  const ifoFactoryAddress = (await proxyController.proxyMap(
-    ethers.utils.formatBytes32String("IFOFactory")
+  const vaultManagerAddress = (await proxyController.proxyMap(
+    ethers.utils.formatBytes32String("VaultManager")
   ))[1];
 
   // deploy implementation contract
@@ -44,8 +36,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
   await deployerContract.deployFNFTSingleFactory(
     fnftSingleFactoryImpl.address,
-    WETH,
-    ifoFactoryAddress
+    vaultManagerAddress
   );
 
 };
