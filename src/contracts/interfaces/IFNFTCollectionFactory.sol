@@ -20,8 +20,6 @@ interface IFNFTCollectionFactory is IBeacon {
 
   function eligibilityManager() external view returns (address);
 
-  function isLocked(uint256 lockId) external view returns (bool);
-
   function factoryMintFee() external view returns (uint64);
 
   function factoryRandomRedeemFee() external view returns (uint64);

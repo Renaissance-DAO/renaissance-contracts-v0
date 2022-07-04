@@ -10,8 +10,8 @@ contract Pausable is OwnableUpgradeable {
         __Ownable_init();
     }
 
-    event SetPaused(uint256 lockId, bool paused);
     event SetIsGuardian(address addr, bool isGuardian);
+    event SetPaused(uint256 lockId, bool paused);
 
     mapping(address => bool) public isGuardian;
     mapping(uint256 => bool) public isPaused;
@@ -28,15 +28,6 @@ contract Pausable is OwnableUpgradeable {
         if (isPaused[lockId] && msg.sender != owner()) revert Paused();
     }
 
-    function unpause(uint256 lockId)
-        public
-        virtual
-        onlyOwner
-    {
-        isPaused[lockId] = false;
-        emit SetPaused(lockId, false);
-    }
-
     function pause(uint256 lockId) public virtual {
         if (!isGuardian[msg.sender]) revert Unauthorized();
         isPaused[lockId] = true;
@@ -47,4 +38,14 @@ contract Pausable is OwnableUpgradeable {
         isGuardian[_address] = _isGuardian;
         emit SetIsGuardian(_address, _isGuardian);
     }
+
+    function unpause(uint256 lockId)
+        public
+        virtual
+        onlyOwner
+    {
+        isPaused[lockId] = false;
+        emit SetPaused(lockId, false);
+    }
+
 }

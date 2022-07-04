@@ -18,6 +18,7 @@ import "./interfaces/IEligibilityManager.sol";
 import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/IFNFTCollection.sol";
 import "./interfaces/IFNFTCollectionFactory.sol";
+import "./interfaces/IPausable.sol";
 import "./interfaces/IVaultManager.sol";
 import "./token/ERC20FlashMintUpgradeable.sol";
 
@@ -480,7 +481,7 @@ contract FNFTCollection is
 
     function _onlyOwnerIfPaused(uint256 lockId) internal view {
         // TODO: compare gas usage on the order of logic
-        if (msg.sender != owner() && factory.isLocked(lockId)) revert Paused();
+        if (msg.sender != owner() && IPausable(address(factory)).isPaused(lockId)) revert Paused();
     }
 
 

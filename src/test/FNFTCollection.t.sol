@@ -8,6 +8,7 @@ import {FlashBorrower} from "./utils/FlashBorrower.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
 import {LPStaking} from "../contracts/LPStaking.sol";
 import {FNFTCollectionFactory, IFNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
+import {IPausable} from "../contracts/interfaces/IPausable.sol";
 import {VaultManager} from "../contracts/VaultManager.sol";
 import {FNFTCollection, IFNFTCollection} from "../contracts/FNFTCollection.sol";
 import {FeeDistributor} from "../contracts/FeeDistributor.sol";
@@ -74,9 +75,9 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   }
 
   function testCreateVaultFactoryIsPaused() public {
-    assertTrue(!fnftCollectionFactory.isLocked(0));
+    assertTrue(!IPausable(address(fnftCollectionFactory)).isPaused(0));
     pauseFeature(0);
-    assertTrue(fnftCollectionFactory.isLocked(0));
+    assertTrue(IPausable(address(fnftCollectionFactory)).isPaused(0));
 
     vm.prank(address(1));
     vm.expectRevert(IFNFTCollection.Paused.selector);

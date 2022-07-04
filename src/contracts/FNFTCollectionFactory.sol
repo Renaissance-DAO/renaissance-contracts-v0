@@ -59,10 +59,6 @@ contract FNFTCollectionFactory is
         return fnftCollection;
     }
 
-    function isLocked(uint256 lockId) external view override virtual returns (bool) {
-        return isPaused[lockId];
-    }
-
     function setEligibilityManager(address _eligibilityManager) external virtual override onlyOwner {
         emit EligibilityManagerUpdated(eligibilityManager, _eligibilityManager);
         eligibilityManager = _eligibilityManager;

@@ -13,6 +13,7 @@ import "./interfaces/IIFOFactory.sol";
 import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/IFNFTSingle.sol";
 import "./interfaces/IFNFTSingleFactory.sol";
+import "./interfaces/IPausable.sol";
 import "./interfaces/IUniswapV2Pair.sol";
 import "./interfaces/IVaultManager.sol";
 import "./interfaces/IWETH.sol";
@@ -546,7 +547,7 @@ contract FNFTSingle is
 
     function _onlyOwnerIfPaused(uint256 lockId) internal view {
         // TODO: compare gas usage on the order of logic
-        if (msg.sender != owner() && factory.isLocked(lockId)) revert Paused();
+        if (msg.sender != owner() && IPausable(address(factory)).isPaused(lockId)) revert Paused();
     }
 
     function _onlyPrivileged() internal view {
