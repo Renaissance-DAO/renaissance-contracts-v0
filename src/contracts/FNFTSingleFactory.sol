@@ -103,10 +103,6 @@ contract FNFTSingleFactory is
         return fnftSingle;
     }
 
-    function isLocked(uint256 lockId) external view override virtual returns (bool) {
-        return isPaused[lockId];
-    }
-
     function setFactoryFees(
         uint256 _governanceFee,
         uint256 _maxCuratorFee,

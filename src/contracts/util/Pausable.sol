@@ -47,5 +47,4 @@ contract Pausable is OwnableUpgradeable {
         isPaused[lockId] = false;
         emit SetPaused(lockId, false);
     }
-
 }
