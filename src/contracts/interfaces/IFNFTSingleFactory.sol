@@ -78,11 +78,14 @@ interface IFNFTSingleFactory {
     event FeeExclusionUpdated(address target, bool excluded);
     event VaultCreated(
         uint256 indexed vaultId,
+        address curator,
         address vaultAddress,
         address assetAddress,
         uint256 tokenId,
-        string name,
-        string symbol
+        uint256 supply,
+        uint256 listPrice,
+        bytes32 name,
+        bytes32 symbol
     );
     event VaultCurated(
         address vaultAddress,
