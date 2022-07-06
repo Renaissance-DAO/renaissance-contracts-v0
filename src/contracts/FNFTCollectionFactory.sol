@@ -45,11 +45,11 @@ contract FNFTCollectionFactory is
     }
 
     function createVault(
-        string memory _name,
-        string memory _symbol,
         address _assetAddress,
         bool is1155,
-        bool allowAllItems
+        bool allowAllItems,
+        string memory _name,
+        string memory _symbol
     ) external virtual override returns (address) {
         onlyOwnerIfPaused(0);
         if (childImplementation() == address(0)) revert ZeroAddress();

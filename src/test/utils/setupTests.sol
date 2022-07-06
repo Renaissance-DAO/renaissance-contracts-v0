@@ -108,7 +108,7 @@ contract SetupEnvironment {
         FNFTCollectionFactory factory = FNFTCollectionFactory(_fnftCollectionFactory);
 
         MockNFT token = new MockNFT();
-        fnftCollection = FNFTCollection(factory.createVault("Doodles", "DOODLE", address(token), false, true));
+        fnftCollection = FNFTCollection(factory.createVault(address(token), false, true, "Doodles", "DOODLE"));
         uint256[] memory tokenIds = new uint256[](_amountToMint);
 
         for (uint i; i < _amountToMint; i++) {

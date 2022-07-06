@@ -40,11 +40,11 @@ interface IFNFTCollectionFactory is IBeacon {
   function __FNFTCollectionFactory_init(address _vaultManager, address _fnftCollection) external;
 
   function createVault(
-      string calldata _name,
-      string calldata _symbol,
       address _assetAddress,
       bool is1155,
-      bool allowAllItems
+      bool allowAllItems,
+      string calldata _name,
+      string calldata _symbol
   ) external returns (address);
 
   function setEligibilityManager(address _eligibilityManager) external;

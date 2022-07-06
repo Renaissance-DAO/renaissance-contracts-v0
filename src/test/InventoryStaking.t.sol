@@ -16,7 +16,7 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
   FNFTCollection private vault;
   uint256 private vaultId = 0;
   VaultManager private vaultManager;
-  FNFTCollectionFactory private factory;
+  FNFTCollectionFactory private fnftCollectionFactory;
   InventoryStaking private inventoryStaking;
   MockNFT private token;
 
@@ -30,7 +30,7 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
         ,
         vaultManager,
         ,
-        factory,
+        fnftCollectionFactory,
         inventoryStaking
     ) = setupContracts();
 
@@ -202,7 +202,7 @@ contract InventoryStakingTest is DSTest, SetupEnvironment {
 
   // TODO: merge with FNFTCollectionTest.t.sol
   function createVault() private {
-    factory.createVault("Doodles", "DOODLE", address(token), false, true);
+    fnftCollectionFactory.createVault(address(token), false, true, "Doodles", "DOODLE");
     vault = FNFTCollection(vaultManager.vault(vaultId));
   }
 

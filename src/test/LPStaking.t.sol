@@ -293,7 +293,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
 
   // TODO: merge with FNFTCollectionTest.t.sol
   function createVault() private {
-    fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
+    fnftCollectionFactory.createVault(address(token), false, true, "Doodles", "DOODLE");
     vault = FNFTCollection(vaultManager.vault(vaultId));
   }
 

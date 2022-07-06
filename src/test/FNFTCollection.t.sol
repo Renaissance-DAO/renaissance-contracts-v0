@@ -81,7 +81,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
 
     vm.prank(address(1));
     vm.expectRevert(IFNFTCollection.Paused.selector);
-    fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
+    fnftCollectionFactory.createVault(address(token), false, true, "Doodles", "DOODLE");
   }
 
   function testCreateVaultOwnerCanBypassPausedFactory() public {
@@ -596,7 +596,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   // disable vault fees
 
   function createVault() private {
-    fnftCollectionFactory.createVault("Doodles", "DOODLE", address(token), false, true);
+    fnftCollectionFactory.createVault(address(token), false, true, "Doodles", "DOODLE");
     vault = FNFTCollection(vaultManager.vault(uint256(0)));
   }
 
