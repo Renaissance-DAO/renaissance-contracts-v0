@@ -100,9 +100,10 @@ contract FNFTSingleFactory is
         );
         uint vaultId = _vaultManager.addVault(fnftSingle);
         IERC721(_nft).safeTransferFrom(msg.sender, fnftSingle, _tokenId);
-        bytes32 nameBytes = _stringToBytes32(_name);
-        bytes32 symbolBytes = _stringToBytes32(_symbol);
-        emit VaultCreated(vaultId, msg.sender, fnftSingle, _nft, _tokenId, _supply, _listPrice, nameBytes, symbolBytes);
+
+        string memory nameString = string(_name);
+        string memory symbolString = string(_symbol);
+        emit VaultCreated(vaultId, msg.sender, fnftSingle, _nft, _tokenId, _supply, _listPrice, nameString, symbolString);
         return fnftSingle;
     }
 
@@ -195,15 +196,5 @@ contract FNFTSingleFactory is
         IOwnable(newBeaconProxy).transferOwnership(owner());
 
         return newBeaconProxy;
-    }
-
-    function _stringToBytes32(string memory source) internal pure returns (bytes32 result) {
-        bytes memory tempEmptyStringTest = bytes(source);
-        if (tempEmptyStringTest.length == 0) {
-            return 0x0;
-        }
-        assembly {
-            result := mload(add(source, 32))
-        }
     }
 }

@@ -84,8 +84,8 @@ interface IFNFTSingleFactory {
         uint256 tokenId,
         uint256 supply,
         uint256 listPrice,
-        bytes32 name,
-        bytes32 symbol
+        string name,
+        string symbol
     );
     event VaultCurated(
         address vaultAddress,
