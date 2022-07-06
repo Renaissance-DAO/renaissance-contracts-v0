@@ -35,13 +35,13 @@ interface IFNFTSingleFactory {
     function __FNFTSingleFactory_init(address _vaultManager, address _fnftSingle) external;
 
     function createVault(
-        string memory _name,
-        string memory _symbol,
         address _nft,
         uint256 _tokenId,
         uint256 _supply,
         uint256 _listPrice,
-        uint256 _fee
+        uint256 _fee,
+        string memory _name,
+        string memory _symbol
     ) external returns (address);
 
     function flashLoanFee() external view returns (uint256);

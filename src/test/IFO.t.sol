@@ -57,13 +57,13 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         nft.setApprovalForAll(address(fnftSingleFactory), true);
         fnftSingle = FNFTSingle(
             fnftSingleFactory.createVault(
-                "testName",
-                "TEST",
                 address(nft),
                 1, // tokenId
                 1000e18, //supply: minted to the fractionalizer
                 10 ether, // listPrice: the initial reserve price
-                0 // the % * 10 fee minted to the fractionalizer anually
+                0, // the % * 10 fee minted to the fractionalizer anually
+                "testName",
+                "TEST"
             )
         );
         fnftCollection = setupFNFTCollection(address(fnftCollectionFactory), 5);

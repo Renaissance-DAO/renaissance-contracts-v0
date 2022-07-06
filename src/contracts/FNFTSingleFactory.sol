@@ -71,20 +71,22 @@ contract FNFTSingleFactory is
     }
 
     /// @notice the function to mint a fnftSingle
-    /// @param _name the desired name of the vault
-    /// @param _symbol the desired symbol of the vault
     /// @param _nft the ERC721 token address
     /// @param _tokenId the uint256 id of the token
+    /// @param _supply vault token supply
     /// @param _listPrice the initial price of the NFT
+    /// @param _fee curator fee
+    /// @param _name the desired name of the vault
+    /// @param _symbol the desired symbol of the vault
     /// @return vaultId
     function createVault(
-        string memory _name,
-        string memory _symbol,
         address _nft,
         uint256 _tokenId,
         uint256 _supply,
         uint256 _listPrice,
-        uint256 _fee
+        uint256 _fee,
+        string memory _name,
+        string memory _symbol
     ) external virtual override returns (address) {
         onlyOwnerIfPaused(0);
         if (childImplementation() == address(0)) revert ZeroAddress();
@@ -101,9 +103,7 @@ contract FNFTSingleFactory is
         uint vaultId = _vaultManager.addVault(fnftSingle);
         IERC721(_nft).safeTransferFrom(msg.sender, fnftSingle, _tokenId);
 
-        string memory nameString = string(_name);
-        string memory symbolString = string(_symbol);
-        emit VaultCreated(vaultId, msg.sender, fnftSingle, _nft, _tokenId, _supply, _listPrice, nameString, symbolString);
+        emit VaultCreated(vaultId, msg.sender, fnftSingle, _nft, _tokenId, _supply, _listPrice, _name, _symbol);
         return fnftSingle;
     }
 
