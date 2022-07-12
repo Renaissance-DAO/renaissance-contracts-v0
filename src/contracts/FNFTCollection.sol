@@ -402,7 +402,7 @@ contract FNFTCollection is
             winning: msg.sender
         });
 
-        emit AuctionStarted(msg.sender, price);
+        emit AuctionStarted(msg.sender, tokenId, price);
     }
 
     function bid(uint256 tokenId, uint256 price) external override {
@@ -426,7 +426,7 @@ contract FNFTCollection is
             auctions[tokenId].end += 15 minutes;
         }
 
-        emit BidMade(msg.sender, price);
+        emit BidMade(msg.sender, tokenId, price);
     }
 
     function endAuction(uint256 tokenId) external override {
