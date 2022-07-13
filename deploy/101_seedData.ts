@@ -217,148 +217,147 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft12Collection.approve(FNFTSingleFactory.address, 12);
   await nft13Collection.approve(FNFTSingleFactory.address, 13);
 
-
   // NFT1 - scenario is done here
   await FNFTSingleFactory.createVault(
-    "FNFTSingle1", // name
-    "FNFTSingle1",  // symbol
     nft1CollectionInfo.address, // collection address
     1, // tokenId
     parseFixed('10000', 18), // supply
     parseFixed('100', 18), // initialPrice === 1e18
     .01 * PERCENTAGE_SCALE, // fee (1%)
+    "FNFTSingle1", // name
+    "FNFTSingle1",  // symbol
   );
 
   // NFT2
   const fnftSingle2Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle2", // name
-    "FNFTSingle2",  // symbol
     nft2CollectionInfo.address, // collection address
     2, // tokenId
     parseFixed('1000', 18), // supply
     parseFixed('10000', 18), // initialPrice === 2e18
     .1 * PERCENTAGE_SCALE, // fee (10%)
+    "FNFTSingle2", // name
+    "FNFTSingle2",  // symbol
   );
 
   // NFT3
   const fnftSingle3Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle3", // name
-    "FNFTSingle3",  // symbol
     nft3CollectionInfo.address, // collection address
     3, // tokenId
     parseFixed('100', 18), // supply
     parseFixed('1000', 18), // initialPrice == 2e18
     .03 * PERCENTAGE_SCALE, // fee (3%)
+    "FNFTSingle3", // name
+    "FNFTSingle3",  // symbol
   );
 
   // NFT4
   const fnftSingle4Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle4", // name
-    "FNFTSingle4",  // symbol
     nft4CollectionInfo.address, // collection address
     4, // tokenId
     parseFixed('100000', 18), // supply
     parseFixed('1000000', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
+    "FNFTSingle4", // name
+    "FNFTSingle4",  // symbol
   );
 
   // NFT5
   const fnftSingle5Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle5", // name
-    "FNFTSingle5",  // symbol
     nft5CollectionInfo.address, // collection address
     5, // tokenId
     parseFixed('100', 18), // supply
     parseFixed('100', 18), // initialPrice
     .01 * PERCENTAGE_SCALE, // fee (1%)
+    "FNFTSingle5", // name
+    "FNFTSingle5",  // symbol
   );
 
   // NFT6
   const fnftSingle6Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle6", // name
-    "FNFTSingle6",  // symbol
     nft6CollectionInfo.address, // collection address
     6, // tokenId
     parseFixed('10', 18), // supply // low supply to make quorum easy
     parseFixed('10', 18),
     .1 * PERCENTAGE_SCALE, // fee (10%)
+    "FNFTSingle6", // name
+    "FNFTSingle6",  // symbol
   );
 
   // NFT7
   const fnftSingle7Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle7", // name
-    "FNFTSingle7",  // symbol
     nft7CollectionInfo.address, // collection address
     7, // tokenId
     parseFixed('10', 18), // supply  // low supply to make quorum easy
     parseFixed('10', 18), // initialPrice == 1e18
     .03 * PERCENTAGE_SCALE, // fee (3%)
+    "FNFTSingle7", // name
+    "FNFTSingle7",  // symbol
   );
 
   // NFT8
   const fnftSingle8Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle8", // name
-    "FNFTSingle8",  // symbol
     nft8CollectionInfo.address, // collection address
     8, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
+    "FNFTSingle8", // name
+    "FNFTSingle8",  // symbol
   );
 
   // NFT9
   const fnftSingle9Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle9", // name
-    "FNFTSingle9",  // symbol
     nft9CollectionInfo.address, // collection address
     9, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
+    "FNFTSingle9", // name
+    "FNFTSingle9",  // symbol
   );
 
   // NFT10
   const fnftSingle10Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle10", // name
-    "FNFTSingle10",  // symbol
     nft10CollectionInfo.address, // collection address
     10, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
+    "FNFTSingle10", // name
+    "FNFTSingle10",  // symbol
   );
 
   // NFT11
   const fnftSingle11Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle11", // name
-    "FNFTSingle11",  // symbol
     nft11CollectionInfo.address, // collection address
     11, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
+    "FNFTSingle11", // name
+    "FNFTSingle11",  // symbol
   );
 
   // NFT12
   const fnftSingle12Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle12", // name
-    "FNFTSingle12",  // symbol
     nft12CollectionInfo.address, // collection address
     12, // tokenId
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
+    "FNFTSingle12", // name
+    "FNFTSingle12",  // symbol
   );
 
   // NFT13
   const fnftSingle13Receipt = await FNFTSingleFactory.createVault(
-    "FNFTSingle13", // name
-    "FNFTSingle13",  // symbol
     nft13CollectionInfo.address, // collection address
     13, // tokenId
     parseFixed('100', 18), // supply
     parseFixed('100000', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
+    "FNFTSingle13", // name
+    "FNFTSingle13",  // symbol
   );
 
   // IFOFactory
@@ -552,7 +551,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await IFO12.start();
   await IFO13.start();
 
-
   const signers = await ethers.getSigners();
 
   // SIMULATE RANDOM IFO SALE
@@ -630,7 +628,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // END IFO, NFT5 sceanrio ends here
   await IFO5.end();
-
 
   // Scenario 6 ends here. fNft has votes but no quorum
   // callStatic is ok because cause this is basically a view w/o TWAP
@@ -722,12 +719,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 async function getFNFTSingleAddress(transactionReceipt: any) {
-  const abi = ["event VaultCreated(uint256 indexed vaultId, address vaultAddress, address assetAddress, uint256 tokenId, string name, string symbol);"];
+  const abi = ["event VaultCreated(uint256 indexed vaultId, address curator, address vaultAddress, address assetAddress, uint256 tokenId, uint256 supply, uint256 listPrice, string name, string symbol);"];
   const _interface = new ethers.utils.Interface(abi);
-  const topic = "0xd921958b16a38675933674b8408a1365f4dcafd2dffd570a6a1c93003035466d";
+  const topic = "0x220044f302cf7fe455029c3b05386aa5d8020bdeb160379089b81b53ed95693d";
   const receipt = await transactionReceipt.wait();
   const event = receipt.logs.find((log: any) => log.topics[0] === topic);
-  return _interface.parseLog(event).args[1];
+  return _interface.parseLog(event).args[2];
 }
 
 async function getIFOAddress(transactionReceipt: any) {
