@@ -15,11 +15,13 @@ contract Pausable is OwnableUpgradeable {
 
     mapping(address => bool) public isGuardian;
     mapping(uint256 => bool) public isPaused;
-    // 0 : createVault
-    // 1 : mint
-    // 2 : redeem
-    // 3 : swap
-    // 4 : flashloan
+    // 0  : createVault
+    // 1  : mint
+    // 2  : redeem
+    // 3  : swap
+    // 4  : auction
+    // 5  : flashloan
+    // 10 : stake
 
     error Paused();
     error Unauthorized();

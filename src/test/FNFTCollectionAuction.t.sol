@@ -101,7 +101,7 @@ contract FNFTCollectionAuctionTest is DSTest, SetupEnvironment {
   }
 
   function testStartAuctionPaused() public {
-    pauseFeature(1);
+    pauseFeature(4);
 
     mintVaultTokens(2);
 
@@ -172,7 +172,7 @@ contract FNFTCollectionAuctionTest is DSTest, SetupEnvironment {
     uint256 newBid = 10500e14;
     vault.transfer(bidderTwo, newBid);
 
-    pauseFeature(1);
+    pauseFeature(4);
 
     vm.prank(bidderTwo);
     vm.expectRevert(IFNFTCollection.Paused.selector);
@@ -282,7 +282,7 @@ contract FNFTCollectionAuctionTest is DSTest, SetupEnvironment {
     vault.bid(1, newBid);
     vm.warp(block.timestamp + 3 days);
 
-    pauseFeature(1);
+    pauseFeature(4);
 
     vm.prank(bidderTwo);
     vm.expectRevert(IFNFTCollection.Paused.selector);
@@ -364,18 +364,127 @@ contract FNFTCollectionAuctionTest is DSTest, SetupEnvironment {
     assertEq(fnftCollectionFactory.minBidIncrease(), 1000);
   }
 
-  function mintVaultTokens(uint256 numberOfTokens) private {
+  function testWithdraw() public {
+    address depositor = address(1);
+
     createVault();
 
-    uint256[] memory tokenIds = new uint256[](numberOfTokens);
+    vm.startPrank(depositor);
+    uint256[] memory tokenIds = mintNFTs(depositor, 3);
+    uint256[] memory amounts = new uint256[](0);
 
-    for (uint i; i < numberOfTokens; i++) {
-      token.mint(address(this), i + 1);
+    vault.mint(tokenIds, amounts);
+    vm.stopPrank();
+
+    vault.setVaultFeatures(true, false, false, false, false, true);
+
+    assertEq(token.balanceOf(address(vault)), 3);
+    assertEq(token.balanceOf(depositor), 0);
+    assertEq(vault.balanceOf(depositor), 27e17);
+
+    assertEq(vault.getDepositor(1), depositor);
+    assertEq(vault.getDepositor(2), depositor);
+    assertEq(vault.getDepositor(3), depositor);
+
+    uint256[] memory withdrawTokenIds = new uint256[](2);
+    withdrawTokenIds[0] = 1;
+    withdrawTokenIds[1] = 2;
+    vm.prank(depositor);
+    vault.withdraw(withdrawTokenIds);
+
+    assertEq(token.balanceOf(address(vault)), 1);
+    assertEq(token.balanceOf(depositor), 2);
+    assertEq(vault.balanceOf(depositor), 5e17);
+
+    vm.expectRevert(IFNFTCollection.NotInVault.selector);
+    vault.getDepositor(1);
+    vm.expectRevert(IFNFTCollection.NotInVault.selector);
+    vault.getDepositor(2);
+
+    assertEq(vault.getDepositor(3), depositor);
+  }
+
+  function testWithdrawNotOwner() public {
+    address depositor = address(1);
+
+    createVault();
+
+    vm.startPrank(depositor);
+    uint256[] memory tokenIds = mintNFTs(depositor, 3);
+    uint256[] memory amounts = new uint256[](0);
+
+    vault.mint(tokenIds, amounts);
+    vault.transfer(address(2), 27e17);
+    vm.stopPrank();
+
+    vault.setVaultFeatures(true, false, false, false, false, true);
+
+    uint256[] memory withdrawTokenIds = new uint256[](2);
+    withdrawTokenIds[0] = 1;
+    withdrawTokenIds[1] = 2;
+    vm.prank(address(2));
+    vm.expectRevert(IFNFTCollection.NotNFTOwner.selector);
+    vault.withdraw(withdrawTokenIds);
+  }
+
+  function testWithdrawBidDisabled() public {
+    address depositor = address(1);
+
+    createVault();
+
+    vm.startPrank(depositor);
+    uint256[] memory tokenIds = mintNFTs(depositor, 3);
+    uint256[] memory amounts = new uint256[](0);
+
+    vault.mint(tokenIds, amounts);
+    vm.stopPrank();
+
+    uint256[] memory withdrawTokenIds = new uint256[](2);
+    withdrawTokenIds[0] = 1;
+    withdrawTokenIds[1] = 2;
+    vm.prank(depositor);
+    vm.expectRevert(IFNFTCollection.BidDisabled.selector);
+    vault.withdraw(withdrawTokenIds);
+  }
+
+  function testWithdrawPaused() public {
+    address depositor = address(1);
+
+    createVault();
+
+    vm.startPrank(depositor);
+    uint256[] memory tokenIds = mintNFTs(depositor, 3);
+    uint256[] memory amounts = new uint256[](0);
+
+    vault.mint(tokenIds, amounts);
+    vm.stopPrank();
+
+    vault.setVaultFeatures(true, false, false, false, false, true);
+    pauseFeature(2);
+
+    uint256[] memory withdrawTokenIds = new uint256[](2);
+    withdrawTokenIds[0] = 1;
+    withdrawTokenIds[1] = 2;
+    vm.prank(depositor);
+    vm.expectRevert(IFNFTCollection.Paused.selector);
+    vault.withdraw(withdrawTokenIds);
+  }
+
+  function mintNFTs(address to, uint256 amount) private returns (uint256[] memory tokenIds) {
+    tokenIds = new uint256[](amount);
+
+    for (uint i; i < amount; i++) {
+      token.mint(to, i + 1);
       tokenIds[i] = i + 1;
     }
 
     token.setApprovalForAll(address(vault), true);
+  }
 
+  function mintVaultTokens(uint256 amount) private {
+    createVault();
+
+    uint256[] memory tokenIds = mintNFTs(address(this), amount);
     uint256[] memory amounts = new uint256[](0);
 
     vault.mint(tokenIds, amounts);

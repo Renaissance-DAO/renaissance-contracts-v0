@@ -154,6 +154,7 @@ interface IFNFTCollection is IERC20Upgradeable {
         uint256[] calldata specificIds,
         address to
     ) external returns (uint256[] calldata);
+    function withdraw(uint256[] calldata tokenIds) external returns (uint256[] memory);
 
     function startAuction(uint256 tokenId, uint256 price) external;
     function bid(uint256 tokenId, uint256 price) external;

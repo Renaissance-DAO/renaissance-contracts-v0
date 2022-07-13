@@ -55,7 +55,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
     uint256 length = feeReceivers.length;
     uint256 leftover;
-    for (uint256 i; i < length; ++i) {
+    for (uint256 i; i < length;) {
       FeeReceiver memory _feeReceiver = feeReceivers[i];
       uint256 amountToSend = leftover + ((tokenBalance * _feeReceiver.allocPoint) / allocTotal);
       uint256 currentTokenBalance = IERC20Upgradeable(_vault).balanceOf(address(this));
@@ -67,6 +67,9 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
         leftover = remaining;
       } else {
         leftover = 0;
+      }
+      unchecked {
+        ++i;
       }
     }
 
