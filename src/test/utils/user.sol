@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
 import {FNFTSingleFactory} from "../../contracts/FNFTSingleFactory.sol";
 import {FNFTSingle} from "../../contracts/FNFTSingle.sol";
-import {MockNFT} from "../../contracts/mocks/NFT.sol";
+import {SimpleMockNFT} from "../../contracts/mocks/NFT.sol";
 import {WETH} from "../../contracts/mocks/WETH.sol";
 import {console} from "../utils/console.sol";
 import {CheatCodes} from "../utils/cheatcodes.sol";

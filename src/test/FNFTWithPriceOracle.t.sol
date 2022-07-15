@@ -11,7 +11,7 @@ import {FNFTSingle} from "../contracts/FNFTSingle.sol";
 import {IUniswapV2Pair} from "../contracts/interfaces/IUniswapV2Pair.sol";
 import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
 import {IFNFTSingle} from "../contracts/interfaces/IFNFTSingle.sol";
-import {MockNFT} from "../contracts/mocks/NFT.sol";
+import {SimpleMockNFT} from "../contracts/mocks/NFT.sol";
 import {WETH} from "../contracts/mocks/WETH.sol";
 import {CheatCodes, SetupEnvironment, User, Curator, UserNoETH, PairWithFNFTAndWETH} from "./utils/utils.sol";
 
@@ -22,7 +22,7 @@ contract FNFTWithPriceOracleTest is DSTest, ERC721Holder, SetupEnvironment {
     IPriceOracle public priceOracle;
     IUniswapV2Factory public pairFactory;
     FNFTSingleFactory public fnftSingleFactory;
-    MockNFT public token;
+    SimpleMockNFT public token;
     FNFTSingle public fnftSingle;
 
     User public user1;

@@ -12,7 +12,7 @@ import {FNFTCollectionFactory} from "../contracts/FNFTCollectionFactory.sol";
 import {FNFTSingle, IFNFTSingle} from "../contracts/FNFTSingle.sol";
 import {FNFTCollection} from "../contracts/FNFTCollection.sol";
 import {IFO, IIFO} from "../contracts/IFO.sol";
-import {MockNFT} from "../contracts/mocks/NFT.sol";
+import {SimpleMockNFT} from "../contracts/mocks/NFT.sol";
 import {WETH} from "../contracts/mocks/WETH.sol";
 import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH} from "./utils/utils.sol";
 import {BeaconProxy} from "../contracts/proxy/BeaconProxy.sol";
@@ -24,7 +24,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
     FNFTCollectionFactory public fnftCollectionFactory;
     IFOFactory public ifoFactory;
     IPriceOracle public priceOracle;
-    MockNFT public nft;
+    SimpleMockNFT public nft;
     FNFTSingle public fnftSingle;
     FNFTCollection public fnftCollection;
 
@@ -50,7 +50,7 @@ contract IFOTest is DSTest, ERC721Holder, SetupEnvironment {
         //set governance fee to 0
         fnftSingleFactory.setFactoryFees(0, 1000, 0);
 
-        nft = new MockNFT();
+        nft = new SimpleMockNFT();
 
         nft.mint(address(this), 1);
 

@@ -15,7 +15,7 @@ import {FNFTSingle} from "../contracts/FNFTSingle.sol";
 import {IUniswapV2Factory} from "../contracts/interfaces/IUniswapV2Factory.sol";
 import {IWETH} from "../contracts/interfaces/IWETH.sol";
 import {IFNFTSingle} from "../contracts/interfaces/IFNFTSingle.sol";
-import {MockNFT} from "../contracts/mocks/NFT.sol";
+import {SimpleMockNFT} from "../contracts/mocks/NFT.sol";
 import {WETH} from "../contracts/mocks/WETH.sol";
 import {console, CheatCodes, SetupEnvironment, User, Curator, UserNoETH} from "./utils/utils.sol";
 import {ERC20FlashMintUpgradeable} from "../contracts/token/ERC20FlashMintUpgradeable.sol";
@@ -30,7 +30,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
     IUniswapV2Factory public pairFactory;
     FNFTSingleFactory public fnftSingleFactory;
     VaultManager public vaultManager;
-    MockNFT public token;
+    SimpleMockNFT public token;
     FNFTSingle public fnftSingle;
 
     User public user1;
@@ -55,7 +55,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         //set governance fee to 100
         fnftSingleFactory.setFactoryFees(100, 1000, 0);
         fnftSingleFactory.setIsGuardian(address(this), true);
-        token = new MockNFT();
+        token = new SimpleMockNFT();
         token.mint(address(this), 1);
         token.setApprovalForAll(address(fnftSingleFactory), true);
         // FNFTSingle minted on this test contract address.
@@ -139,7 +139,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
 
     function testPause() public {
         fnftSingleFactory.pause(0);
-        MockNFT temp = new MockNFT();
+        SimpleMockNFT temp = new SimpleMockNFT();
 
         temp.mint(address(this), 1);
 
@@ -151,7 +151,7 @@ contract FNFTSingleTest is DSTest, ERC721Holder, SetupEnvironment {
         fnftSingleFactory.pause(0);
 
         vm.startPrank(address(user1));
-        MockNFT temp = new MockNFT();
+        SimpleMockNFT temp = new SimpleMockNFT();
 
         temp.mint(address(this), 1);
 

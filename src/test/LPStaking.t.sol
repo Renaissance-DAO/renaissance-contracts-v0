@@ -2,7 +2,7 @@
 pragma solidity 0.8.13;
 
 import "ds-test/test.sol";
-import {MockNFT} from "../contracts/mocks/NFT.sol";
+import {SimpleMockNFT} from "../contracts/mocks/NFT.sol";
 import {console, SetupEnvironment} from "./utils/utils.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
 import {LPStaking, ILPStaking} from "../contracts/LPStaking.sol";
@@ -28,7 +28,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
   IUniswapV2Pair private uniswapV2Pair;
   IUniswapV2Router private uniswapV2Router;
 
-  MockNFT public token;
+  SimpleMockNFT public token;
 
   uint256 public vaultId;
 
@@ -48,7 +48,7 @@ contract LPStakingTest is DSTest, SetupEnvironment {
     uniswapV2Factory = setupPairFactory();
     uniswapV2Router = setupRouter();
 
-    token = new MockNFT();
+    token = new SimpleMockNFT();
 
     vaultId = 0;
   }

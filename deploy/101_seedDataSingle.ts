@@ -13,12 +13,13 @@ import {ethers} from 'hardhat';
  * 5.  NFT5 => FNFTSingle5 that has finished IFO with a few sales here and there
  * 6.  NFT6 => FNFTSingle6 that has averageReserve voted that doesn’t meet quorum
  * 7.  NFT7 => FNFTSingle7 that has averageReserve that meets quorum
- * 8.  NFT8 => FNFTSingle9 that has completed an auction w/ a few bids
+ * 8.  NFT8 => FNFTSingle8 that has completed an auction w/ a few bids
  * 9.  NFT9 => FNFTSingle9 that has a triggered start bid
  * 10. NFT10 => FNFTSingle10 that is undergoing a bid war
  * 11. NFT11 => FNFTSingle11 that is redeemed
- * 12: NFT12 => FNFTSingle13 that is cashed out by a few people
- * 13. NFT13 => FNFTSingle14 that has a liquidity pool above threshold
+ * 12: NFT12 => FNFTSingle12 that is cashed out by a few people
+ * 13. NFT13 => FNFTSingle13 that has a liquidity pool above threshold // TODO
+ * 14. NFT14 => FNFTSingle14 that doesn't have tokenURI // TODO
  */
 
 const PERCENTAGE_SCALE = 10000; // for converting percentages to fixed point
@@ -29,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const {deployer} = await getNamedAccounts();
 
   // NFT1
-  const nft1CollectionInfo = await deploy('NameableMockNFT', {
+  const nft1CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT1", "NFT1"],
     log: true,
@@ -41,7 +42,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT2
-  const nft2CollectionInfo = await deploy('NameableMockNFT', {
+  const nft2CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT2", "NFT2"],
     log: true,
@@ -53,7 +54,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT3
-  const nft3CollectionInfo = await deploy('NameableMockNFT', {
+  const nft3CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT3", "NFT3"],
     log: true,
@@ -65,7 +66,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT4
-  const nft4CollectionInfo = await deploy('NameableMockNFT', {
+  const nft4CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT4", "NFT4"],
     log: true,
@@ -77,7 +78,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT5
-  const nft5CollectionInfo = await deploy('NameableMockNFT', {
+  const nft5CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT5", "NFT5"],
     log: true,
@@ -89,7 +90,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT6
-  const nft6CollectionInfo = await deploy('NameableMockNFT', {
+  const nft6CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT6", "NFT6"],
     log: true,
@@ -101,7 +102,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT7
-  const nft7CollectionInfo = await deploy('NameableMockNFT', {
+  const nft7CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT7", "NFT7"],
     log: true,
@@ -113,7 +114,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT8
-  const nft8CollectionInfo = await deploy('NameableMockNFT', {
+  const nft8CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT8", "NFT8"],
     log: true,
@@ -125,7 +126,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT9
-  const nft9CollectionInfo = await deploy('NameableMockNFT', {
+  const nft9CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT9", "NFT9"],
     log: true,
@@ -137,7 +138,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT10
-  const nft10CollectionInfo = await deploy('NameableMockNFT', {
+  const nft10CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT10", "NFT10"],
     log: true,
@@ -149,7 +150,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT11
-  const nft11CollectionInfo = await deploy('NameableMockNFT', {
+  const nft11CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT11", "NFT11"],
     log: true,
@@ -161,7 +162,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT12
-  const nft12CollectionInfo = await deploy('NameableMockNFT', {
+  const nft12CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT12", "NFT12"],
     log: true,
@@ -173,7 +174,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT13
-  const nft13CollectionInfo = await deploy('NameableMockNFT', {
+  const nft13CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
     args: ["NFT13", "NFT13"],
     log: true,

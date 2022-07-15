@@ -12,8 +12,8 @@ import {console, CheatCodes, SetupEnvironment} from "./utils/utils.sol";
 /// @title Tests for the fnftSingleFactory
 contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
     IFNFTSingleFactory public fnftSingleFactory;
-    MockNFT public token;
-    MockNFT public token2;
+    SimpleMockNFT public token;
+    SimpleMockNFT public token2;
 
     function setUp() public {
         setupEnvironment(10 ether);
@@ -28,8 +28,8 @@ contract FNFTSingleFactoryTest is DSTest, SetupEnvironment {
             ,
         ) = setupContracts();
 
-        token = new MockNFT();
-        token2 = new MockNFT();
+        token = new SimpleMockNFT();
+        token2 = new SimpleMockNFT();
     }
 
     function testSetMaxAuction() public {

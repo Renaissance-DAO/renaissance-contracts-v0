@@ -2,7 +2,7 @@
 pragma solidity 0.8.13;
 
 import "ds-test/test.sol";
-import {MockNFT} from "../contracts/mocks/NFT.sol";
+import {SimpleMockNFT} from "../contracts/mocks/NFT.sol";
 import {Mock1155} from "../contracts/mocks/ERC1155.sol";
 import {console, SetupEnvironment} from "./utils/utils.sol";
 import {FlashBorrower} from "./utils/FlashBorrower.sol";
@@ -25,7 +25,7 @@ contract FNFTCollectionAuctionTest is DSTest, SetupEnvironment {
   VaultManager private vaultManager;
   FNFTCollectionFactory private fnftCollectionFactory;
   FNFTCollection private vault;
-  MockNFT private token;
+  SimpleMockNFT private token;
 
   address private bidderOne = address(1);
   address private bidderTwo = address(2);
@@ -43,7 +43,7 @@ contract FNFTCollectionAuctionTest is DSTest, SetupEnvironment {
         fnftCollectionFactory,
     ) = setupContracts();
 
-    token = new MockNFT();
+    token = new SimpleMockNFT();
   }
 
   function testGetAuctionInactive() public {

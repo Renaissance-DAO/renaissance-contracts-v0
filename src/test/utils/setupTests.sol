@@ -20,7 +20,7 @@ import {IUniswapV2Router} from "../../contracts/interfaces/IUniswapV2Router.sol"
 import {FNFTSingleFactory} from "../../contracts/FNFTSingleFactory.sol";
 import {VaultManager} from "../../contracts/VaultManager.sol";
 import {FNFTSingle} from "../../contracts/FNFTSingle.sol";
-import {MockNFT} from "../../contracts/mocks/NFT.sol";
+import {SimpleMockNFT} from "../../contracts/mocks/NFT.sol";
 
 contract SetupEnvironment {
     Deployer public deployer;
@@ -84,7 +84,7 @@ contract SetupEnvironment {
     function setupFNFTSingle(address _fnftSingleFactory, uint256 _amountToMint) public returns (FNFTSingle fnftSingle) {
         FNFTSingleFactory factory = FNFTSingleFactory(_fnftSingleFactory);
 
-        MockNFT token = new MockNFT();
+        SimpleMockNFT token = new SimpleMockNFT();
 
         token.mint(address(this), 1);
 
@@ -107,7 +107,7 @@ contract SetupEnvironment {
     function setupFNFTCollection(address _fnftCollectionFactory, uint256 _amountToMint) public returns (FNFTCollection fnftCollection) {
         FNFTCollectionFactory factory = FNFTCollectionFactory(_fnftCollectionFactory);
 
-        MockNFT token = new MockNFT();
+        SimpleMockNFT token = new SimpleMockNFT();
         fnftCollection = FNFTCollection(factory.createVault(address(token), false, true, "Doodles", "DOODLE"));
         uint256[] memory tokenIds = new uint256[](_amountToMint);
 

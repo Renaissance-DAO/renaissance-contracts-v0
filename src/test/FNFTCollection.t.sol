@@ -2,7 +2,7 @@
 pragma solidity 0.8.13;
 
 import "ds-test/test.sol";
-import {MockNFT} from "../contracts/mocks/NFT.sol";
+import {SimpleMockNFT} from "../contracts/mocks/NFT.sol";
 import {console, SetupEnvironment} from "./utils/utils.sol";
 import {FlashBorrower} from "./utils/FlashBorrower.sol";
 import {StakingTokenProvider} from "../contracts/StakingTokenProvider.sol";
@@ -24,7 +24,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
   VaultManager private vaultManager;
   FNFTCollectionFactory private fnftCollectionFactory;
   FNFTCollection private vault;
-  MockNFT public token;
+  SimpleMockNFT public token;
 
   function setUp() public {
     setupEnvironment(10 ether);
@@ -39,7 +39,7 @@ contract FNFTCollectionTest is DSTest, SetupEnvironment {
         fnftCollectionFactory,
     ) = setupContracts();
 
-    token = new MockNFT();
+    token = new SimpleMockNFT();
   }
 
   function testVarsAfterFactoryInit() public {
