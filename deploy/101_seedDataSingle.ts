@@ -260,6 +260,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
   await nft13Collection.setBaseURI("https://static-resource.dirtyflies.xyz/metadata/");
 
+  // NFT14
+  const nft14CollectionInfo = await deploy('NoURIMockNFT', {
+    from: deployer,
+    args: ["NFT14 Name", "NFT14"],
+    log: true,
+    autoMine: true
+  });
+  const nft14Collection = await ethers.getContractAt(
+    nft13CollectionInfo.abi,
+    nft13CollectionInfo.address
+  );
+
   // mint
   await nft1Collection.mint(deployer, 1);
   await nft2Collection.mint(deployer, 2);
