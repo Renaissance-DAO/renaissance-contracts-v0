@@ -22,6 +22,68 @@ import {ethers} from 'hardhat';
  * 14. NFT14 => FNFTSingle14 that doesn't have tokenURI // TODO
  */
 
+// Test images used
+//  1
+//  0x0453435725ccb8AaA1AB52474Dcb12aEf220679E
+//  ipfs://QmVTuf8VqSjJ6ma6ykTJiuVtvAY9CHJiJnXsgSMf5rBRtZ/1
+
+//  2
+//  0xECCAE88FF31e9f823f25bEb404cbF2110e81F1FA
+//  https://www.timelinetransit.xyz/metadata/1
+
+//  3
+//  0xdcAF23e44639dAF29f6532da213999D737F15aa4
+//  ipfs://bafybeie7oivvuqcmhjzvxbiezyz7sr4fxkcrutewmaoathfsvcwksqiyuy/1
+
+//  4
+//  0x3b3C2daCfDD7b620C8916A5f7Aa6476bdFb1aa07
+//  https://cdn.childrenofukiyo.com/metadata/1
+
+//  5
+//  0x249aeAa7fA06a63Ea5389b72217476db881294df
+//  https://chainbase-api.matrixlabs.org/metadata/api/v1/apps/ethereum:mainnet:bKPQsA_Ohnj1Ug0MvX39i/contracts/0x249aeAa7fA06a63Ea5389b72217476db881294df_ethereum/metadata/tokens/1
+
+//  6
+//  0xEA2652EC4e36547d58dC4E58DaB00Acb11b351Ee
+//  https://us-central1-catblox-1f4e5.cloudfunctions.net/api/tbt-prereveal/1
+
+//  7
+//  0x6E3B47A8697Bc62be030827f4927A50Eb3a93d2A
+//  https://loremnft.com/nft/token/1
+
+//  8
+//  0x32dD588f23a95280134107A22C064cEA065327E9
+//  ipfs://QmQNdnPx1K6a8jd5XJEJvGorx73U9pmpqU2YAhEfQZDwcw/1
+
+//  9
+//  0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D
+//  ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/1
+
+//  10
+//  0xB6C035ebc715d2E14946B03D49709140b86f1A75
+//  https://metadata.buildship.xyz/api/dummy-metadata-for/bafybeifuibkffbtlu4ttpb6c3tiyhezxoarxop5nuhr3ht3mdb7puumr2q/1
+
+//  11
+//  0x866ebb7d3Dc493ac0994719D4481341A3a678B0c
+//  http://api.cyberfist.xyz/badges/metadata/1
+
+//  12
+//  0x9294b5Bce53C444eb78B7BD9532D809e9b9cD123
+//  https://gateway.pinata.cloud/ipfs/Qmdp8uFBrWq3CJmNHviq4QLZzbw5BchA7Xi99xTxuxoQjY/1
+
+//  13
+//  0x9984bD85adFEF02Cea2C28819aF81A6D17a3Cb96
+//  https://static-resource.dirtyflies.xyz/metadata/1
+
+//  14
+//  0x69BE8755FEd63C0A7BE139b96e929cF7Ff63897D
+//  ipfs://QmRd7BKD3ubYEGck6UESEfL2PJkzLr2oZhGyAC2dz8e8FB/1
+
+//  15
+//  0x7401aaeF871046583Ef3C97FCaCD4749dEB88448
+//  ipfs://QmV97nkwJuyv6axWRE54HWvWFYzq2XUaUa63RqM1mQpSTT/?2
+
+
 const PERCENTAGE_SCALE = 10000; // for converting percentages to fixed point
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -32,7 +94,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // NFT1
   const nft1CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT1", "NFT1"],
+    args: ["NFT1 Name", "NFT1"],
     log: true,
     autoMine: true
   });
@@ -40,11 +102,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft1CollectionInfo.abi,
     nft1CollectionInfo.address
   );
+  await nft1Collection.setBaseURI("ipfs://QmVTuf8VqSjJ6ma6ykTJiuVtvAY9CHJiJnXsgSMf5rBRtZ/");
 
   // NFT2
   const nft2CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT2", "NFT2"],
+    args: ["NFT2 Name", "NFT2"],
     log: true,
     autoMine: true
   });
@@ -52,11 +115,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft2CollectionInfo.abi,
     nft2CollectionInfo.address
   );
+  await nft2Collection.setBaseURI("https://www.timelinetransit.xyz/metadata/");
 
   // NFT3
   const nft3CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT3", "NFT3"],
+    args: ["NFT3 Name", "NFT3"],
     log: true,
     autoMine: true
   });
@@ -64,11 +128,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft3CollectionInfo.abi,
     nft3CollectionInfo.address
   );
+  await nft3Collection.setBaseURI("ipfs://bafybeie7oivvuqcmhjzvxbiezyz7sr4fxkcrutewmaoathfsvcwksqiyuy/");
 
   // NFT4
   const nft4CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT4", "NFT4"],
+    args: ["NFT4 Name", "NFT4"],
     log: true,
     autoMine: true
   });
@@ -76,11 +141,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft4CollectionInfo.abi,
     nft4CollectionInfo.address
   );
+  await nft4Collection.setBaseURI("https://cdn.childrenofukiyo.com/metadata/");
 
   // NFT5
   const nft5CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT5", "NFT5"],
+    args: ["NFT5 Name", "NFT5"],
     log: true,
     autoMine: true
   });
@@ -88,11 +154,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft5CollectionInfo.abi,
     nft5CollectionInfo.address
   );
+  await nft5Collection.setBaseURI("https://chainbase-api.matrixlabs.org/metadata/api/v1/apps/ethereum:mainnet:bKPQsA_Ohnj1Ug0MvX39i/contracts/0x249aeAa7fA06a63Ea5389b72217476db881294df_ethereum/metadata/tokens/");
 
   // NFT6
   const nft6CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT6", "NFT6"],
+    args: ["NFT6 Name", "NFT6"],
     log: true,
     autoMine: true
   });
@@ -100,11 +167,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft6CollectionInfo.abi,
     nft6CollectionInfo.address
   );
+  await nft6Collection.setBaseURI("https://us-central1-catblox-1f4e5.cloudfunctions.net/api/tbt-prereveal/1");
 
   // NFT7
   const nft7CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT7", "NFT7"],
+    args: ["NFT7 Name", "NFT7"],
     log: true,
     autoMine: true
   });
@@ -112,11 +180,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft7CollectionInfo.abi,
     nft7CollectionInfo.address
   );
+  await nft7Collection.setBaseURI("https://loremnft.com/nft/token/");
 
   // NFT8
   const nft8CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT8", "NFT8"],
+    args: ["NFT8 Name", "NFT8"],
     log: true,
     autoMine: true
   });
@@ -124,11 +193,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft8CollectionInfo.abi,
     nft8CollectionInfo.address
   );
+  await nft8Collection.setBaseURI("ipfs://QmQNdnPx1K6a8jd5XJEJvGorx73U9pmpqU2YAhEfQZDwcw/");
 
   // NFT9
   const nft9CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT9", "NFT9"],
+    args: ["NFT9 Name", "NFT9"],
     log: true,
     autoMine: true
   });
@@ -136,11 +206,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft9CollectionInfo.abi,
     nft9CollectionInfo.address
   );
+  await nft9Collection.setBaseURI("ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/");
 
   // NFT10
   const nft10CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT10", "NFT10"],
+    args: ["NFT10 Name", "NFT10"],
     log: true,
     autoMine: true
   });
@@ -148,11 +219,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft10CollectionInfo.abi,
     nft10CollectionInfo.address
   );
+  await nft10Collection.setBaseURI("https://metadata.buildship.xyz/api/dummy-metadata-for/bafybeifuibkffbtlu4ttpb6c3tiyhezxoarxop5nuhr3ht3mdb7puumr2q/");
 
   // NFT11
   const nft11CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT11", "NFT11"],
+    args: ["NFT11 Name", "NFT11"],
     log: true,
     autoMine: true
   });
@@ -160,11 +232,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft11CollectionInfo.abi,
     nft11CollectionInfo.address
   );
+  await nft11Collection.setBaseURI("http://api.cyberfist.xyz/badges/metadata/");
 
   // NFT12
   const nft12CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT12", "NFT12"],
+    args: ["NFT12 Name", "NFT12"],
     log: true,
     autoMine: true
   });
@@ -172,11 +245,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft12CollectionInfo.abi,
     nft12CollectionInfo.address
   );
+  await nft12Collection.setBaseURI("https://gateway.pinata.cloud/ipfs/Qmdp8uFBrWq3CJmNHviq4QLZzbw5BchA7Xi99xTxuxoQjY/");
 
   // NFT13
   const nft13CollectionInfo = await deploy('StandardMockNFT', {
     from: deployer,
-    args: ["NFT13", "NFT13"],
+    args: ["NFT13 Name", "NFT13"],
     log: true,
     autoMine: true
   });
@@ -184,6 +258,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     nft13CollectionInfo.abi,
     nft13CollectionInfo.address
   );
+  await nft13Collection.setBaseURI("https://static-resource.dirtyflies.xyz/metadata/");
 
   // mint
   await nft1Collection.mint(deployer, 1);
