@@ -340,6 +340,7 @@ const fnftCollection10 = await ethers.getContractAt('FNFTCollection', fnftCollec
 const fnftCollection11 = await ethers.getContractAt('FNFTCollection', fnftCollection11Address);
 const fnftCollection12 = await ethers.getContractAt('FNFTCollection', fnftCollection12Address);
 
+console.log("WHY")
 for (let i = 1; i <= 5; i ++) {
 	// approve factory
 	await nft1Collection.approve(fnftCollection1.address, i);
@@ -378,6 +379,7 @@ await fnftCollection10.mintTo([1,2,3,4,5], [], deployer); // ifo ongoing
 await fnftCollection11.mintTo([1,2,3,4,5], [], deployer); // ifo paused
 await fnftCollection12.mintTo([1,2,3,4,5], [], deployer); // ifo finished
 
+console.log("WHY2")
 // IFO
 
 // IFOFactory
@@ -388,12 +390,13 @@ await fnftCollection10.approve(IFOFactory.address, await fnftCollection10.balanc
 await fnftCollection11.approve(IFOFactory.address, await fnftCollection11.balanceOf(deployer));
 await fnftCollection12.approve(IFOFactory.address, await fnftCollection12.balanceOf(deployer));
 
+console.log("WHY3")
 // NFT9 IFO
 await IFOFactory.create(
 	fnftCollection9Address, // fNft
-	await fnftCollection9.totalSupply(), // amount for sale
+	await fnftCollection9.balanceOf(deployer), // amount for sale
 	parseFixed('1', 18), // price
-	await fnftCollection9.totalSupply(), // cap
+	await fnftCollection9.balanceOf(deployer), // cap
 	1_000_000, // short duration for purposes of testing
 	false // allow whitelisting
 );
@@ -401,9 +404,9 @@ await IFOFactory.create(
 // NFT10 IFO
 const IFO10Receipt = await IFOFactory.create(
 	fnftCollection10Address, // fNft
-	await fnftCollection10.totalSupply(), // amount for sale
+	await fnftCollection10.balanceOf(deployer), // amount for sale
 	parseFixed('1', 18), // price
-	await fnftCollection10.totalSupply(), // cap
+	await fnftCollection10.balanceOf(deployer), // cap
 	1_000_000, //duration
 	false // allow whitelisting
 );
@@ -411,9 +414,9 @@ const IFO10Receipt = await IFOFactory.create(
 // NFT11 IFO
 const IFO11Receipt = await IFOFactory.create(
 	fnftCollection11Address, // fNft
-	await fnftCollection11.totalSupply(), // amount for sale
+	await fnftCollection11.balanceOf(deployer), // amount for sale
 	parseFixed('1', 18), // price
-	await fnftCollection11.totalSupply(), // cap
+	await fnftCollection11.balanceOf(deployer), // cap
 	1_000_000, //duration
 	false // allow whitelisting
 );
@@ -421,9 +424,9 @@ const IFO11Receipt = await IFOFactory.create(
 // NFT12 IFO
 const IFO12Receipt = await IFOFactory.create(
 	fnftCollection12Address, // fNft
-	await fnftCollection12.totalSupply(), // amount for sale
+	await fnftCollection12.balanceOf(deployer), // amount for sale
 	parseFixed('1', 18), // price
-	await fnftCollection12.totalSupply(), // cap
+	await fnftCollection12.balanceOf(deployer), // cap
 	86400, // short duration for purposes of testing
 	false // allow whitelisting
 );
@@ -447,23 +450,24 @@ const signers = await ethers.getSigners();
 // SIMULATE RANDOM IFO SALE
 
 // NFT10
-const ifo10Price = await IFO10.price();
-signers.forEach(async (signer) => {
+const ifo10Price = BigNumber.from(await IFO10.price()).div(10);
+await Promise.all(signers.map(async (signer) => {
 	await IFO10.connect(signer).deposit({value: ifo10Price});
-});
+}));
 
 // NFT11
-const ifo11Price = await IFO11.price();
-signers.slice(9, 19).forEach(async (signer) => {
+const ifo11Price = BigNumber.from(await IFO11.price()).div(10);
+await Promise.all(signers.slice(9, 19).map(async (signer) => {
+	// console.log("2: ", await signer.getBalance(), ifo11Price);
 	await IFO11.connect(signer).deposit({value: ifo11Price});
-});
-
+}));
 
 // NFT12
-const ifo12Price = await IFO12.price();
-signers.slice(0, 9).forEach(async (signer) => {
+const ifo12Price = BigNumber.from(await IFO12.price()).div(10);
+await Promise.all(signers.slice(0, 9).map(async (signer) => {
+	// console.log("3: ", await signer.getBalance(), ifo10Price);
 	await IFO12.connect(signer).deposit({value: ifo12Price});
-});
+}));
 
 // mine here to allow sales time to finish and also to allow IFO5 duration to complete
 console.log('starting to mine... (this takes a few minutes)');

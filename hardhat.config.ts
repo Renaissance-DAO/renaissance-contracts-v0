@@ -36,6 +36,8 @@ const config: HardhatUserConfig = {
     hardhat: {
       chainId: +process.env.AURORA_LOCAL_CHAINID!,
       saveDeployments: false,
+      gasPrice: 200000000000,
+      gas: 30000000,
       forking: {
         url: "https://eth-mainnet.alchemyapi.io/v2/7p4KzWgfAW2gU_4xOoPT5mpxDdOgFycO"
       }
