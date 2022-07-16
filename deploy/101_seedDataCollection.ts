@@ -329,9 +329,6 @@ import {ethers} from 'hardhat';
     "FNFTC12" // symbol
    );
 
-
-
-
    // IFOFactory
    const IFOFactory = await getContract(hre, 'IFOFactory');
 
@@ -370,6 +367,96 @@ import {ethers} from 'hardhat';
    await fnftCollection10.approve(IFOFactory.address, await fnftCollection10.balanceOf(deployer));
    await fnftCollection11.approve(IFOFactory.address, await fnftCollection11.balanceOf(deployer));
    await fnftCollection12.approve(IFOFactory.address, await fnftCollection12.balanceOf(deployer));
+
+
+  // NFT9 IFO
+  await IFOFactory.create(
+    fnftCollection9Address, // fNft
+    await fnftCollection9.totalSupply(), // amount for sale
+    parseFixed('1', 18), // price
+    await fnftCollection9.totalSupply(), // cap
+    1_000_000, // short duration for purposes of testing
+    false // allow whitelisting
+  );
+
+  // NFT10 IFO
+  const IFO10Receipt = await IFOFactory.create(
+    fnftCollection10Address, // fNft
+    await fnftCollection10.totalSupply(), // amount for sale
+    parseFixed('1', 18), // price
+    await fnftCollection10.totalSupply(), // cap
+    1_000_000, //duration
+    false // allow whitelisting
+  );
+
+  // NFT11 IFO
+  const IFO11Receipt = await IFOFactory.create(
+    fnftCollection11Address, // fNft
+    await fnftCollection11.totalSupply(), // amount for sale
+    parseFixed('1', 18), // price
+    await fnftCollection11.totalSupply(), // cap
+    1_000_000, //duration
+    false // allow whitelisting
+  );
+
+  // NFT12 IFO
+  const IFO12Receipt = await IFOFactory.create(
+    fnftCollection12Address, // fNft
+    await fnftCollection12.totalSupply(), // amount for sale
+    parseFixed('1', 18), // price
+    await fnftCollection12.totalSupply(), // cap
+    86400, // short duration for purposes of testing
+    false // allow whitelisting
+  );
+
+  const IFO10Address = await getIFOAddress(IFO10Receipt);
+  const IFO11Address = await getIFOAddress(IFO11Receipt);
+  const IFO12Address = await getIFOAddress(IFO12Receipt);
+
+  // start IFOs
+  const IFO10 = await ethers.getContractAt('IFO', IFO10Address);
+  const IFO11 = await ethers.getContractAt('IFO', IFO11Address);
+  const IFO12 = await ethers.getContractAt('IFO', IFO12Address);
+
+  // IFO9 skipped
+  await IFO10.start();
+  await IFO11.start();
+  await IFO12.start();
+
+  const signers = await ethers.getSigners();
+
+  // SIMULATE RANDOM IFO SALE
+
+  // NFT10
+  const ifo10Price = await IFO10.price();
+  signers.forEach(async (signer) => {
+    await IFO10.connect(signer).deposit({value: ifo10Price});
+  });
+
+  // NFT11
+  const ifo11Price = await IFO11.price();
+  signers.slice(9, 19).forEach(async (signer) => {
+    await IFO11.connect(signer).deposit({value: ifo11Price});
+  });
+
+
+  // NFT12
+  const ifo12Price = await IFO12.price();
+  signers.slice(0, 9).forEach(async (signer) => {
+    await IFO12.connect(signer).deposit({value: ifo12Price});
+  });
+
+  // mine here to allow sales time to finish and also to allow IFO5 duration to complete
+  console.log('starting to mine... (this takes a few minutes)');
+  await mineNBlocks(86400); // this takes a few min unfortunately
+  console.log('completed mining');
+
+  // Pause IFO, NFT11 sceanrio ends here
+  await IFO11.togglePause();
+
+
+  // END IFO, NFT12 sceanrio ends here
+  await IFO12.end();
  };
 
  async function getFNFTCollectionAddress(transactionReceipt: any) {
