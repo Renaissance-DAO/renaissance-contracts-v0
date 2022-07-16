@@ -268,8 +268,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     autoMine: true
   });
   const nft14Collection = await ethers.getContractAt(
-    nft13CollectionInfo.abi,
-    nft13CollectionInfo.address
+    nft14CollectionInfo.abi,
+    nft14CollectionInfo.address
   );
 
   // mint
@@ -286,6 +286,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft11Collection.mint(deployer, 11);
   await nft12Collection.mint(deployer, 12);
   await nft13Collection.mint(deployer, 13);
+  await nft14Collection.mint(deployer, 14);
 
   // fractionalize nfts
   const FNFTSingleFactory = await getContract(hre, "FNFTSingleFactory");
@@ -304,6 +305,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft11Collection.approve(FNFTSingleFactory.address, 11);
   await nft12Collection.approve(FNFTSingleFactory.address, 12);
   await nft13Collection.approve(FNFTSingleFactory.address, 13);
+  await nft14Collection.approve(FNFTSingleFactory.address, 14);
 
   // NFT1 - scenario is done here
   await FNFTSingleFactory.createVault(
@@ -312,7 +314,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10000', 18), // supply
     parseFixed('100', 18), // initialPrice === 1e18
     .01 * PERCENTAGE_SCALE, // fee (1%)
-    "FNFTSingle1", // name
+    "FNFT Single 1", // name
     "FNFTSingle1",  // symbol
   );
 
@@ -323,7 +325,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('1000', 18), // supply
     parseFixed('10000', 18), // initialPrice === 2e18
     .1 * PERCENTAGE_SCALE, // fee (10%)
-    "FNFTSingle2", // name
+    "FNFT Single 2", // name
     "FNFTSingle2",  // symbol
   );
 
@@ -334,7 +336,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('100', 18), // supply
     parseFixed('1000', 18), // initialPrice == 2e18
     .03 * PERCENTAGE_SCALE, // fee (3%)
-    "FNFTSingle3", // name
+    "FNFT Single 3", // name
     "FNFTSingle3",  // symbol
   );
 
@@ -345,7 +347,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('100000', 18), // supply
     parseFixed('1000000', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
-    "FNFTSingle4", // name
+    "FNFT Single 4", // name
     "FNFTSingle4",  // symbol
   );
 
@@ -356,7 +358,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('100', 18), // supply
     parseFixed('100', 18), // initialPrice
     .01 * PERCENTAGE_SCALE, // fee (1%)
-    "FNFTSingle5", // name
+    "FNFT Single 5", // name
     "FNFTSingle5",  // symbol
   );
 
@@ -367,7 +369,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // supply // low supply to make quorum easy
     parseFixed('10', 18),
     .1 * PERCENTAGE_SCALE, // fee (10%)
-    "FNFTSingle6", // name
+    "FNFT Single 6", // name
     "FNFTSingle6",  // symbol
   );
 
@@ -378,7 +380,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // supply  // low supply to make quorum easy
     parseFixed('10', 18), // initialPrice == 1e18
     .03 * PERCENTAGE_SCALE, // fee (3%)
-    "FNFTSingle7", // name
+    "FNFT Single 7", // name
     "FNFTSingle7",  // symbol
   );
 
@@ -389,7 +391,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
-    "FNFTSingle8", // name
+    "FNFT Single 8", // name
     "FNFTSingle8",  // symbol
   );
 
@@ -400,7 +402,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
-    "FNFTSingle9", // name
+    "FNFT Single 9", // name
     "FNFTSingle9",  // symbol
   );
 
@@ -411,7 +413,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
-    "FNFTSingle10", // name
+    "FNFT Single 10", // name
     "FNFTSingle10",  // symbol
   );
 
@@ -422,7 +424,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
-    "FNFTSingle11", // name
+    "FNFT Single 11", // name
     "FNFTSingle11",  // symbol
   );
 
@@ -433,7 +435,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('10', 18), // supply
     parseFixed('10', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
-    "FNFTSingle12", // name
+    "FNFT Single 12", // name
     "FNFTSingle12",  // symbol
   );
 
@@ -444,8 +446,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     parseFixed('100', 18), // supply
     parseFixed('100000', 18), // initialPrice
     .005 * PERCENTAGE_SCALE, // fee (.5%)
-    "FNFTSingle13", // name
+    "FNFT Single 13", // name
     "FNFTSingle13",  // symbol
+  );
+
+  // NFT14
+  const fnftSingle14Receipt = await FNFTSingleFactory.createVault(
+    nft14CollectionInfo.address, // collection address
+    14, // tokenId
+    parseFixed('100', 18), // supply
+    parseFixed('100000', 18), // initialPrice
+    .005 * PERCENTAGE_SCALE, // fee (.5%)
+    "FNFT Single 14", // name
+    "FNFTSingle14",  // symbol
   );
 
   // IFOFactory
@@ -463,6 +476,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle11Address = await getFNFTSingleAddress(fnftSingle11Receipt);
   const fnftSingle12Address = await getFNFTSingleAddress(fnftSingle12Receipt);
   const fnftSingle13Address = await getFNFTSingleAddress(fnftSingle13Receipt);
+  const fnftSingle14Address = await getFNFTSingleAddress(fnftSingle14Receipt);
 
   const fnftSingle2 = await ethers.getContractAt('FNFTSingle', fnftSingle2Address);
   const fnftSingle3 = await ethers.getContractAt('FNFTSingle', fnftSingle3Address);
@@ -476,6 +490,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle11 = await ethers.getContractAt('FNFTSingle', fnftSingle11Address);
   const fnftSingle12 = await ethers.getContractAt('FNFTSingle', fnftSingle12Address);
   const fnftSingle13 = await ethers.getContractAt('FNFTSingle', fnftSingle13Address);
+  const fnftSingle14 = await ethers.getContractAt('FNFTSingle', fnftSingle14Address);
 
   await fnftSingle2.approve(IFOFactory.address, await fnftSingle2.balanceOf(deployer));
   await fnftSingle3.approve(IFOFactory.address, await fnftSingle3.balanceOf(deployer));
@@ -489,6 +504,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await fnftSingle11.approve(IFOFactory.address, await fnftSingle11.balanceOf(deployer));
   await fnftSingle12.approve(IFOFactory.address, await fnftSingle12.balanceOf(deployer));
   await fnftSingle13.approve(IFOFactory.address, await fnftSingle13.balanceOf(deployer));
+  await fnftSingle14.approve(IFOFactory.address, await fnftSingle14.balanceOf(deployer));
 
   // NFT2 IFO - NFT2 scenario is done here.
   await IFOFactory.create(

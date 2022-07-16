@@ -340,7 +340,6 @@ const fnftCollection10 = await ethers.getContractAt('FNFTCollection', fnftCollec
 const fnftCollection11 = await ethers.getContractAt('FNFTCollection', fnftCollection11Address);
 const fnftCollection12 = await ethers.getContractAt('FNFTCollection', fnftCollection12Address);
 
-console.log("WHY")
 for (let i = 1; i <= 5; i ++) {
 	// approve factory
 	await nft1Collection.approve(fnftCollection1.address, i);
@@ -379,7 +378,6 @@ await fnftCollection10.mintTo([1,2,3,4,5], [], deployer); // ifo ongoing
 await fnftCollection11.mintTo([1,2,3,4,5], [], deployer); // ifo paused
 await fnftCollection12.mintTo([1,2,3,4,5], [], deployer); // ifo finished
 
-console.log("WHY2")
 // IFO
 
 // IFOFactory
@@ -390,7 +388,6 @@ await fnftCollection10.approve(IFOFactory.address, await fnftCollection10.balanc
 await fnftCollection11.approve(IFOFactory.address, await fnftCollection11.balanceOf(deployer));
 await fnftCollection12.approve(IFOFactory.address, await fnftCollection12.balanceOf(deployer));
 
-console.log("WHY3")
 // NFT9 IFO
 await IFOFactory.create(
 	fnftCollection9Address, // fNft
