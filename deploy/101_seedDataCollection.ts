@@ -373,7 +373,12 @@ import {ethers} from 'hardhat';
  };
 
  async function getFNFTCollectionAddress(transactionReceipt: any) {
-
+  const abi = ["event VaultCreated(uint256 indexed vaultId, address curator, address vaultAddress, address assetAddress, string name, string symbol);"];
+  const _interface = new ethers.utils.Interface(abi);
+  const topic = "7ba4daf113dab617fb46d5bf414c46f4e17aa717bce3c75bacbad12baef0233c";
+  const receipt = await transactionReceipt.wait();
+  const event = receipt.logs.find((log: any) => log.topics[0] === topic);
+  return _interface.parseLog(event).args[2];
  }
 
  async function getIFOAddress(transactionReceipt: any) {
