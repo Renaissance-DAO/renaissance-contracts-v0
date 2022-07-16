@@ -182,26 +182,26 @@ const nft12Collection = await ethers.getContractAt(
 );
 await nft12Collection.setBaseURI("https://gateway.pinata.cloud/ipfs/Qmdp8uFBrWq3CJmNHviq4QLZzbw5BchA7Xi99xTxuxoQjY/");
 
-// mint
-for (let i = 1; i <= 5; i++) {
+for (let i = 1; i <= 5; i ++) {
+	// approve factory
 	await nft1Collection.mint(deployer, i);
-	await nft2Collection.mint(deployer, i);
-	await nft3Collection.mint(deployer, i);
-	await nft4Collection.mint(deployer, i);
-	await nft5Collection.mint(deployer, i);
-	await nft6Collection.mint(deployer, i);
-	await nft7Collection.mint(deployer, i);
-	await nft8Collection.mint(deployer, i);
-	await nft9Collection.mint(deployer, i);
-	await nft10Collection.mint(deployer, i);
-	await nft11Collection.mint(deployer, i);
-	await nft12Collection.mint(deployer, i);
+  await nft2Collection.mint(deployer, i);
+  await nft3Collection.mint(deployer, i);
+  await nft4Collection.mint(deployer, i);
+  await nft5Collection.mint(deployer, i);
+  await nft6Collection.mint(deployer, i);
+  await nft7Collection.mint(deployer, i);
+  await nft8Collection.mint(deployer, i);
+  await nft9Collection.mint(deployer, i);
+  await nft10Collection.mint(deployer, i);
+  await nft11Collection.mint(deployer, i);
+  await nft12Collection.mint(deployer, i);
 }
 
-//mint 50 for 7
-for (let i = 5; i <= 50; i++) {
+for (let i = 6; i <= 50; i ++) {
 	await nft7Collection.mint(deployer, i);
 }
+
 
 // fractionalize nfts
 const FNFTCollectionFactory = await getContract(hre, "FNFTCollectionFactory");
@@ -314,9 +314,6 @@ const fnftCollection12Receipt = await FNFTCollectionFactory.createVault(
 	"FNFTC12" // symbol
 );
 
-// IFOFactory
-const IFOFactory = await getContract(hre, 'IFOFactory');
-
 const fnftCollection1Address = await getFNFTCollectionAddress(fnftCollection1Receipt);
 const fnftCollection2Address = await getFNFTCollectionAddress(fnftCollection2Receipt);
 const fnftCollection3Address = await getFNFTCollectionAddress(fnftCollection3Receipt);
@@ -359,28 +356,33 @@ for (let i = 1; i <= 5; i ++) {
 	await nft12Collection.approve(fnftCollection12.address, i);
 }
 
-for (let i = 5; i <= 50; i ++) {
+for (let i = 6; i <= 50; i ++) {
 	await nft7Collection.approve(fnftCollection7.address, i);
 }
 
-await fnftCollection1.mintTo([1,2,3,4,5], deployer);
-await fnftCollection2.mintTo([1], deployer);
+await fnftCollection1.mintTo([1,2,3,4,5], [], deployer);
+await fnftCollection2.mintTo([1], [], deployer);
 //skip fnft 3 mint
-await fnftCollection4.mintTo([1,2,3,4,5], deployer); // bid 3
-await fnftCollection5.mintTo([1,2,3,4,5], deployer); // bid 2 and redeem 2
-await fnftCollection6.mintTo([1,2,3,4,5], deployer); // no tokenURI
+await fnftCollection4.mintTo([1,2,3,4,5], [], deployer); // bid 3
+await fnftCollection5.mintTo([1,2,3,4,5], [], deployer); // bid 2 and redeem 2
+await fnftCollection6.mintTo([1,2,3,4,5], [], deployer); // no tokenURI
 await fnftCollection7.mintTo(
 	[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50],
+	[],
 	deployer
 ); // mint 50
-await fnftCollection8.mintTo([1,2,3], deployer); // 3 mint to deployer
-await fnftCollection8.mintTo([4,5], deployer); // 2 mint to chosen (change address)
-await fnftCollection9.mintTo([1,2,3,4,5], deployer); // ifo not started
-await fnftCollection10.mintTo([1,2,3,4,5], deployer); // ifo ongoing
-await fnftCollection11.mintTo([1,2,3,4,5], deployer); // ifo paused
-await fnftCollection12.mintTo([1,2,3,4,5], deployer); // ifo finished
+await fnftCollection8.mintTo([1,2,3], [], deployer); // 3 mint to deployer
+await fnftCollection8.mintTo([4,5], [], deployer); // 2 mint to chosen (change address)
+await fnftCollection9.mintTo([1,2,3,4,5], [], deployer); // ifo not started
+await fnftCollection10.mintTo([1,2,3,4,5], [], deployer); // ifo ongoing
+await fnftCollection11.mintTo([1,2,3,4,5], [], deployer); // ifo paused
+await fnftCollection12.mintTo([1,2,3,4,5], [], deployer); // ifo finished
 
 // IFO
+
+// IFOFactory
+const IFOFactory = await getContract(hre, 'IFOFactory');
+
 await fnftCollection9.approve(IFOFactory.address, await fnftCollection9.balanceOf(deployer));
 await fnftCollection10.approve(IFOFactory.address, await fnftCollection10.balanceOf(deployer));
 await fnftCollection11.approve(IFOFactory.address, await fnftCollection11.balanceOf(deployer));
@@ -479,7 +481,7 @@ await IFO12.end();
 async function getFNFTCollectionAddress(transactionReceipt: any) {
 const abi = ["event VaultCreated(uint256 indexed vaultId, address curator, address vaultAddress, address assetAddress, string name, string symbol);"];
 const _interface = new ethers.utils.Interface(abi);
-const topic = "7ba4daf113dab617fb46d5bf414c46f4e17aa717bce3c75bacbad12baef0233c";
+const topic = "0x7ba4daf113dab617fb46d5bf414c46f4e17aa717bce3c75bacbad12baef0233c";
 const receipt = await transactionReceipt.wait();
 const event = receipt.logs.find((log: any) => log.topics[0] === topic);
 return _interface.parseLog(event).args[2];
@@ -498,11 +500,6 @@ async function mineNBlocks(n:number) {
 	for (let index = 0; index < n; index++) {
 		await ethers.provider.send('evm_mine', []);
 	}
-}
-
-async function increaseBlockTimestamp(seconds:number) {
-	await ethers.provider.send("evm_increaseTime", [seconds]);
-	await ethers.provider.send("evm_mine", []);
 }
 
 async function getContract(hre:HardhatRuntimeEnvironment, key:string) {

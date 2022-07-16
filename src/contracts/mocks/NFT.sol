@@ -196,6 +196,10 @@ contract NoURIMockNFT is Ownable {
         _safeTransfer(from, to, tokenId, _data);
     }
 
+    function mint(address _to, uint256 _id) external {
+        _mint(_to, _id);
+    }
+
     /**
      * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
      * are aware of the ERC721 protocol to prevent tokens from being forever locked.
