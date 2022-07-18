@@ -1,7 +1,7 @@
-import {HardhatRuntimeEnvironment} from 'hardhat/types';
-import {DeployFunction} from 'hardhat-deploy/types';
-import {BigNumber, parseFixed} from '@ethersproject/bignumber';
-import {ethers} from 'hardhat';
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
+import { BigNumber, parseFixed } from "@ethersproject/bignumber";
+import { ethers } from "hardhat";
 
 /**
  *
@@ -83,20 +83,19 @@ import {ethers} from 'hardhat';
 //  0x7401aaeF871046583Ef3C97FCaCD4749dEB88448
 //  ipfs://QmV97nkwJuyv6axWRE54HWvWFYzq2XUaUa63RqM1mQpSTT/?2
 
-
 const PERCENTAGE_SCALE = 10000; // for converting percentages to fixed point
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const {getNamedAccounts, ethers} = hre;
-  const {deploy} = hre.deployments;
-  const {deployer} = await getNamedAccounts();
+  const { getNamedAccounts, ethers } = hre;
+  const { deploy } = hre.deployments;
+  const { deployer } = await getNamedAccounts();
 
   // NFT1
-  const nft1CollectionInfo = await deploy('StandardMockNFT', {
+  const nft1CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT1 Name", "NFT1"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft1Collection = await ethers.getContractAt(
     nft1CollectionInfo.abi,
@@ -105,11 +104,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft1Collection.setBaseURI("ipfs://QmVTuf8VqSjJ6ma6ykTJiuVtvAY9CHJiJnXsgSMf5rBRtZ/");
 
   // NFT2
-  const nft2CollectionInfo = await deploy('StandardMockNFT', {
+  const nft2CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT2 Name", "NFT2"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft2Collection = await ethers.getContractAt(
     nft2CollectionInfo.abi,
@@ -118,24 +117,26 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft2Collection.setBaseURI("https://www.timelinetransit.xyz/metadata/");
 
   // NFT3
-  const nft3CollectionInfo = await deploy('StandardMockNFT', {
+  const nft3CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT3 Name", "NFT3"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft3Collection = await ethers.getContractAt(
     nft3CollectionInfo.abi,
     nft3CollectionInfo.address
   );
-  await nft3Collection.setBaseURI("ipfs://bafybeie7oivvuqcmhjzvxbiezyz7sr4fxkcrutewmaoathfsvcwksqiyuy/");
+  await nft3Collection.setBaseURI(
+    "ipfs://bafybeie7oivvuqcmhjzvxbiezyz7sr4fxkcrutewmaoathfsvcwksqiyuy/"
+  );
 
   // NFT4
-  const nft4CollectionInfo = await deploy('StandardMockNFT', {
+  const nft4CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT4 Name", "NFT4"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft4Collection = await ethers.getContractAt(
     nft4CollectionInfo.abi,
@@ -144,37 +145,41 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft4Collection.setBaseURI("https://cdn.childrenofukiyo.com/metadata/");
 
   // NFT5
-  const nft5CollectionInfo = await deploy('StandardMockNFT', {
+  const nft5CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT5 Name", "NFT5"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft5Collection = await ethers.getContractAt(
     nft5CollectionInfo.abi,
     nft5CollectionInfo.address
   );
-  await nft5Collection.setBaseURI("https://chainbase-api.matrixlabs.org/metadata/api/v1/apps/ethereum:mainnet:bKPQsA_Ohnj1Ug0MvX39i/contracts/0x249aeAa7fA06a63Ea5389b72217476db881294df_ethereum/metadata/tokens/");
+  await nft5Collection.setBaseURI(
+    "https://chainbase-api.matrixlabs.org/metadata/api/v1/apps/ethereum:mainnet:bKPQsA_Ohnj1Ug0MvX39i/contracts/0x249aeAa7fA06a63Ea5389b72217476db881294df_ethereum/metadata/tokens/"
+  );
 
   // NFT6
-  const nft6CollectionInfo = await deploy('StandardMockNFT', {
+  const nft6CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT6 Name", "NFT6"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft6Collection = await ethers.getContractAt(
     nft6CollectionInfo.abi,
     nft6CollectionInfo.address
   );
-  await nft6Collection.setBaseURI("https://us-central1-catblox-1f4e5.cloudfunctions.net/api/tbt-prereveal/1");
+  await nft6Collection.setBaseURI(
+    "https://us-central1-catblox-1f4e5.cloudfunctions.net/api/tbt-prereveal/1"
+  );
 
   // NFT7
-  const nft7CollectionInfo = await deploy('StandardMockNFT', {
+  const nft7CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT7 Name", "NFT7"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft7Collection = await ethers.getContractAt(
     nft7CollectionInfo.abi,
@@ -183,11 +188,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft7Collection.setBaseURI("https://loremnft.com/nft/token/");
 
   // NFT8
-  const nft8CollectionInfo = await deploy('StandardMockNFT', {
+  const nft8CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT8 Name", "NFT8"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft8Collection = await ethers.getContractAt(
     nft8CollectionInfo.abi,
@@ -196,11 +201,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft8Collection.setBaseURI("ipfs://QmQNdnPx1K6a8jd5XJEJvGorx73U9pmpqU2YAhEfQZDwcw/");
 
   // NFT9
-  const nft9CollectionInfo = await deploy('StandardMockNFT', {
+  const nft9CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT9 Name", "NFT9"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft9Collection = await ethers.getContractAt(
     nft9CollectionInfo.abi,
@@ -209,24 +214,26 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft9Collection.setBaseURI("ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/");
 
   // NFT10
-  const nft10CollectionInfo = await deploy('StandardMockNFT', {
+  const nft10CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT10 Name", "NFT10"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft10Collection = await ethers.getContractAt(
     nft10CollectionInfo.abi,
     nft10CollectionInfo.address
   );
-  await nft10Collection.setBaseURI("https://metadata.buildship.xyz/api/dummy-metadata-for/bafybeifuibkffbtlu4ttpb6c3tiyhezxoarxop5nuhr3ht3mdb7puumr2q/");
+  await nft10Collection.setBaseURI(
+    "https://metadata.buildship.xyz/api/dummy-metadata-for/bafybeifuibkffbtlu4ttpb6c3tiyhezxoarxop5nuhr3ht3mdb7puumr2q/"
+  );
 
   // NFT11
-  const nft11CollectionInfo = await deploy('StandardMockNFT', {
+  const nft11CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT11 Name", "NFT11"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft11Collection = await ethers.getContractAt(
     nft11CollectionInfo.abi,
@@ -235,24 +242,26 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft11Collection.setBaseURI("http://api.cyberfist.xyz/badges/metadata/");
 
   // NFT12
-  const nft12CollectionInfo = await deploy('StandardMockNFT', {
+  const nft12CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT12 Name", "NFT12"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft12Collection = await ethers.getContractAt(
     nft12CollectionInfo.abi,
     nft12CollectionInfo.address
   );
-  await nft12Collection.setBaseURI("https://gateway.pinata.cloud/ipfs/Qmdp8uFBrWq3CJmNHviq4QLZzbw5BchA7Xi99xTxuxoQjY/");
+  await nft12Collection.setBaseURI(
+    "https://gateway.pinata.cloud/ipfs/Qmdp8uFBrWq3CJmNHviq4QLZzbw5BchA7Xi99xTxuxoQjY/"
+  );
 
   // NFT13
-  const nft13CollectionInfo = await deploy('StandardMockNFT', {
+  const nft13CollectionInfo = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT13 Name", "NFT13"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft13Collection = await ethers.getContractAt(
     nft13CollectionInfo.abi,
@@ -261,11 +270,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await nft13Collection.setBaseURI("https://static-resource.dirtyflies.xyz/metadata/");
 
   // NFT14
-  const nft14CollectionInfo = await deploy('NoURIMockNFT', {
+  const nft14CollectionInfo = await deploy("NoURIMockNFT", {
     from: deployer,
     args: ["NFT14 Name", "NFT14"],
     log: true,
-    autoMine: true
+    autoMine: true,
   });
   const nft14Collection = await ethers.getContractAt(
     nft14CollectionInfo.abi,
@@ -311,158 +320,158 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await FNFTSingleFactory.createVault(
     nft1CollectionInfo.address, // collection address
     1, // tokenId
-    parseFixed('10000', 18), // supply
-    parseFixed('100', 18), // initialPrice === 1e18
-    .01 * PERCENTAGE_SCALE, // fee (1%)
+    parseFixed("10000", 18), // supply
+    parseFixed("100", 18), // initialPrice === 1e18
+    0.01 * PERCENTAGE_SCALE, // fee (1%)
     "FNFT Single 1", // name
-    "FNFTSingle1",  // symbol
+    "FNFTSingle1" // symbol
   );
 
   // NFT2
   const fnftSingle2Receipt = await FNFTSingleFactory.createVault(
     nft2CollectionInfo.address, // collection address
     2, // tokenId
-    parseFixed('1000', 18), // supply
-    parseFixed('10000', 18), // initialPrice === 2e18
-    .1 * PERCENTAGE_SCALE, // fee (10%)
+    parseFixed("1000", 18), // supply
+    parseFixed("10000", 18), // initialPrice === 2e18
+    0.1 * PERCENTAGE_SCALE, // fee (10%)
     "FNFT Single 2", // name
-    "FNFTSingle2",  // symbol
+    "FNFTSingle2" // symbol
   );
 
   // NFT3
   const fnftSingle3Receipt = await FNFTSingleFactory.createVault(
     nft3CollectionInfo.address, // collection address
     3, // tokenId
-    parseFixed('100', 18), // supply
-    parseFixed('1000', 18), // initialPrice == 2e18
-    .03 * PERCENTAGE_SCALE, // fee (3%)
+    parseFixed("100", 18), // supply
+    parseFixed("1000", 18), // initialPrice == 2e18
+    0.03 * PERCENTAGE_SCALE, // fee (3%)
     "FNFT Single 3", // name
-    "FNFTSingle3",  // symbol
+    "FNFTSingle3" // symbol
   );
 
   // NFT4
   const fnftSingle4Receipt = await FNFTSingleFactory.createVault(
     nft4CollectionInfo.address, // collection address
     4, // tokenId
-    parseFixed('100000', 18), // supply
-    parseFixed('1000000', 18), // initialPrice
-    .005 * PERCENTAGE_SCALE, // fee (.5%)
+    parseFixed("100000", 18), // supply
+    parseFixed("1000000", 18), // initialPrice
+    0.005 * PERCENTAGE_SCALE, // fee (.5%)
     "FNFT Single 4", // name
-    "FNFTSingle4",  // symbol
+    "FNFTSingle4" // symbol
   );
 
   // NFT5
   const fnftSingle5Receipt = await FNFTSingleFactory.createVault(
     nft5CollectionInfo.address, // collection address
     5, // tokenId
-    parseFixed('100', 18), // supply
-    parseFixed('100', 18), // initialPrice
-    .01 * PERCENTAGE_SCALE, // fee (1%)
+    parseFixed("100", 18), // supply
+    parseFixed("100", 18), // initialPrice
+    0.01 * PERCENTAGE_SCALE, // fee (1%)
     "FNFT Single 5", // name
-    "FNFTSingle5",  // symbol
+    "FNFTSingle5" // symbol
   );
 
   // NFT6
   const fnftSingle6Receipt = await FNFTSingleFactory.createVault(
     nft6CollectionInfo.address, // collection address
     6, // tokenId
-    parseFixed('10', 18), // supply // low supply to make quorum easy
-    parseFixed('10', 18),
-    .1 * PERCENTAGE_SCALE, // fee (10%)
+    parseFixed("10", 18), // supply // low supply to make quorum easy
+    parseFixed("10", 18),
+    0.1 * PERCENTAGE_SCALE, // fee (10%)
     "FNFT Single 6", // name
-    "FNFTSingle6",  // symbol
+    "FNFTSingle6" // symbol
   );
 
   // NFT7
   const fnftSingle7Receipt = await FNFTSingleFactory.createVault(
     nft7CollectionInfo.address, // collection address
     7, // tokenId
-    parseFixed('10', 18), // supply  // low supply to make quorum easy
-    parseFixed('10', 18), // initialPrice == 1e18
-    .03 * PERCENTAGE_SCALE, // fee (3%)
+    parseFixed("10", 18), // supply  // low supply to make quorum easy
+    parseFixed("10", 18), // initialPrice == 1e18
+    0.03 * PERCENTAGE_SCALE, // fee (3%)
     "FNFT Single 7", // name
-    "FNFTSingle7",  // symbol
+    "FNFTSingle7" // symbol
   );
 
   // NFT8
   const fnftSingle8Receipt = await FNFTSingleFactory.createVault(
     nft8CollectionInfo.address, // collection address
     8, // tokenId
-    parseFixed('10', 18), // supply
-    parseFixed('10', 18), // initialPrice
-    .005 * PERCENTAGE_SCALE, // fee (.5%)
+    parseFixed("10", 18), // supply
+    parseFixed("10", 18), // initialPrice
+    0.005 * PERCENTAGE_SCALE, // fee (.5%)
     "FNFT Single 8", // name
-    "FNFTSingle8",  // symbol
+    "FNFTSingle8" // symbol
   );
 
   // NFT9
   const fnftSingle9Receipt = await FNFTSingleFactory.createVault(
     nft9CollectionInfo.address, // collection address
     9, // tokenId
-    parseFixed('10', 18), // supply
-    parseFixed('10', 18), // initialPrice
-    .005 * PERCENTAGE_SCALE, // fee (.5%)
+    parseFixed("10", 18), // supply
+    parseFixed("10", 18), // initialPrice
+    0.005 * PERCENTAGE_SCALE, // fee (.5%)
     "FNFT Single 9", // name
-    "FNFTSingle9",  // symbol
+    "FNFTSingle9" // symbol
   );
 
   // NFT10
   const fnftSingle10Receipt = await FNFTSingleFactory.createVault(
     nft10CollectionInfo.address, // collection address
     10, // tokenId
-    parseFixed('10', 18), // supply
-    parseFixed('10', 18), // initialPrice
-    .005 * PERCENTAGE_SCALE, // fee (.5%)
+    parseFixed("10", 18), // supply
+    parseFixed("10", 18), // initialPrice
+    0.005 * PERCENTAGE_SCALE, // fee (.5%)
     "FNFT Single 10", // name
-    "FNFTSingle10",  // symbol
+    "FNFTSingle10" // symbol
   );
 
   // NFT11
   const fnftSingle11Receipt = await FNFTSingleFactory.createVault(
     nft11CollectionInfo.address, // collection address
     11, // tokenId
-    parseFixed('10', 18), // supply
-    parseFixed('10', 18), // initialPrice
-    .005 * PERCENTAGE_SCALE, // fee (.5%)
+    parseFixed("10", 18), // supply
+    parseFixed("10", 18), // initialPrice
+    0.005 * PERCENTAGE_SCALE, // fee (.5%)
     "FNFT Single 11", // name
-    "FNFTSingle11",  // symbol
+    "FNFTSingle11" // symbol
   );
 
   // NFT12
   const fnftSingle12Receipt = await FNFTSingleFactory.createVault(
     nft12CollectionInfo.address, // collection address
     12, // tokenId
-    parseFixed('10', 18), // supply
-    parseFixed('10', 18), // initialPrice
-    .005 * PERCENTAGE_SCALE, // fee (.5%)
+    parseFixed("10", 18), // supply
+    parseFixed("10", 18), // initialPrice
+    0.005 * PERCENTAGE_SCALE, // fee (.5%)
     "FNFT Single 12", // name
-    "FNFTSingle12",  // symbol
+    "FNFTSingle12" // symbol
   );
 
   // NFT13
   const fnftSingle13Receipt = await FNFTSingleFactory.createVault(
     nft13CollectionInfo.address, // collection address
     13, // tokenId
-    parseFixed('100', 18), // supply
-    parseFixed('100000', 18), // initialPrice
-    .005 * PERCENTAGE_SCALE, // fee (.5%)
+    parseFixed("100", 18), // supply
+    parseFixed("100000", 18), // initialPrice
+    0.005 * PERCENTAGE_SCALE, // fee (.5%)
     "FNFT Single 13", // name
-    "FNFTSingle13",  // symbol
+    "FNFTSingle13" // symbol
   );
 
   // NFT14
   const fnftSingle14Receipt = await FNFTSingleFactory.createVault(
     nft14CollectionInfo.address, // collection address
     14, // tokenId
-    parseFixed('100', 18), // supply
-    parseFixed('100000', 18), // initialPrice
-    .005 * PERCENTAGE_SCALE, // fee (.5%)
+    parseFixed("100", 18), // supply
+    parseFixed("100000", 18), // initialPrice
+    0.005 * PERCENTAGE_SCALE, // fee (.5%)
     "FNFT Single 14", // name
-    "FNFTSingle14",  // symbol
+    "FNFTSingle14" // symbol
   );
 
   // IFOFactory
-  const IFOFactory = await getContract(hre, 'IFOFactory');
+  const IFOFactory = await getContract(hre, "IFOFactory");
 
   const fnftSingle2Address = await getFNFTSingleAddress(fnftSingle2Receipt);
   const fnftSingle3Address = await getFNFTSingleAddress(fnftSingle3Receipt);
@@ -478,19 +487,19 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle13Address = await getFNFTSingleAddress(fnftSingle13Receipt);
   const fnftSingle14Address = await getFNFTSingleAddress(fnftSingle14Receipt);
 
-  const fnftSingle2 = await ethers.getContractAt('FNFTSingle', fnftSingle2Address);
-  const fnftSingle3 = await ethers.getContractAt('FNFTSingle', fnftSingle3Address);
-  const fnftSingle4 = await ethers.getContractAt('FNFTSingle', fnftSingle4Address);
-  const fnftSingle5 = await ethers.getContractAt('FNFTSingle', fnftSingle5Address);
-  const fnftSingle6 = await ethers.getContractAt('FNFTSingle', fnftSingle6Address);
-  const fnftSingle7 = await ethers.getContractAt('FNFTSingle', fnftSingle7Address);
-  const fnftSingle8 = await ethers.getContractAt('FNFTSingle', fnftSingle8Address);
-  const fnftSingle9 = await ethers.getContractAt('FNFTSingle', fnftSingle9Address);
-  const fnftSingle10 = await ethers.getContractAt('FNFTSingle', fnftSingle10Address);
-  const fnftSingle11 = await ethers.getContractAt('FNFTSingle', fnftSingle11Address);
-  const fnftSingle12 = await ethers.getContractAt('FNFTSingle', fnftSingle12Address);
-  const fnftSingle13 = await ethers.getContractAt('FNFTSingle', fnftSingle13Address);
-  const fnftSingle14 = await ethers.getContractAt('FNFTSingle', fnftSingle14Address);
+  const fnftSingle2 = await ethers.getContractAt("FNFTSingle", fnftSingle2Address);
+  const fnftSingle3 = await ethers.getContractAt("FNFTSingle", fnftSingle3Address);
+  const fnftSingle4 = await ethers.getContractAt("FNFTSingle", fnftSingle4Address);
+  const fnftSingle5 = await ethers.getContractAt("FNFTSingle", fnftSingle5Address);
+  const fnftSingle6 = await ethers.getContractAt("FNFTSingle", fnftSingle6Address);
+  const fnftSingle7 = await ethers.getContractAt("FNFTSingle", fnftSingle7Address);
+  const fnftSingle8 = await ethers.getContractAt("FNFTSingle", fnftSingle8Address);
+  const fnftSingle9 = await ethers.getContractAt("FNFTSingle", fnftSingle9Address);
+  const fnftSingle10 = await ethers.getContractAt("FNFTSingle", fnftSingle10Address);
+  const fnftSingle11 = await ethers.getContractAt("FNFTSingle", fnftSingle11Address);
+  const fnftSingle12 = await ethers.getContractAt("FNFTSingle", fnftSingle12Address);
+  const fnftSingle13 = await ethers.getContractAt("FNFTSingle", fnftSingle13Address);
+  const fnftSingle14 = await ethers.getContractAt("FNFTSingle", fnftSingle14Address);
 
   await fnftSingle2.approve(IFOFactory.address, await fnftSingle2.balanceOf(deployer));
   await fnftSingle3.approve(IFOFactory.address, await fnftSingle3.balanceOf(deployer));
@@ -510,7 +519,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await IFOFactory.create(
     fnftSingle2Address, // fNft
     await fnftSingle2.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle2.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
@@ -520,7 +529,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO3Receipt = await IFOFactory.create(
     fnftSingle3Address, // fNft
     await fnftSingle3.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle3.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
@@ -530,7 +539,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO4Receipt = await IFOFactory.create(
     fnftSingle4Address, // fNft
     await fnftSingle4.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle4.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
@@ -540,7 +549,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO5Receipt = await IFOFactory.create(
     fnftSingle5Address, // fNft
     await fnftSingle5.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle5.totalSupply(), // cap
     86400, // short duration for purposes of testing
     false // allow whitelisting
@@ -550,7 +559,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO6Receipt = await IFOFactory.create(
     fnftSingle6Address, // fNft
     await fnftSingle6.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle6.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
@@ -560,7 +569,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO7Receipt = await IFOFactory.create(
     fnftSingle7Address, // fNft
     await fnftSingle7.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle7.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
@@ -570,7 +579,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO8Receipt = await IFOFactory.create(
     fnftSingle8Address, // fNft
     await fnftSingle8.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle8.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
@@ -580,7 +589,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO9Receipt = await IFOFactory.create(
     fnftSingle9Address, // fNft
     await fnftSingle9.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle9.totalSupply(), // cap
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
@@ -590,7 +599,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO10Receipt = await IFOFactory.create(
     fnftSingle10Address, // fNft
     await fnftSingle10.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle10.totalSupply(), // cap
     1_000_000, //duration
     false // allow whitelisting
@@ -602,7 +611,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO12Receipt = await IFOFactory.create(
     fnftSingle12Address, // fNft
     await fnftSingle12.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle12.totalSupply(), // cap
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
@@ -612,7 +621,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO13Receipt = await IFOFactory.create(
     fnftSingle13Address, // fNft
     await fnftSingle13.totalSupply(), // amount for sale
-    parseFixed('1', 18), // price
+    parseFixed("1", 18), // price
     await fnftSingle13.totalSupply(), // cap
     1_000_000, // short duration for purposes of testing
     false // allow whitelisting
@@ -630,18 +639,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const IFO13Address = await getIFOAddress(IFO13Receipt);
 
   // start IFOs
-  const IFO3 = await ethers.getContractAt('IFO', IFO3Address);
-  const IFO4 = await ethers.getContractAt('IFO', IFO4Address);
-  const IFO5 = await ethers.getContractAt('IFO', IFO5Address);
-  const IFO6 = await ethers.getContractAt('IFO', IFO6Address);
-  const IFO7 = await ethers.getContractAt('IFO', IFO7Address);
-  const IFO8 = await ethers.getContractAt('IFO', IFO8Address);
-  const IFO9 = await ethers.getContractAt('IFO', IFO9Address);
-  const IFO10 = await ethers.getContractAt('IFO', IFO10Address);
+  const IFO3 = await ethers.getContractAt("IFO", IFO3Address);
+  const IFO4 = await ethers.getContractAt("IFO", IFO4Address);
+  const IFO5 = await ethers.getContractAt("IFO", IFO5Address);
+  const IFO6 = await ethers.getContractAt("IFO", IFO6Address);
+  const IFO7 = await ethers.getContractAt("IFO", IFO7Address);
+  const IFO8 = await ethers.getContractAt("IFO", IFO8Address);
+  const IFO9 = await ethers.getContractAt("IFO", IFO9Address);
+  const IFO10 = await ethers.getContractAt("IFO", IFO10Address);
   // NFT11 no IFO
-  const IFO12 = await ethers.getContractAt('IFO', IFO12Address);
-  const IFO13 = await ethers.getContractAt('IFO', IFO13Address);
-
+  const IFO12 = await ethers.getContractAt("IFO", IFO12Address);
+  const IFO13 = await ethers.getContractAt("IFO", IFO13Address);
 
   await IFO3.start();
   await IFO4.start();
@@ -661,50 +669,51 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT3 scenario is done after this loop.
   const ifo3Price = await IFO3.price();
-  signers.forEach(async signer => { // 20 addresses
-    await IFO3.connect(signer).deposit({value: ifo3Price});
+  signers.forEach(async (signer) => {
+    // 20 addresses
+    await IFO3.connect(signer).deposit({ value: ifo3Price });
   });
 
   // NFT4
   const ifo4Price = await IFO4.price();
   signers.slice(9, 19).forEach(async (signer) => {
-    await IFO4.connect(signer).deposit({value: ifo4Price});
+    await IFO4.connect(signer).deposit({ value: ifo4Price });
   });
 
   // NFT5
   const ifo5Price = await IFO5.price();
   signers.slice(0, 9).forEach(async (signer) => {
-    await IFO5.connect(signer).deposit({value: ifo5Price});
+    await IFO5.connect(signer).deposit({ value: ifo5Price });
   });
 
   // NFT6
   const ifo6Price = await IFO6.price();
   signers.slice(0, 9).forEach(async (signer) => {
-    await IFO6.connect(signer).deposit({value: ifo6Price});
+    await IFO6.connect(signer).deposit({ value: ifo6Price });
   });
 
   // NFT7
   const ifo7Price = await IFO7.price();
   signers.slice(9, 19).forEach(async (signer) => {
-    await IFO7.connect(signer).deposit({value: ifo7Price});
+    await IFO7.connect(signer).deposit({ value: ifo7Price });
   });
 
   // NFT8
   const ifo8Price = await IFO8.price();
   signers.slice(0, 9).forEach(async (signer) => {
-    await IFO8.connect(signer).deposit({value: ifo8Price});
+    await IFO8.connect(signer).deposit({ value: ifo8Price });
   });
 
   // NFT9
   const ifo9Price = await IFO9.price();
   signers.slice(9, 19).forEach(async (signer) => {
-    await IFO9.connect(signer).deposit({value: ifo9Price});
+    await IFO9.connect(signer).deposit({ value: ifo9Price });
   });
 
   // NFT10
   const ifo10Price = await IFO10.price();
   signers.slice(9, 19).forEach(async (signer) => {
-    await IFO10.connect(signer).deposit({value: ifo10Price});
+    await IFO10.connect(signer).deposit({ value: ifo10Price });
   });
 
   // NFT11 => no IFO
@@ -712,23 +721,22 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // NFT12
   const ifo12Price = await IFO12.price();
   signers.slice(0, 9).forEach(async (signer) => {
-    await IFO12.connect(signer).deposit({value: ifo12Price});
+    await IFO12.connect(signer).deposit({ value: ifo12Price });
   });
 
   // NFT13
   const ifo13Price = await IFO13.price();
   signers.slice(9, 19).forEach(async (signer) => {
-    await IFO13.connect(signer).deposit({value: ifo13Price});
+    await IFO13.connect(signer).deposit({ value: ifo13Price });
   });
 
   // mine here to allow sales time to finish and also to allow IFO5 duration to complete
-  console.log('starting to mine... (this takes a few minutes)');
+  console.log("starting to mine... (this takes a few minutes)");
   await mineNBlocks(86400); // this takes a few min unfortunately
-  console.log('completed mining');
+  console.log("completed mining");
 
   // Pause IFO, NFT4 sceanrio ends here
   await IFO4.togglePause();
-
 
   // END IFO, NFT5 sceanrio ends here
   await IFO5.end();
@@ -738,36 +746,34 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fNft6Price: BigNumber = await fnftSingle6.callStatic.getAuctionPrice();
 
   // cast one vote. wont reach quorum.
-  await fnftSingle6.connect(signers[0]).updateUserPrice(fNft6Price.add(parseFixed('1', 18)));
-
+  await fnftSingle6.connect(signers[0]).updateUserPrice(fNft6Price.add(parseFixed("1", 18)));
 
   // Scenario 7 ends here. fNft has votes and reaches quorum.
   const fNft7Price: BigNumber = await fnftSingle7.callStatic.getAuctionPrice();
   signers.slice(9, 19).forEach(async (signer) => {
-    await fnftSingle7.connect(signer).updateUserPrice(fNft7Price.add(parseFixed('1', 18)));
+    await fnftSingle7.connect(signer).updateUserPrice(fNft7Price.add(parseFixed("1", 18)));
   }); // all holders vote in favor of new price. vote reaches quorum.
 
   // get global min percentage increase for auction bids
-  const fnftSingleFactory = await getContract(hre, 'FNFTSingleFactory');
-  const minIncrease = await fnftSingleFactory.minBidIncrease()
-  const minPercentIncrease = (minIncrease / PERCENTAGE_SCALE) + 1
-  console.log(`minPercentIncrease === ${minPercentIncrease}`)
-
+  const fnftSingleFactory = await getContract(hre, "FNFTSingleFactory");
+  const minIncrease = await fnftSingleFactory.minBidIncrease();
+  const minPercentIncrease = minIncrease / PERCENTAGE_SCALE + 1;
+  console.log(`minPercentIncrease === ${minPercentIncrease}`);
 
   // SCENARIO 8
   // start auction on NFT8. deployer will win.
   let auctionPrice8 = await fnftSingle8.getAuctionPrice();
-  await fnftSingle8.start({value: auctionPrice8});
+  await fnftSingle8.start({ value: auctionPrice8 });
 
   // signer 1 bids
   let livePrice = await fnftSingle8.livePrice();
   auctionPrice8 = livePrice * minPercentIncrease;
-  await fnftSingle8.connect(signers[1]).bid({value: BigNumber.from(auctionPrice8.toString())})
+  await fnftSingle8.connect(signers[1]).bid({ value: BigNumber.from(auctionPrice8.toString()) });
 
   // deployer out bids signer 1
   livePrice = await fnftSingle8.livePrice();
   auctionPrice8 = livePrice * minPercentIncrease;
-  await fnftSingle8.bid({value: BigNumber.from(auctionPrice8.toString())})
+  await fnftSingle8.bid({ value: BigNumber.from(auctionPrice8.toString()) });
 
   // move time forward so we can end the auction
   const auctionLength = (await fnftSingle8.auctionLength()).toNumber();
@@ -776,38 +782,34 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // SCENARIO 8 FINISHED
   await fnftSingle8.end();
 
-
   // SCENARIO 9 FINISHED, auction that has started
   let auctionPrice9 = await fnftSingle9.getAuctionPrice();
-  await fnftSingle9.start({value: auctionPrice9});
-
+  await fnftSingle9.start({ value: auctionPrice9 });
 
   // SCENARIO 10 FINISHED, ongoing bid war
   let auctionPrice10 = await fnftSingle10.getAuctionPrice();
-  await fnftSingle10.start({value: auctionPrice10});
-  signers.slice(9,14).forEach(async (signer) => {
+  await fnftSingle10.start({ value: auctionPrice10 });
+  signers.slice(9, 14).forEach(async (signer) => {
     auctionPrice10 *= minPercentIncrease;
-    await fnftSingle10.connect(signer).bid({value: BigNumber.from(auctionPrice10.toString())})
+    await fnftSingle10.connect(signer).bid({ value: BigNumber.from(auctionPrice10.toString()) });
   });
 
-
   // SCENARIO 11, curator redeems
-  console.log(`fnft11.totalSupply() === ${await fnftSingle11.totalSupply()}`)
-  console.log(`fnft11.balanceOf(deployer) === ${await fnftSingle11.balanceOf(deployer)}`)
-  await fnftSingle11.redeem()
-
+  console.log(`fnft11.totalSupply() === ${await fnftSingle11.totalSupply()}`);
+  console.log(`fnft11.balanceOf(deployer) === ${await fnftSingle11.balanceOf(deployer)}`);
+  await fnftSingle11.redeem();
 
   // SCENARIO 12, half of the buyers cashout
   let auctionPrice12 = await fnftSingle12.getAuctionPrice();
-  await fnftSingle12.start({value: auctionPrice12});
-  signers.slice(0,3).forEach(async (signer) => {
+  await fnftSingle12.start({ value: auctionPrice12 });
+  signers.slice(0, 3).forEach(async (signer) => {
     auctionPrice12 *= minPercentIncrease;
-    await fnftSingle12.connect(signer).bid({value: BigNumber.from(auctionPrice12.toString())});
+    await fnftSingle12.connect(signer).bid({ value: BigNumber.from(auctionPrice12.toString()) });
   });
   // deployer out bids and wins nft
   livePrice = await fnftSingle12.livePrice();
   auctionPrice12 *= minPercentIncrease;
-  await fnftSingle12.bid({value: BigNumber.from(auctionPrice12.toString())});
+  await fnftSingle12.bid({ value: BigNumber.from(auctionPrice12.toString()) });
 
   // move time forward so we can end the auction
   const auctionLength12 = (await fnftSingle12.auctionLength()).toNumber();
@@ -815,7 +817,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await fnftSingle12.end();
 
   // SCENARIO 12 ends here, everyone cashes out
-  signers.slice(0,9).forEach(async (signer) => {
+  signers.slice(0, 9).forEach(async (signer) => {
     await fnftSingle12.connect(signer).cash();
   });
 
@@ -823,7 +825,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 async function getFNFTSingleAddress(transactionReceipt: any) {
-  const abi = ["event VaultCreated(uint256 indexed vaultId, address curator, address vaultAddress, address assetAddress, uint256 tokenId, uint256 supply, uint256 listPrice, string name, string symbol);"];
+  const abi = [
+    "event VaultCreated(uint256 indexed vaultId, address curator, address vaultAddress, address assetAddress, uint256 tokenId, uint256 supply, uint256 listPrice, string name, string symbol);",
+  ];
   const _interface = new ethers.utils.Interface(abi);
   const topic = "0x220044f302cf7fe455029c3b05386aa5d8020bdeb160379089b81b53ed95693d";
   const receipt = await transactionReceipt.wait();
@@ -832,7 +836,9 @@ async function getFNFTSingleAddress(transactionReceipt: any) {
 }
 
 async function getIFOAddress(transactionReceipt: any) {
-  const abi = ["event IFOCreated(address indexed ifo, address indexed fnft, uint256 amountForSale, uint256 price, uint256 cap, uint256 duration, bool allowWhitelisting);"];
+  const abi = [
+    "event IFOCreated(address indexed ifo, address indexed fnft, uint256 amountForSale, uint256 price, uint256 cap, uint256 duration, bool allowWhitelisting);",
+  ];
   const _interface = new ethers.utils.Interface(abi);
   const topic = "0x1bb72b46985d7a3abad1d345d856e8576c1d4842b34a5373f3533a4c72970352";
   const receipt = await transactionReceipt.wait();
@@ -840,35 +846,33 @@ async function getIFOAddress(transactionReceipt: any) {
   return _interface.parseLog(event).args[0];
 }
 
-async function mineNBlocks(n:number) {
+async function mineNBlocks(n: number) {
   for (let index = 0; index < n; index++) {
-    await ethers.provider.send('evm_mine', []);
+    await ethers.provider.send("evm_mine", []);
   }
 }
 
-async function increaseBlockTimestamp(seconds:number) {
+async function increaseBlockTimestamp(seconds: number) {
   await ethers.provider.send("evm_increaseTime", [seconds]);
   await ethers.provider.send("evm_mine", []);
 }
 
-async function getContract(hre:HardhatRuntimeEnvironment, key:string) {
-  const {deployments, getNamedAccounts} = hre;
-  const {get} = deployments;
-  const {deployer} = await getNamedAccounts();
+async function getContract(hre: HardhatRuntimeEnvironment, key: string) {
+  const { deployments, getNamedAccounts } = hre;
+  const { get } = deployments;
+  const { deployer } = await getNamedAccounts();
   const signer = await ethers.getSigner(deployer);
 
-  const proxyControllerInfo = await get('MultiProxyController');
+  const proxyControllerInfo = await get("MultiProxyController");
   const proxyController = new ethers.Contract(
     proxyControllerInfo.address,
     proxyControllerInfo.abi,
     signer
   );
   const abi = (await get(key)).abi; // get abi of impl contract
-  const address = (await proxyController.proxyMap(
-    ethers.utils.formatBytes32String(key)
-  ))[1];
+  const address = (await proxyController.proxyMap(ethers.utils.formatBytes32String(key)))[1];
   return new ethers.Contract(address, abi, signer);
 }
 
-func.tags = ['seed'];
+func.tags = ["seed"];
 export default func;
