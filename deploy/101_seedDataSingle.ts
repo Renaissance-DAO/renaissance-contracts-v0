@@ -471,7 +471,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // IFOFactory
-  const IFOFactory = await getContract(hre, "IFOFactory");
+  const ifoFactory = await getContract(hre, "IFOFactory");
 
   const fnftSingle2Address = await getFNFTSingleAddress(fnftSingle2Receipt);
   const fnftSingle3Address = await getFNFTSingleAddress(fnftSingle3Receipt);
@@ -501,22 +501,22 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftSingle13 = await ethers.getContractAt("FNFTSingle", fnftSingle13Address);
   const fnftSingle14 = await ethers.getContractAt("FNFTSingle", fnftSingle14Address);
 
-  await fnftSingle2.approve(IFOFactory.address, await fnftSingle2.balanceOf(deployer));
-  await fnftSingle3.approve(IFOFactory.address, await fnftSingle3.balanceOf(deployer));
-  await fnftSingle4.approve(IFOFactory.address, await fnftSingle4.balanceOf(deployer));
-  await fnftSingle5.approve(IFOFactory.address, await fnftSingle5.balanceOf(deployer));
-  await fnftSingle6.approve(IFOFactory.address, await fnftSingle6.balanceOf(deployer));
-  await fnftSingle7.approve(IFOFactory.address, await fnftSingle7.balanceOf(deployer));
-  await fnftSingle8.approve(IFOFactory.address, await fnftSingle8.balanceOf(deployer));
-  await fnftSingle9.approve(IFOFactory.address, await fnftSingle9.balanceOf(deployer));
-  await fnftSingle10.approve(IFOFactory.address, await fnftSingle10.balanceOf(deployer));
-  await fnftSingle11.approve(IFOFactory.address, await fnftSingle11.balanceOf(deployer));
-  await fnftSingle12.approve(IFOFactory.address, await fnftSingle12.balanceOf(deployer));
-  await fnftSingle13.approve(IFOFactory.address, await fnftSingle13.balanceOf(deployer));
-  await fnftSingle14.approve(IFOFactory.address, await fnftSingle14.balanceOf(deployer));
+  await fnftSingle2.approve(ifoFactory.address, await fnftSingle2.balanceOf(deployer));
+  await fnftSingle3.approve(ifoFactory.address, await fnftSingle3.balanceOf(deployer));
+  await fnftSingle4.approve(ifoFactory.address, await fnftSingle4.balanceOf(deployer));
+  await fnftSingle5.approve(ifoFactory.address, await fnftSingle5.balanceOf(deployer));
+  await fnftSingle6.approve(ifoFactory.address, await fnftSingle6.balanceOf(deployer));
+  await fnftSingle7.approve(ifoFactory.address, await fnftSingle7.balanceOf(deployer));
+  await fnftSingle8.approve(ifoFactory.address, await fnftSingle8.balanceOf(deployer));
+  await fnftSingle9.approve(ifoFactory.address, await fnftSingle9.balanceOf(deployer));
+  await fnftSingle10.approve(ifoFactory.address, await fnftSingle10.balanceOf(deployer));
+  await fnftSingle11.approve(ifoFactory.address, await fnftSingle11.balanceOf(deployer));
+  await fnftSingle12.approve(ifoFactory.address, await fnftSingle12.balanceOf(deployer));
+  await fnftSingle13.approve(ifoFactory.address, await fnftSingle13.balanceOf(deployer));
+  await fnftSingle14.approve(ifoFactory.address, await fnftSingle14.balanceOf(deployer));
 
   // NFT2 IFO - NFT2 scenario is done here.
-  await IFOFactory.create(
+  await ifoFactory.create(
     fnftSingle2Address, // fNft
     await fnftSingle2.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -526,7 +526,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT3 IFO
-  const IFO3Receipt = await IFOFactory.create(
+  const IFO3Receipt = await ifoFactory.create(
     fnftSingle3Address, // fNft
     await fnftSingle3.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -536,7 +536,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT4 IFO
-  const IFO4Receipt = await IFOFactory.create(
+  const IFO4Receipt = await ifoFactory.create(
     fnftSingle4Address, // fNft
     await fnftSingle4.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -546,7 +546,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT5 IFO
-  const IFO5Receipt = await IFOFactory.create(
+  const IFO5Receipt = await ifoFactory.create(
     fnftSingle5Address, // fNft
     await fnftSingle5.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -556,7 +556,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT6 IFO
-  const IFO6Receipt = await IFOFactory.create(
+  const IFO6Receipt = await ifoFactory.create(
     fnftSingle6Address, // fNft
     await fnftSingle6.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -566,7 +566,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT7 IFO
-  const IFO7Receipt = await IFOFactory.create(
+  const IFO7Receipt = await ifoFactory.create(
     fnftSingle7Address, // fNft
     await fnftSingle7.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -576,7 +576,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT8 IFO
-  const IFO8Receipt = await IFOFactory.create(
+  const IFO8Receipt = await ifoFactory.create(
     fnftSingle8Address, // fNft
     await fnftSingle8.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -586,7 +586,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT9 IFO
-  const IFO9Receipt = await IFOFactory.create(
+  const IFO9Receipt = await ifoFactory.create(
     fnftSingle9Address, // fNft
     await fnftSingle9.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -596,7 +596,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT10 IFO
-  const IFO10Receipt = await IFOFactory.create(
+  const IFO10Receipt = await ifoFactory.create(
     fnftSingle10Address, // fNft
     await fnftSingle10.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -608,7 +608,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // NFT11 No IFO
 
   // NFT12 IFO
-  const IFO12Receipt = await IFOFactory.create(
+  const IFO12Receipt = await ifoFactory.create(
     fnftSingle12Address, // fNft
     await fnftSingle12.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
@@ -618,7 +618,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   );
 
   // NFT13 IFO
-  const IFO13Receipt = await IFOFactory.create(
+  const IFO13Receipt = await ifoFactory.create(
     fnftSingle13Address, // fNft
     await fnftSingle13.totalSupply(), // amount for sale
     parseFixed("1", 18), // price
