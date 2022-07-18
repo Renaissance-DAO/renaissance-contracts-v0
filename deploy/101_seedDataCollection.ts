@@ -34,10 +34,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft1 = await ethers.getContractAt(
-    nft1Info.abi,
-    nft1Info.address
-  );
+  const nft1 = await ethers.getContractAt(nft1Info.abi, nft1Info.address);
   await nft1.setBaseURI("ipfs://QmVTuf8VqSjJ6ma6ykTJiuVtvAY9CHJiJnXsgSMf5rBRtZ/");
 
   // NFT2
@@ -47,10 +44,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft2 = await ethers.getContractAt(
-    nft2Info.abi,
-    nft2Info.address
-  );
+  const nft2 = await ethers.getContractAt(nft2Info.abi, nft2Info.address);
   await nft2.setBaseURI("https://www.timelinetransit.xyz/metadata/");
 
   // NFT3
@@ -60,13 +54,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft3 = await ethers.getContractAt(
-    nft3Info.abi,
-    nft3Info.address
-  );
-  await nft3.setBaseURI(
-    "ipfs://bafybeie7oivvuqcmhjzvxbiezyz7sr4fxkcrutewmaoathfsvcwksqiyuy/"
-  );
+  const nft3 = await ethers.getContractAt(nft3Info.abi, nft3Info.address);
+  await nft3.setBaseURI("ipfs://bafybeie7oivvuqcmhjzvxbiezyz7sr4fxkcrutewmaoathfsvcwksqiyuy/");
 
   // NFT4
   const nft4Info = await deploy("StandardMockNFT", {
@@ -75,10 +64,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft4 = await ethers.getContractAt(
-    nft4Info.abi,
-    nft4Info.address
-  );
+  const nft4 = await ethers.getContractAt(nft4Info.abi, nft4Info.address);
   await nft4.setBaseURI("https://cdn.childrenofukiyo.com/metadata/");
 
   // NFT5
@@ -88,10 +74,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft5 = await ethers.getContractAt(
-    nft5Info.abi,
-    nft5Info.address
-  );
+  const nft5 = await ethers.getContractAt(nft5Info.abi, nft5Info.address);
   await nft5.setBaseURI(
     "https://chainbase-api.matrixlabs.org/metadata/api/v1/apps/ethereum:mainnet:bKPQsA_Ohnj1Ug0MvX39i/contracts/0x249aeAa7fA06a63Ea5389b72217476db881294df_ethereum/metadata/tokens/"
   );
@@ -103,10 +86,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft6 = await ethers.getContractAt(
-    nft6Info.abi,
-    nft6Info.address
-  );
+  const nft6 = await ethers.getContractAt(nft6Info.abi, nft6Info.address);
 
   // NFT7
   const nft7Info = await deploy("StandardMockNFT", {
@@ -115,10 +95,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft7 = await ethers.getContractAt(
-    nft7Info.abi,
-    nft7Info.address
-  );
+  const nft7 = await ethers.getContractAt(nft7Info.abi, nft7Info.address);
   await nft7.setBaseURI("https://loremnft.com/nft/token/");
 
   // NFT8
@@ -128,10 +105,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft8 = await ethers.getContractAt(
-    nft8Info.abi,
-    nft8Info.address
-  );
+  const nft8 = await ethers.getContractAt(nft8Info.abi, nft8Info.address);
   await nft8.setBaseURI("ipfs://QmQNdnPx1K6a8jd5XJEJvGorx73U9pmpqU2YAhEfQZDwcw/");
 
   // NFT9
@@ -141,10 +115,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft9 = await ethers.getContractAt(
-    nft9Info.abi,
-    nft9Info.address
-  );
+  const nft9 = await ethers.getContractAt(nft9Info.abi, nft9Info.address);
   await nft9.setBaseURI("ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/");
 
   // NFT10
@@ -154,10 +125,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft10 = await ethers.getContractAt(
-    nft10Info.abi,
-    nft10Info.address
-  );
+  const nft10 = await ethers.getContractAt(nft10Info.abi, nft10Info.address);
   await nft10.setBaseURI(
     "https://metadata.buildship.xyz/api/dummy-metadata-for/bafybeifuibkffbtlu4ttpb6c3tiyhezxoarxop5nuhr3ht3mdb7puumr2q/"
   );
@@ -169,10 +137,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft11 = await ethers.getContractAt(
-    nft11Info.abi,
-    nft11Info.address
-  );
+  const nft11 = await ethers.getContractAt(nft11Info.abi, nft11Info.address);
   await nft11.setBaseURI("http://api.cyberfist.xyz/badges/metadata/");
 
   // NFT12
@@ -182,10 +147,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     autoMine: true,
   });
-  const nft12 = await ethers.getContractAt(
-    nft12Info.abi,
-    nft12Info.address
-  );
+  const nft12 = await ethers.getContractAt(nft12Info.abi, nft12Info.address);
   await nft12.setBaseURI(
     "https://gateway.pinata.cloud/ipfs/Qmdp8uFBrWq3CJmNHviq4QLZzbw5BchA7Xi99xTxuxoQjY/"
   );
@@ -347,25 +309,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const fnftCollection11 = await ethers.getContractAt("FNFTCollection", fnftCollection11Address);
   const fnftCollection12 = await ethers.getContractAt("FNFTCollection", fnftCollection12Address);
 
-  for (let i = 1; i <= 5; i++) {
-    // approve factory
-    await nft1.approve(fnftCollection1.address, i);
-    await nft2.approve(fnftCollection2.address, i);
-    await nft3.approve(fnftCollection3.address, i);
-    await nft4.approve(fnftCollection4.address, i);
-    await nft5.approve(fnftCollection5.address, i);
-    await nft6.approve(fnftCollection6.address, i);
-    await nft7.approve(fnftCollection7.address, i);
-    await nft8.approve(fnftCollection8.address, i);
-    await nft9.approve(fnftCollection9.address, i);
-    await nft10.approve(fnftCollection10.address, i);
-    await nft11.approve(fnftCollection11.address, i);
-    await nft12.approve(fnftCollection12.address, i);
-  }
-
-  for (let i = 6; i <= 50; i++) {
-    await nft7.approve(fnftCollection7.address, i);
-  }
+  await nft1.setApprovalForAll(fnftCollection1.address, true);
+  await nft2.setApprovalForAll(fnftCollection2.address, true);
+  await nft3.setApprovalForAll(fnftCollection3.address, true);
+  await nft4.setApprovalForAll(fnftCollection4.address, true);
+  await nft5.setApprovalForAll(fnftCollection5.address, true);
+  await nft6.setApprovalForAll(fnftCollection6.address, true);
+  await nft7.setApprovalForAll(fnftCollection7.address, true);
+  await nft8.setApprovalForAll(fnftCollection8.address, true);
+  await nft9.setApprovalForAll(fnftCollection9.address, true);
+  await nft10.setApprovalForAll(fnftCollection10.address, true);
+  await nft11.setApprovalForAll(fnftCollection11.address, true);
+  await nft12.setApprovalForAll(fnftCollection12.address, true);
 
   await fnftCollection1.mintTo([1, 2, 3, 4, 5], [], deployer);
   await fnftCollection2.mintTo([1], [], deployer);
