@@ -91,234 +91,234 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts();
 
   // NFT1
-  const nft1CollectionInfo = await deploy("StandardMockNFT", {
+  const nft1Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT1 Name", "NFT1"],
     log: true,
     autoMine: true,
   });
-  const nft1Collection = await ethers.getContractAt(
-    nft1CollectionInfo.abi,
-    nft1CollectionInfo.address
+  const nft1 = await ethers.getContractAt(
+    nft1Info.abi,
+    nft1Info.address
   );
-  await nft1Collection.setBaseURI("ipfs://QmVTuf8VqSjJ6ma6ykTJiuVtvAY9CHJiJnXsgSMf5rBRtZ/");
+  await nft1.setBaseURI("ipfs://QmVTuf8VqSjJ6ma6ykTJiuVtvAY9CHJiJnXsgSMf5rBRtZ/");
 
   // NFT2
-  const nft2CollectionInfo = await deploy("StandardMockNFT", {
+  const nft2Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT2 Name", "NFT2"],
     log: true,
     autoMine: true,
   });
-  const nft2Collection = await ethers.getContractAt(
-    nft2CollectionInfo.abi,
-    nft2CollectionInfo.address
+  const nft2 = await ethers.getContractAt(
+    nft2Info.abi,
+    nft2Info.address
   );
-  await nft2Collection.setBaseURI("https://www.timelinetransit.xyz/metadata/");
+  await nft2.setBaseURI("https://www.timelinetransit.xyz/metadata/");
 
   // NFT3
-  const nft3CollectionInfo = await deploy("StandardMockNFT", {
+  const nft3Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT3 Name", "NFT3"],
     log: true,
     autoMine: true,
   });
-  const nft3Collection = await ethers.getContractAt(
-    nft3CollectionInfo.abi,
-    nft3CollectionInfo.address
+  const nft3 = await ethers.getContractAt(
+    nft3Info.abi,
+    nft3Info.address
   );
-  await nft3Collection.setBaseURI(
+  await nft3.setBaseURI(
     "ipfs://bafybeie7oivvuqcmhjzvxbiezyz7sr4fxkcrutewmaoathfsvcwksqiyuy/"
   );
 
   // NFT4
-  const nft4CollectionInfo = await deploy("StandardMockNFT", {
+  const nft4Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT4 Name", "NFT4"],
     log: true,
     autoMine: true,
   });
-  const nft4Collection = await ethers.getContractAt(
-    nft4CollectionInfo.abi,
-    nft4CollectionInfo.address
+  const nft4 = await ethers.getContractAt(
+    nft4Info.abi,
+    nft4Info.address
   );
-  await nft4Collection.setBaseURI("https://cdn.childrenofukiyo.com/metadata/");
+  await nft4.setBaseURI("https://cdn.childrenofukiyo.com/metadata/");
 
   // NFT5
-  const nft5CollectionInfo = await deploy("StandardMockNFT", {
+  const nft5Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT5 Name", "NFT5"],
     log: true,
     autoMine: true,
   });
-  const nft5Collection = await ethers.getContractAt(
-    nft5CollectionInfo.abi,
-    nft5CollectionInfo.address
+  const nft5 = await ethers.getContractAt(
+    nft5Info.abi,
+    nft5Info.address
   );
-  await nft5Collection.setBaseURI(
+  await nft5.setBaseURI(
     "https://chainbase-api.matrixlabs.org/metadata/api/v1/apps/ethereum:mainnet:bKPQsA_Ohnj1Ug0MvX39i/contracts/0x249aeAa7fA06a63Ea5389b72217476db881294df_ethereum/metadata/tokens/"
   );
 
   // NFT6
-  const nft6CollectionInfo = await deploy("StandardMockNFT", {
+  const nft6Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT6 Name", "NFT6"],
     log: true,
     autoMine: true,
   });
-  const nft6Collection = await ethers.getContractAt(
-    nft6CollectionInfo.abi,
-    nft6CollectionInfo.address
+  const nft6 = await ethers.getContractAt(
+    nft6Info.abi,
+    nft6Info.address
   );
-  await nft6Collection.setBaseURI(
+  await nft6.setBaseURI(
     "https://us-central1-catblox-1f4e5.cloudfunctions.net/api/tbt-prereveal/1"
   );
 
   // NFT7
-  const nft7CollectionInfo = await deploy("StandardMockNFT", {
+  const nft7Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT7 Name", "NFT7"],
     log: true,
     autoMine: true,
   });
-  const nft7Collection = await ethers.getContractAt(
-    nft7CollectionInfo.abi,
-    nft7CollectionInfo.address
+  const nft7 = await ethers.getContractAt(
+    nft7Info.abi,
+    nft7Info.address
   );
-  await nft7Collection.setBaseURI("https://loremnft.com/nft/token/");
+  await nft7.setBaseURI("https://loremnft.com/nft/token/");
 
   // NFT8
-  const nft8CollectionInfo = await deploy("StandardMockNFT", {
+  const nft8Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT8 Name", "NFT8"],
     log: true,
     autoMine: true,
   });
-  const nft8Collection = await ethers.getContractAt(
-    nft8CollectionInfo.abi,
-    nft8CollectionInfo.address
+  const nft8 = await ethers.getContractAt(
+    nft8Info.abi,
+    nft8Info.address
   );
-  await nft8Collection.setBaseURI("ipfs://QmQNdnPx1K6a8jd5XJEJvGorx73U9pmpqU2YAhEfQZDwcw/");
+  await nft8.setBaseURI("ipfs://QmQNdnPx1K6a8jd5XJEJvGorx73U9pmpqU2YAhEfQZDwcw/");
 
   // NFT9
-  const nft9CollectionInfo = await deploy("StandardMockNFT", {
+  const nft9Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT9 Name", "NFT9"],
     log: true,
     autoMine: true,
   });
-  const nft9Collection = await ethers.getContractAt(
-    nft9CollectionInfo.abi,
-    nft9CollectionInfo.address
+  const nft9 = await ethers.getContractAt(
+    nft9Info.abi,
+    nft9Info.address
   );
-  await nft9Collection.setBaseURI("ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/");
+  await nft9.setBaseURI("ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/");
 
   // NFT10
-  const nft10CollectionInfo = await deploy("StandardMockNFT", {
+  const nft10Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT10 Name", "NFT10"],
     log: true,
     autoMine: true,
   });
-  const nft10Collection = await ethers.getContractAt(
-    nft10CollectionInfo.abi,
-    nft10CollectionInfo.address
+  const nft10 = await ethers.getContractAt(
+    nft10Info.abi,
+    nft10Info.address
   );
-  await nft10Collection.setBaseURI(
+  await nft10.setBaseURI(
     "https://metadata.buildship.xyz/api/dummy-metadata-for/bafybeifuibkffbtlu4ttpb6c3tiyhezxoarxop5nuhr3ht3mdb7puumr2q/"
   );
 
   // NFT11
-  const nft11CollectionInfo = await deploy("StandardMockNFT", {
+  const nft11Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT11 Name", "NFT11"],
     log: true,
     autoMine: true,
   });
-  const nft11Collection = await ethers.getContractAt(
-    nft11CollectionInfo.abi,
-    nft11CollectionInfo.address
+  const nft11 = await ethers.getContractAt(
+    nft11Info.abi,
+    nft11Info.address
   );
-  await nft11Collection.setBaseURI("http://api.cyberfist.xyz/badges/metadata/");
+  await nft11.setBaseURI("http://api.cyberfist.xyz/badges/metadata/");
 
   // NFT12
-  const nft12CollectionInfo = await deploy("StandardMockNFT", {
+  const nft12Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT12 Name", "NFT12"],
     log: true,
     autoMine: true,
   });
-  const nft12Collection = await ethers.getContractAt(
-    nft12CollectionInfo.abi,
-    nft12CollectionInfo.address
+  const nft12 = await ethers.getContractAt(
+    nft12Info.abi,
+    nft12Info.address
   );
-  await nft12Collection.setBaseURI(
+  await nft12.setBaseURI(
     "https://gateway.pinata.cloud/ipfs/Qmdp8uFBrWq3CJmNHviq4QLZzbw5BchA7Xi99xTxuxoQjY/"
   );
 
   // NFT13
-  const nft13CollectionInfo = await deploy("StandardMockNFT", {
+  const nft13Info = await deploy("StandardMockNFT", {
     from: deployer,
     args: ["NFT13 Name", "NFT13"],
     log: true,
     autoMine: true,
   });
-  const nft13Collection = await ethers.getContractAt(
-    nft13CollectionInfo.abi,
-    nft13CollectionInfo.address
+  const nft13 = await ethers.getContractAt(
+    nft13Info.abi,
+    nft13Info.address
   );
-  await nft13Collection.setBaseURI("https://static-resource.dirtyflies.xyz/metadata/");
+  await nft13.setBaseURI("https://static-resource.dirtyflies.xyz/metadata/");
 
   // NFT14
-  const nft14CollectionInfo = await deploy("NoURIMockNFT", {
+  const nft14Info = await deploy("NoURIMockNFT", {
     from: deployer,
     args: ["NFT14 Name", "NFT14"],
     log: true,
     autoMine: true,
   });
-  const nft14Collection = await ethers.getContractAt(
-    nft14CollectionInfo.abi,
-    nft14CollectionInfo.address
+  const nft14 = await ethers.getContractAt(
+    nft14Info.abi,
+    nft14Info.address
   );
 
   // mint
-  await nft1Collection.mint(deployer, 1);
-  await nft2Collection.mint(deployer, 2);
-  await nft3Collection.mint(deployer, 3);
-  await nft4Collection.mint(deployer, 4);
-  await nft5Collection.mint(deployer, 5);
-  await nft6Collection.mint(deployer, 6);
-  await nft7Collection.mint(deployer, 7);
-  await nft8Collection.mint(deployer, 8);
-  await nft9Collection.mint(deployer, 9);
-  await nft10Collection.mint(deployer, 10);
-  await nft11Collection.mint(deployer, 11);
-  await nft12Collection.mint(deployer, 12);
-  await nft13Collection.mint(deployer, 13);
-  await nft14Collection.mint(deployer, 14);
+  await nft1.mint(deployer, 1);
+  await nft2.mint(deployer, 2);
+  await nft3.mint(deployer, 3);
+  await nft4.mint(deployer, 4);
+  await nft5.mint(deployer, 5);
+  await nft6.mint(deployer, 6);
+  await nft7.mint(deployer, 7);
+  await nft8.mint(deployer, 8);
+  await nft9.mint(deployer, 9);
+  await nft10.mint(deployer, 10);
+  await nft11.mint(deployer, 11);
+  await nft12.mint(deployer, 12);
+  await nft13.mint(deployer, 13);
+  await nft14.mint(deployer, 14);
 
   // fractionalize nfts
   const FNFTSingleFactory = await getContract(hre, "FNFTSingleFactory");
 
   // approve factory
-  await nft1Collection.approve(FNFTSingleFactory.address, 1);
-  await nft2Collection.approve(FNFTSingleFactory.address, 2);
-  await nft3Collection.approve(FNFTSingleFactory.address, 3);
-  await nft4Collection.approve(FNFTSingleFactory.address, 4);
-  await nft5Collection.approve(FNFTSingleFactory.address, 5);
-  await nft6Collection.approve(FNFTSingleFactory.address, 6);
-  await nft7Collection.approve(FNFTSingleFactory.address, 7);
-  await nft8Collection.approve(FNFTSingleFactory.address, 8);
-  await nft9Collection.approve(FNFTSingleFactory.address, 9);
-  await nft10Collection.approve(FNFTSingleFactory.address, 10);
-  await nft11Collection.approve(FNFTSingleFactory.address, 11);
-  await nft12Collection.approve(FNFTSingleFactory.address, 12);
-  await nft13Collection.approve(FNFTSingleFactory.address, 13);
-  await nft14Collection.approve(FNFTSingleFactory.address, 14);
+  await nft1.approve(FNFTSingleFactory.address, 1);
+  await nft2.approve(FNFTSingleFactory.address, 2);
+  await nft3.approve(FNFTSingleFactory.address, 3);
+  await nft4.approve(FNFTSingleFactory.address, 4);
+  await nft5.approve(FNFTSingleFactory.address, 5);
+  await nft6.approve(FNFTSingleFactory.address, 6);
+  await nft7.approve(FNFTSingleFactory.address, 7);
+  await nft8.approve(FNFTSingleFactory.address, 8);
+  await nft9.approve(FNFTSingleFactory.address, 9);
+  await nft10.approve(FNFTSingleFactory.address, 10);
+  await nft11.approve(FNFTSingleFactory.address, 11);
+  await nft12.approve(FNFTSingleFactory.address, 12);
+  await nft13.approve(FNFTSingleFactory.address, 13);
+  await nft14.approve(FNFTSingleFactory.address, 14);
 
   // NFT1 - scenario is done here
   await FNFTSingleFactory.createVault(
-    nft1CollectionInfo.address, // collection address
+    nft1Info.address, // collection address
     1, // tokenId
     parseFixed("10000", 18), // supply
     parseFixed("100", 18), // initialPrice === 1e18
@@ -329,7 +329,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT2
   const fnftSingle2Receipt = await FNFTSingleFactory.createVault(
-    nft2CollectionInfo.address, // collection address
+    nft2Info.address, // collection address
     2, // tokenId
     parseFixed("1000", 18), // supply
     parseFixed("10000", 18), // initialPrice === 2e18
@@ -340,7 +340,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT3
   const fnftSingle3Receipt = await FNFTSingleFactory.createVault(
-    nft3CollectionInfo.address, // collection address
+    nft3Info.address, // collection address
     3, // tokenId
     parseFixed("100", 18), // supply
     parseFixed("1000", 18), // initialPrice == 2e18
@@ -351,7 +351,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT4
   const fnftSingle4Receipt = await FNFTSingleFactory.createVault(
-    nft4CollectionInfo.address, // collection address
+    nft4Info.address, // collection address
     4, // tokenId
     parseFixed("100000", 18), // supply
     parseFixed("1000000", 18), // initialPrice
@@ -362,7 +362,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT5
   const fnftSingle5Receipt = await FNFTSingleFactory.createVault(
-    nft5CollectionInfo.address, // collection address
+    nft5Info.address, // collection address
     5, // tokenId
     parseFixed("100", 18), // supply
     parseFixed("100", 18), // initialPrice
@@ -373,7 +373,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT6
   const fnftSingle6Receipt = await FNFTSingleFactory.createVault(
-    nft6CollectionInfo.address, // collection address
+    nft6Info.address, // collection address
     6, // tokenId
     parseFixed("10", 18), // supply // low supply to make quorum easy
     parseFixed("10", 18),
@@ -384,7 +384,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT7
   const fnftSingle7Receipt = await FNFTSingleFactory.createVault(
-    nft7CollectionInfo.address, // collection address
+    nft7Info.address, // collection address
     7, // tokenId
     parseFixed("10", 18), // supply  // low supply to make quorum easy
     parseFixed("10", 18), // initialPrice == 1e18
@@ -395,7 +395,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT8
   const fnftSingle8Receipt = await FNFTSingleFactory.createVault(
-    nft8CollectionInfo.address, // collection address
+    nft8Info.address, // collection address
     8, // tokenId
     parseFixed("10", 18), // supply
     parseFixed("10", 18), // initialPrice
@@ -406,7 +406,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT9
   const fnftSingle9Receipt = await FNFTSingleFactory.createVault(
-    nft9CollectionInfo.address, // collection address
+    nft9Info.address, // collection address
     9, // tokenId
     parseFixed("10", 18), // supply
     parseFixed("10", 18), // initialPrice
@@ -417,7 +417,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT10
   const fnftSingle10Receipt = await FNFTSingleFactory.createVault(
-    nft10CollectionInfo.address, // collection address
+    nft10Info.address, // collection address
     10, // tokenId
     parseFixed("10", 18), // supply
     parseFixed("10", 18), // initialPrice
@@ -428,7 +428,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT11
   const fnftSingle11Receipt = await FNFTSingleFactory.createVault(
-    nft11CollectionInfo.address, // collection address
+    nft11Info.address, // collection address
     11, // tokenId
     parseFixed("10", 18), // supply
     parseFixed("10", 18), // initialPrice
@@ -439,7 +439,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT12
   const fnftSingle12Receipt = await FNFTSingleFactory.createVault(
-    nft12CollectionInfo.address, // collection address
+    nft12Info.address, // collection address
     12, // tokenId
     parseFixed("10", 18), // supply
     parseFixed("10", 18), // initialPrice
@@ -450,7 +450,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT13
   const fnftSingle13Receipt = await FNFTSingleFactory.createVault(
-    nft13CollectionInfo.address, // collection address
+    nft13Info.address, // collection address
     13, // tokenId
     parseFixed("100", 18), // supply
     parseFixed("100000", 18), // initialPrice
@@ -461,7 +461,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // NFT14
   const fnftSingle14Receipt = await FNFTSingleFactory.createVault(
-    nft14CollectionInfo.address, // collection address
+    nft14Info.address, // collection address
     14, // tokenId
     parseFixed("100", 18), // supply
     parseFixed("100000", 18), // initialPrice
