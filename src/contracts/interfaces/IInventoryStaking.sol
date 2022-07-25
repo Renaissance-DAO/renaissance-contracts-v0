@@ -43,8 +43,8 @@ interface IInventoryStaking {
 
     event PoolCreated(uint256 vaultId, address xToken, address baseToken);
     event FeesReceived(uint256 vaultId, uint256 amount, address xToken);
-    event Deposited(uint256 vaultId, uint256 baseTokenAmount, uint256 amount, uint256 timelockUntil, address sender);
-    event Withdrawn(uint256 vaultId, uint256 baseTokenAmount, uint256 amount, address sender);
+    event BaseTokenDeposited(uint256 vaultId, uint256 baseTokenAmount, uint256 amount, uint256 timelockUntil, address sender);
+    event XTokenWithdrawn(uint256 vaultId, uint256 baseTokenAmount, uint256 amount, address sender);
 
     event InventoryLockTimeErc20Updated(uint256 oldInventoryLockTimeErc20, uint256 newInventoryLockTimeErc20);
     event TimelockExcludeListUpdated(address oldTimelockExcludeList, address newTimelockExcludeList);

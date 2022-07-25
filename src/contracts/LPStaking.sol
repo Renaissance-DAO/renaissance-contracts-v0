@@ -74,7 +74,7 @@ contract LPStaking is ILPStaking, Pausable {
             _xToken.timelockMint(msg.sender, amount, 2);
         }
 
-        emit Deposited(vaultId, amount, address(_xToken), msg.sender);
+        emit LPDeposited(vaultId, amount, address(_xToken), msg.sender);
     }
 
     function claimMultipleRewards(uint256[] calldata vaultIds) external override {
@@ -202,7 +202,7 @@ contract LPStaking is ILPStaking, Pausable {
         _claimRewards(pool, msg.sender);
         _withdraw(pool, amount, msg.sender);
 
-        emit Withdrawn(vaultId, amount, address(xToken(pool)), msg.sender);
+        emit XTokenWithdrawn(vaultId, amount, address(xToken(pool)), msg.sender);
     }
 
     function balanceOf(uint256 vaultId, address addr) public view override returns (uint256) {
