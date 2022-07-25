@@ -49,7 +49,7 @@ contract LPStaking is ILPStaking, Pausable {
         StakingPool memory pool = StakingPool(_stakingToken, _baseToken);
         vaultStakingInfo[vaultId] = pool;
         address newXToken = _deployDividendToken(pool);
-        emit PoolCreated(vaultId, newXToken, _baseToken);
+        emit StakingPoolCreated(vaultId, newXToken, _baseToken);
     }
 
     function deposit(uint256 vaultId, uint256 amount) external override {

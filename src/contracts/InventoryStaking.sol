@@ -145,7 +145,7 @@ contract InventoryStaking is IInventoryStaking, Pausable, BeaconUpgradeable {
         }
 
         address xToken = _deployXToken(baseToken);
-        emit PoolCreated(vaultId, xToken, baseToken);
+        emit StakingPoolCreated(vaultId, xToken, baseToken);
     }
 
     function vaultXToken(uint256 vaultId) public view virtual override returns (address) {

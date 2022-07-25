@@ -41,7 +41,7 @@ interface IInventoryStaking {
 
     function vaultXToken(uint256 vaultId) external view returns (address);
 
-    event PoolCreated(uint256 vaultId, address xToken, address baseToken);
+    event StakingPoolCreated(uint256 vaultId, address xToken, address baseToken);
     event FeesReceived(uint256 vaultId, uint256 amount, address xToken);
     event BaseTokenDeposited(uint256 vaultId, uint256 baseTokenAmount, uint256 amount, uint256 timelockUntil, address sender);
     event XTokenWithdrawn(uint256 vaultId, uint256 baseTokenAmount, uint256 amount, address sender);
