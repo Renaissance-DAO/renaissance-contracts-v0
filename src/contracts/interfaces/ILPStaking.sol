@@ -16,7 +16,7 @@ interface ILPStaking {
 
     function stakingTokenProvider() external view returns (IStakingTokenProvider);
 
-    function timelockXTokenImpl() external view returns (LPStakingXTokenUpgradeable);
+    function lpStakingXToken() external view returns (LPStakingXTokenUpgradeable);
 
     function vaultStakingInfo(uint256) external view returns (address, address);
 
@@ -75,7 +75,7 @@ interface ILPStaking {
     error NothingToMigrate();
     error PoolAlreadyExists();
     error PoolDoesNotExist();
-    error TimelockXTokenImplAlreadySet();
+    error LPStakingXTokenAlreadySet();
     error TimelockTooLong();
     error VaultManagerAlreadySet();
     error VaultManagerNotSet();
