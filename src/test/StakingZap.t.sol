@@ -7,7 +7,7 @@ import {StakingZap} from "../contracts/StakingZap.sol";
 import {VaultManager} from "../contracts/VaultManager.sol";
 import {LPStaking} from "../contracts/LPStaking.sol";
 import {FeeDistributor} from "../contracts/FeeDistributor.sol";
-import {InventoryStaking} from "../contracts/InventoryStaking.sol";
+import {FNFTStaking} from "../contracts/FNFTStaking.sol";
 import {IUniswapV2Router} from "../contracts/interfaces/IUniswapV2Router.sol";
 
 contract StakingZapTest is DSTest, SetupEnvironment {
@@ -16,7 +16,7 @@ contract StakingZapTest is DSTest, SetupEnvironment {
     VaultManager private vaultManager;
     StakingZap private stakingZap;
     LPStaking private lpStaking;
-    InventoryStaking private inventoryStaking;
+    FNFTStaking private fnftStaking;
 
     function setUp() public {
         setupEnvironment(10 ether);
@@ -29,21 +29,21 @@ contract StakingZapTest is DSTest, SetupEnvironment {
             vaultManager,
             ,
             ,
-            inventoryStaking
+            fnftStaking
         ) = setupContracts();
         router = setupRouter();
         stakingZap = new StakingZap(address(vaultManager), address(router));
-        feeDistributor.setInventoryStakingAddress(address(inventoryStaking));
+        feeDistributor.setFNFTStakingAddress(address(fnftStaking));
     }
 
     function testAssignStakingContracts() public {
         assertEq(address(stakingZap.lpStaking()), address(0));
-        assertEq(address(stakingZap.inventoryStaking()), address(0));
+        assertEq(address(stakingZap.fnftStaking()), address(0));
 
         stakingZap.assignStakingContracts();
 
         assertEq(address(stakingZap.lpStaking()), address(lpStaking));
-        assertEq(address(stakingZap.inventoryStaking()), address(inventoryStaking));
+        assertEq(address(stakingZap.fnftStaking()), address(fnftStaking));
     }
 
     event LPLockTimeUpdated(uint256 oldLockTime, uint256 newLockTime);

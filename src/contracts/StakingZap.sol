@@ -14,7 +14,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 
 import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/IFNFTCollection.sol";
-import "./interfaces/IInventoryStaking.sol";
+import "./interfaces/IFNFTStaking.sol";
 import "./interfaces/ILPStaking.sol";
 import "./interfaces/IStakingZap.sol";
 import "./interfaces/IUniswapV2Router.sol";
@@ -30,7 +30,7 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
   IVaultManager public immutable override vaultManager;
   IWETH public immutable override WETH;
 
-  IInventoryStaking public override inventoryStaking;
+  IFNFTStaking public override fnftStaking;
   ILPStaking public override lpStaking;
 
   uint256 public override inventoryLockTime = 7 days;
@@ -80,8 +80,8 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
       }
     }
     IFNFTCollection vault = IFNFTCollection(vaultManager.vault(vaultId));
-    inventoryStaking.timelockMintFor(vaultId, count*BASE, msg.sender, inventoryLockTime);
-    address xToken = inventoryStaking.vaultXToken(vaultId);
+    fnftStaking.timelockMintFor(vaultId, count*BASE, msg.sender, inventoryLockTime);
+    address xToken = fnftStaking.vaultXToken(vaultId);
     uint256 oldBal = IERC20Upgradeable(vault).balanceOf(address(xToken));
     IERC1155Upgradeable nft = IERC1155Upgradeable(vault.assetAddress());
     nft.safeBatchTransferFrom(msg.sender, address(this), tokenIds, amounts, "");
@@ -94,8 +94,8 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
   function provideInventory721(uint256 vaultId, uint256[] calldata tokenIds) external override {
     uint256 count = tokenIds.length;
     IFNFTCollection vault = IFNFTCollection(vaultManager.vault(vaultId));
-    inventoryStaking.timelockMintFor(vaultId, count*BASE, msg.sender, inventoryLockTime);
-    address xToken = inventoryStaking.vaultXToken(vaultId);
+    fnftStaking.timelockMintFor(vaultId, count*BASE, msg.sender, inventoryLockTime);
+    address xToken = fnftStaking.vaultXToken(vaultId);
     uint256 oldBal = IERC20Upgradeable(address(vault)).balanceOf(xToken);
     uint256[] memory amounts = new uint256[](0);
     address assetAddress = vault.assetAddress();
@@ -233,10 +233,10 @@ contract StakingZap is IStakingZap, Ownable, ReentrancyGuard, ERC721HolderUpgrad
   }
 
   function assignStakingContracts() public override {
-    if (address(lpStaking) != address(0) && address(inventoryStaking) != address(0)) revert NotZeroAddress();
+    if (address(lpStaking) != address(0) && address(fnftStaking) != address(0)) revert NotZeroAddress();
     IFeeDistributor feeDistributor = IFeeDistributor(IVaultManager(vaultManager).feeDistributor());
     lpStaking = ILPStaking(feeDistributor.lpStaking());
-    inventoryStaking = IInventoryStaking(feeDistributor.inventoryStaking());
+    fnftStaking = IFNFTStaking(feeDistributor.fnftStaking());
   }
 
   function _addLiquidity1155WETH(

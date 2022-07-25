@@ -4,7 +4,7 @@ pragma solidity 0.8.13;
 
 import "./IWETH.sol";
 import "./ILPStaking.sol";
-import "./IInventoryStaking.sol";
+import "./IFNFTStaking.sol";
 import "./IVaultManager.sol";
 import "./IUniswapV2Router.sol";
 
@@ -17,7 +17,7 @@ interface IStakingZap {
 
     function lpStaking() external returns(ILPStaking);
 
-    function inventoryStaking() external returns(IInventoryStaking);
+    function fnftStaking() external returns(IFNFTStaking);
 
     function lpLockTime() external returns(uint256);
 

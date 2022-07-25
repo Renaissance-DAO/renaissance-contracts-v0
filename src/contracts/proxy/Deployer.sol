@@ -9,7 +9,7 @@ import "../PriceOracle.sol";
 import "../VaultManager.sol";
 import "../FNFTCollectionFactory.sol";
 import "../FeeDistributor.sol";
-import "../InventoryStaking.sol";
+import "../FNFTStaking.sol";
 import "../LPStaking.sol";
 import "../StakingTokenProvider.sol";
 import "./AdminUpgradeabilityProxy.sol";
@@ -190,22 +190,22 @@ contract Deployer is Ownable {
         emit ProxyDeployed(LP_STAKING, lpStaking, msg.sender);
     }
 
-    /// @notice the function to deploy InventoryStaking
+    /// @notice the function to deploy FNFTStaking
     /// @param _logic the implementation
-    function deployInventoryStaking(address _logic, address fnftCollectionFactory) external onlyOwner returns (address inventoryStaking) {
+    function deployFNFTStaking(address _logic, address fnftCollectionFactory) external onlyOwner returns (address fnftStaking) {
         if (address(proxyController) == address(0)) revert NoController();
 
         bytes memory _initializationCalldata = abi.encodeWithSelector(
-            InventoryStaking.__InventoryStaking_init.selector,
+            FNFTStaking.__FNFTStaking_init.selector,
             fnftCollectionFactory
         );
 
-        inventoryStaking = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));
-        IOwnable(inventoryStaking).transferOwnership(msg.sender);
+        fnftStaking = address(new AdminUpgradeabilityProxy(_logic, msg.sender, _initializationCalldata));
+        IOwnable(fnftStaking).transferOwnership(msg.sender);
 
-        proxyController.deployerUpdateProxy(INVENTORY_STAKING, inventoryStaking);
+        proxyController.deployerUpdateProxy(INVENTORY_STAKING, fnftStaking);
 
-        emit ProxyDeployed(INVENTORY_STAKING, inventoryStaking, msg.sender);
+        emit ProxyDeployed(INVENTORY_STAKING, fnftStaking, msg.sender);
     }
 
     /// @notice the function to deploy StakingTokenProvider

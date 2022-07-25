@@ -6,14 +6,14 @@ import "./IVaultManager.sol";
 import "./ITimelockExcludeList.sol";
 
 
-interface IInventoryStaking {
+interface IFNFTStaking {
     function vaultManager() external view returns (IVaultManager);
 
     function inventoryLockTimeErc20() external view returns (uint256);
 
     function timelockExcludeList() external view returns (ITimelockExcludeList);
 
-    function __InventoryStaking_init(address _vaultManager) external;
+    function __FNFTStaking_init(address _vaultManager) external;
 
     function setTimelockExcludeList(address _timelockExcludeList) external;
 

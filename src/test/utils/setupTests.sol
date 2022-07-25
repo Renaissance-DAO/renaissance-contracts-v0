@@ -13,7 +13,7 @@ import {StakingTokenProvider} from "../../contracts/StakingTokenProvider.sol";
 import {FNFTCollectionFactory} from "../../contracts/FNFTCollectionFactory.sol";
 import {FNFTCollection} from "../../contracts/FNFTCollection.sol";
 import {LPStaking} from "../../contracts/LPStaking.sol";
-import {InventoryStaking} from "../../contracts/InventoryStaking.sol";
+import {FNFTStaking} from "../../contracts/FNFTStaking.sol";
 import {FeeDistributor} from "../../contracts/FeeDistributor.sol";
 import {IUniswapV2Factory} from "../../contracts/interfaces/IUniswapV2Factory.sol";
 import {IUniswapV2Router} from "../../contracts/interfaces/IUniswapV2Router.sol";
@@ -153,10 +153,10 @@ contract SetupEnvironment {
         );
     }
 
-    function setupInventoryStaking(address vaultManager) public returns (InventoryStaking inventoryStaking) {
-        inventoryStaking = InventoryStaking(
-            deployer.deployInventoryStaking(
-                address(new InventoryStaking()),
+    function setupFNFTStaking(address vaultManager) public returns (FNFTStaking fnftStaking) {
+        fnftStaking = FNFTStaking(
+            deployer.deployFNFTStaking(
+                address(new FNFTStaking()),
                 vaultManager
             )
         );
@@ -180,7 +180,7 @@ contract SetupEnvironment {
             VaultManager vaultManager,
             FNFTSingleFactory fnftSingleFactory,
             FNFTCollectionFactory fnftCollectionFactory,
-            InventoryStaking inventoryStaking
+            FNFTStaking fnftStaking
         )
     {
         ifoFactory = setupIFOFactory();
@@ -198,6 +198,6 @@ contract SetupEnvironment {
         vaultManager.setFNFTSingleFactory(address(fnftSingleFactory));
         vaultManager.setFeeDistributor(address(feeDistributor));
 
-        inventoryStaking = setupInventoryStaking(address(vaultManager));
+        fnftStaking = setupFNFTStaking(address(vaultManager));
     }
 }

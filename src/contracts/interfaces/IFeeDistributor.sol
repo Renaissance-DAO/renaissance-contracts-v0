@@ -4,7 +4,7 @@ pragma solidity 0.8.13;
 
 import "./IVaultManager.sol";
 import "./ILPStaking.sol";
-import "./IInventoryStaking.sol";
+import "./IFNFTStaking.sol";
 
 interface IFeeDistributor {
 
@@ -20,7 +20,7 @@ interface IFeeDistributor {
 
   function lpStaking() external returns (ILPStaking);
 
-  function inventoryStaking() external returns (IInventoryStaking);
+  function fnftStaking() external returns (IFNFTStaking);
 
   function treasury() external returns (address);
 
@@ -48,13 +48,13 @@ interface IFeeDistributor {
 
   function setLPStakingAddress(address _lpStaking) external;
 
-  function setInventoryStakingAddress(address _inventoryStaking) external;
+  function setFNFTStakingAddress(address _inventoryStaking) external;
 
   function pauseFeeDistribution(bool _pause) external;
 
   event TreasuryAddressUpdated(address newTreasury);
   event LPStakingAddressUpdated(address newLPStaking);
-  event InventoryStakingAddressUpdated(address newInventoryStaking);
+  event FNFTStakingAddressUpdated(address newFNFTStaking);
   event DistributionPaused(bool paused);
   event FeeReceiverAdded(address receiver, uint256 allocPoint);
   event FeeReceiverAllocUpdated(address receiver, uint256 allocPoint);

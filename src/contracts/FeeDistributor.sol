@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-import "./interfaces/IInventoryStaking.sol";
+import "./interfaces/IFNFTStaking.sol";
 import "./interfaces/IFeeDistributor.sol";
 import "./interfaces/ILPStaking.sol";
 import "./interfaces/IVaultManager.sol";
@@ -17,7 +17,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
 
   FeeReceiver[] public override feeReceivers;
 
-  IInventoryStaking public override inventoryStaking;
+  IFNFTStaking public override fnftStaking;
   ILPStaking public override lpStaking;
   IVaultManager public override vaultManager;
   address public override treasury;
@@ -82,7 +82,7 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
   function initializeVaultReceivers(uint256 _vaultId) external override {
     if (msg.sender != address(vaultManager)) revert NotVaultManager();
     lpStaking.addPoolForVault(_vaultId);
-    IInventoryStaking _inventoryStaking = inventoryStaking;
+    IFNFTStaking _inventoryStaking = fnftStaking;
     if (address(_inventoryStaking) != address(0))
       _inventoryStaking.deployXTokenForVault(_vaultId);
   }
@@ -124,9 +124,9 @@ contract FeeDistributor is IFeeDistributor, ReentrancyGuardUpgradeable, Pausable
     emit FeeReceiverAllocUpdated(feeReceiver.receiver, _allocPoint);
   }
 
-  function setInventoryStakingAddress(address _inventoryStaking) public override onlyOwner {
-    inventoryStaking = IInventoryStaking(_inventoryStaking);
-    emit InventoryStakingAddressUpdated(_inventoryStaking);
+  function setFNFTStakingAddress(address _inventoryStaking) public override onlyOwner {
+    fnftStaking = IFNFTStaking(_inventoryStaking);
+    emit FNFTStakingAddressUpdated(_inventoryStaking);
   }
 
   function setLPStakingAddress(address _lpStaking) public override onlyOwner {

@@ -21,7 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   ))[1];
 
   // deploy implementation contract
-  const inventoryStakingImpl = await deploy('InventoryStaking', {
+  const inventoryStakingImpl = await deploy('FNFTStaking', {
     from: deployer,
     log: true,
   });
@@ -33,7 +33,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deployerInfo.abi,
     signer
   );
-  await deployerContract.deployInventoryStaking(
+  await deployerContract.deployFNFTStaking(
     inventoryStakingImpl.address,
     vaultManagerAddress
   );
