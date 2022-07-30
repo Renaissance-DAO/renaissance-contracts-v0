@@ -70,9 +70,11 @@ const config: HardhatUserConfig = {
     deployer: 0,
     WETH: {
       mainnet: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB',
+      testnet: '0xC9BdeEd33CD01541e1eeD10f90519d2C06Fe3feB'
     },
     TREASURY: {
       default: '0x511fEFE374e9Cb50baF1E3f2E076c94b3eF8B03b',
+      testnet: '0x511fEFE374e9Cb50baF1E3f2E076c94b3eF8B03b'
     },
     UNISWAP_V2_FACTORY: {
       hardhat: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',
